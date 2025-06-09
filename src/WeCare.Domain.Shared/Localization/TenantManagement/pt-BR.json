@@ -1,0 +1,15 @@
+{
+    "culture": "pt-BR",
+    "texts": {
+        "Menu:TenantManagement": "Clinicas",
+        "Tenants": "Clinicas",
+        "NewTenant": "Nova clinica",
+        "TenantName": "Nome da clinica",
+        "DisplayName:TenantName": "Nome da clinica",
+        "TenantNotFoundMessage": "Clinica n�o encontrado!",
+        "TenantNotFoundDetails": "N�o h� Clinica com o ID ou nome do Clinica: {0}",
+        "TenantNotActiveMessage": "O Clinica n�o est� ativo!",
+        "TenantNotActiveDetails": "O locat�rio n�o est� ativo com o ID ou nome do locat�rio: {0}",
+
+    }
+}

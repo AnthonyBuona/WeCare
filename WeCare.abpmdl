@@ -1,0 +1,80 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {}
+    }
+  },
+  "packages": {
+    "WeCare.Application": {
+      "path": "src/WeCare.Application/WeCare.Application.abppkg",
+      "folder": "src"
+    },
+    "WeCare.Domain.Shared": {
+      "path": "src/WeCare.Domain.Shared/WeCare.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "WeCare.Application.Contracts": {
+      "path": "src/WeCare.Application.Contracts/WeCare.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "WeCare.HttpApi": {
+      "path": "src/WeCare.HttpApi/WeCare.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "WeCare.HttpApi.Client": {
+      "path": "src/WeCare.HttpApi.Client/WeCare.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "WeCare.Web": {
+      "path": "src/WeCare.Web/WeCare.Web.abppkg",
+      "folder": "src"
+    },
+    "WeCare.EntityFrameworkCore": {
+      "path": "src/WeCare.EntityFrameworkCore/WeCare.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "WeCare.DbMigrator": {
+      "path": "src/WeCare.DbMigrator/WeCare.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "WeCare.Domain": {
+      "path": "src/WeCare.Domain/WeCare.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

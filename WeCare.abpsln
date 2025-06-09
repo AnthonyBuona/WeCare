@@ -1,0 +1,49 @@
+{
+  "id": "5262b9df-e5fa-44f2-8e95-907786b1d84b",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "9.1.0",
+    "AbpStudio": "0.9.25",
+    "TargetDotnetFramework": "net9.0"
+  },
+  "modules": {
+    "WeCare": {
+      "path": "WeCare.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+      
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "0.9.25",
+    "tiered": "false",
+    "runInstallLibs": "true",
+    "useLocalReferences": "false",
+    "multiTenancy": "true",
+    "includeTests": "false",
+    "kubernetesConfiguration": "false",
+    "uiFramework": "mvc",
+    "mobileFramework": "none",
+    "distributedEventBus": "none",
+    "databaseProvider": "ef",
+    "runDbMigrator": "true",
+    "databaseManagementSystem": "sqlserver",
+    "separateTenantSchema": "false",
+    "createInitialMigration": "true",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "mobileFramework": "none",
+    "publicWebsite": "false",
+    "socialLogin": ""
+  }
+}

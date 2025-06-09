@@ -1,0 +1,15 @@
+﻿{
+  "applications": {
+    "WeCare.Web": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44373",
+      "path": "../../../src/WeCare.Web/WeCare.Web.csproj",
+      "kubernetesService": ".*-web$",
+      "healthCheckEndpoint": "/health-status",
+      "healthUiEndpoint": "/health-ui",
+      "execution": {
+        "order": 2
+      }
+    }
+  }
+}

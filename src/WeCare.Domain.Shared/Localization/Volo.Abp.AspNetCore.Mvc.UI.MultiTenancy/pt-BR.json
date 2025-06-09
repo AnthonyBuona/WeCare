@@ -1,0 +1,13 @@
+{
+    "culture": "pt-BR",
+    "texts": {
+        "GivenTenantIsNotExist": "A Clinica dada não existe: {0}",
+        "GivenTenantIsNotAvailable": "Clinica não está disponível: {0}",
+        "Tenant": "Clinica",
+        "Switch": "trocar",
+        "Name": "Nome",
+        "SwitchTenantHint": "",
+        "SwitchTenant": "Alterar Clinica",
+        "NotSelected": "Não selecionado"
+    }
+}
