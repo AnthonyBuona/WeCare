@@ -1,0 +1,35 @@
+﻿@page
+@model WeCare.Web.Pages.Tratamentos.IndexModel
+@using Microsoft.AspNetCore.Authorization
+@using WeCare.Permissions
+@inject IAuthorizationService Authorization
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IStringLocalizer<WeCareResource> L
+@section scripts {
+    <abp-script src="/Pages/Tratamentos/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <h2>@L["Tratamentos"]</h2>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                @if (await Authorization.IsGrantedAsync(WeCarePermissions.Tratamentos.Create))
+                {
+                    // VERIFIQUE ESTE ID:
+                    <abp-button id="NewTratamentoButton"
+                                text="@L["NewTratamento"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="TratamentosTable"></abp-table>
+    </abp-card-body>
+</abp-card>

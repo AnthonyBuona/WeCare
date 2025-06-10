@@ -12,7 +12,7 @@
         <abp-modal-header title="@L["EditTratamento"].Value"></abp-modal-header>
         <abp-modal-body>
             <abp-input asp-for="Id" />
-            <abp-input asp-for="Tratamento.TipoConsulta" />
+            <abp-input asp-for="Tratamento.Tipo" />
 
             <abp-select asp-for="Tratamento.PatientId" asp-items="@Model.PatientLookup" label="@L["Patient"].Value" />
 

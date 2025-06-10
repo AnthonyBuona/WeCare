@@ -94,7 +94,7 @@ public class WeCareDbContext :
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
 
             b.HasOne(p => p.PrincipalResponsible)
-             .WithMany()
+             .WithMany(r => r.Patients) 
              .HasForeignKey(p => p.PrincipalResponsibleId)
              .OnDelete(DeleteBehavior.Restrict);
         });
@@ -106,10 +106,6 @@ public class WeCareDbContext :
             b.Property(x => x.NameResponsible).IsRequired().HasMaxLength(128);
             b.Property(x => x.EmailAddress).IsRequired();
 
-            b.HasMany(r => r.Patients)
-                .WithOne()
-                .HasForeignKey(p => p.PrincipalResponsibleId)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Therapist>(b =>

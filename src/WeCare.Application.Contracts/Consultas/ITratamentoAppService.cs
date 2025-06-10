@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 
-namespace WeCare.Consultas;
+namespace WeCare.Tratamentos;
 
 public interface ITratamentoAppService :
 

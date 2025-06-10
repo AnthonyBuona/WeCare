@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
 using WeCare.Tratamentos;
-using WeCare.Patients;
 
 namespace WeCare.Therapists
 {
@@ -19,8 +15,15 @@ namespace WeCare.Therapists
         [MaxLength(256)]
         public string Email { get; set; }
 
-        public IList<Patient> Patients { get; set; } = new List<Patient>();
+        // --- ADICIONE ESTA LINHA ---
+        // Guarda a referência ao usuário do Identity
+        public Guid UserId { get; set; }
+
         public ICollection<Tratamento> Tratamentos { get; set; }
+
+        public Therapist()
+        {
+            Tratamentos = new HashSet<Tratamento>();
+        }
     }
 }
-

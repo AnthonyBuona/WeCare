@@ -41,7 +41,7 @@ namespace WeCare.Responsibles
         [Display(Name = "Telefone do Responsável")]
         public string? PhoneNumber { get; set; }
 
-        public IList<Patient> Patients { get; set; } = new List<Patient>();
+        public ICollection<Patient> Patients { get; set; } = new List<Patient>();
 
     }
 }

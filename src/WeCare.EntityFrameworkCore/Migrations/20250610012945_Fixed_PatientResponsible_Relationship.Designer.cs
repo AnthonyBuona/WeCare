@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 using WeCare.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using WeCare.EntityFrameworkCore;
 namespace WeCare.Migrations
 {
     [DbContext(typeof(WeCareDbContext))]
-    partial class WeCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610012945_Fixed_PatientResponsible_Relationship")]
+    partial class Fixed_PatientResponsible_Relationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1953,9 +1956,14 @@ namespace WeCare.Migrations
                     b.Property<Guid>("PrincipalResponsibleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("TherapistId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PrincipalResponsibleId");
+
+                    b.HasIndex("TherapistId");
 
                     b.ToTable("AppPatients", (string)null);
                 });
@@ -2059,9 +2067,6 @@ namespace WeCare.Migrations
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -2280,6 +2285,10 @@ namespace WeCare.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WeCare.Therapists.Therapist", null)
+                        .WithMany("Patients")
+                        .HasForeignKey("TherapistId");
+
                     b.Navigation("PrincipalResponsible");
                 });
 
@@ -2354,6 +2363,8 @@ namespace WeCare.Migrations
 
             modelBuilder.Entity("WeCare.Therapists.Therapist", b =>
                 {
+                    b.Navigation("Patients");
+
                     b.Navigation("Tratamentos");
                 });
 #pragma warning restore 612, 618

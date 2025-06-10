@@ -1,10 +1,14 @@
 ﻿$(function () {
     var l = abp.localization.getResource('WeCare');
+
+    // Caminho corrigido para o modal de criação
     var createModal = new abp.ModalManager(abp.appPath + 'Tratamentos/CreateModal');
+
+    // O modal de edição também precisará ser corrigido
     var editModal = new abp.ModalManager(abp.appPath + 'Tratamentos/EditModal');
 
-    // Assumindo que o serviço gerado pelo ABP CLI seja weCare.consultas.Tratamento
-    var Tratamentoservice = weCare.consultas.Tratamento;
+    // Namespace corrigido do serviço da aplicação
+    var tratamentoService = weCare.tratamentos.tratamento;
 
     var dataTable = $('#TratamentosTable').DataTable(
         abp.libs.datatables.normalizeConfiguration({
@@ -13,7 +17,7 @@
             order: [[1, "asc"]],
             searching: false,
             scrollX: true,
-            ajax: abp.libs.datatables.createAjax(Tratamentoservice.getList),
+            ajax: abp.libs.datatables.createAjax(tratamentoService.getList),
             columnDefs: [
                 {
                     title: l('Actions'),
@@ -21,19 +25,19 @@
                         items: [
                             {
                                 text: l('Edit'),
-                                // visible: abp.auth.isGranted('WeCare.Tratamentos.Edit'),
+                                visible: abp.auth.isGranted('WeCare.Tratamentos.Edit'),
                                 action: function (data) {
                                     editModal.open({ id: data.record.id });
                                 }
                             },
                             {
                                 text: l('Delete'),
-                                // visible: abp.auth.isGranted('WeCare.Tratamentos.Delete'),
+                                visible: abp.auth.isGranted('WeCare.Tratamentos.Delete'),
                                 confirmMessage: function (data) {
-                                    return l('DeletionConfirmationMessage', data.record.tipoConsulta);
+                                    return l('TratamentoDeletionConfirmationMessage', data.record.tipo);
                                 },
                                 action: function (data) {
-                                    Tratamentoservice.delete(data.record.id)
+                                    tratamentoService.delete(data.record.id)
                                         .then(function () {
                                             abp.notify.info(l('SuccessfullyDeleted'));
                                             dataTable.ajax.reload();
@@ -43,10 +47,9 @@
                         ]
                     }
                 },
-                { title: l('TipoConsulta'), data: "tipoConsulta" },
-                // Adicionar colunas para Patient e Therapist se necessário
-                // { title: l('Patient'), data: "patient.name" }, // Exemplo
-                // { title: l('Therapist'), data: "therapist.name" }, // Exemplo
+                { title: l('Paciente'), data: "patientName" },
+                { title: l('Terapeuta'), data: "therapistName" },
+                { title: l('TipoTratamento'), data: "tipo" },
                 {
                     title: l('CreationTime'),
                     data: "creationTime",
@@ -68,6 +71,7 @@
         dataTable.ajax.reload();
     });
 
+    // CORREÇÃO PRINCIPAL: O ID do botão deve ser "NewTratamentoButton"
     $('#NewTratamentoButton').click(function (e) {
         e.preventDefault();
         createModal.open();
