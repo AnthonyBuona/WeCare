@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using WeCare.Books;
 using WeCare.Patients;
 using WeCare.Responsibles;
+using WeCare.Therapists;
+using WeCare.Tratamentos;
+using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -12,9 +14,9 @@ using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
@@ -28,26 +30,18 @@ public class WeCareDbContext :
     ITenantManagementDbContext,
     IIdentityDbContext
 {
-    /* Add DbSet properties for your Aggregate Roots / Entities here. */
-
+    /* DbSet para suas entidades */
     public DbSet<Book> Books { get; set; }
     public DbSet<Patient> Patients { get; set; }
-    public DbSet<Responsible> Respondibles { get; set; }
-
-
+    public DbSet<Responsible> Responsibles { get; set; }
+    public DbSet<Therapist> Therapists { get; set; }
+    public DbSet<Tratamento> Tratamentos { get; set; }
 
     #region Entities from the modules
 
-    /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
-     * and replaced them for this DbContext. This allows you to perform JOIN
-     * queries for the entities of these modules over the repositories easily. You
-     * typically don't need that for other modules. But, if you need, you can
-     * implement the DbContext interface of the needed module and use ReplaceDbContext
-     * attribute just like IIdentityProDbContext and ISaasDbContext.
-     *
-     * More info: Replacing a DbContext of a module ensures that the related module
-     * uses this DbContext on runtime. Otherwise, it will use its own DbContext class.
-     */
+    /* * ESTA É A SEÇÃO COMPLETA QUE CORRIGE OS ERROS.
+     * Note que todas as propriedades exigidas pelas interfaces estão aqui.
+    */
 
     // Identity
     public DbSet<IdentityUser> Users { get; set; }
@@ -68,15 +62,13 @@ public class WeCareDbContext :
     public WeCareDbContext(DbContextOptions<WeCareDbContext> options)
         : base(options)
     {
-
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        /* Include modules to your migration db context */
-
+        /* Inclua os módulos no seu contexto de migração */
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
         builder.ConfigureBackgroundJobs();
@@ -87,11 +79,11 @@ public class WeCareDbContext :
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
 
+        /* Configure suas próprias tabelas/entidades aqui */
         builder.Entity<Book>(b =>
         {
-            b.ToTable(WeCareConsts.DbTablePrefix + "Books",
-                WeCareConsts.DbSchema);
-            b.ConfigureByConvention(); //auto configure for the base class props
+            b.ToTable(WeCareConsts.DbTablePrefix + "Books", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
         });
 
@@ -101,11 +93,10 @@ public class WeCareDbContext :
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
 
-            // <<< Adicione isto >>>
             b.HasOne(p => p.PrincipalResponsible)
-             .WithMany(r => r.Patients)                    // coleção no Responsible
-             .HasForeignKey(p => p.PrincipalResponsibleId) // FK na tabela Patients
-             .OnDelete(DeleteBehavior.Restrict);           // ou Cascade, conforme seu domínio
+             .WithMany()
+             .HasForeignKey(p => p.PrincipalResponsibleId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Responsible>(b =>
@@ -115,19 +106,36 @@ public class WeCareDbContext :
             b.Property(x => x.NameResponsible).IsRequired().HasMaxLength(128);
             b.Property(x => x.EmailAddress).IsRequired();
 
-            // <<< Opcional: reforçar o inverso >>>
             b.HasMany(r => r.Patients)
-             .WithOne(p => p.PrincipalResponsible)
-             .HasForeignKey(p => p.PrincipalResponsibleId)
-             .OnDelete(DeleteBehavior.Restrict);
+                .WithOne()
+                .HasForeignKey(p => p.PrincipalResponsibleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
-        /* Configure your own tables/entities inside here */
 
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(WeCareConsts.DbTablePrefix + "YourEntities", WeCareConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
+        builder.Entity<Therapist>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Therapists", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+        });
+
+        builder.Entity<Tratamento>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Tratamentos", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Tipo).IsRequired().HasMaxLength(100);
+
+            b.HasOne(x => x.Patient)
+             .WithMany(p => p.Tratamentos)
+             .HasForeignKey(x => x.PatientId)
+             .IsRequired()
+             .OnDelete(DeleteBehavior.Cascade); // Se um paciente for deletado, seus tratamentos também são.
+
+            b.HasOne(x => x.Therapist)
+             .WithMany(t => t.Tratamentos)
+             .HasForeignKey(x => x.TherapistId)
+             .IsRequired()
+             .OnDelete(DeleteBehavior.Cascade); // Se um terapeuta for deletado, seus tratamentos também são.
+        });
     }
 }

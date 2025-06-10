@@ -5,7 +5,7 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace WeCare.Consultas;
 
-public class ConsultaTypeDto : AuditedEntityDto<Guid>
+public class TratamentoDto : AuditedEntityDto<Guid>
 {
 
     public Guid PatientId { get; set; }

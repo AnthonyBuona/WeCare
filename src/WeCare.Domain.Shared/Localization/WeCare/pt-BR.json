@@ -41,6 +41,7 @@
         "SeeAllUsers": "Ver todos os usuários",
         "TakePhoto": "Tirar fotos",
         "ChoosePhoto": "Escolher Foto",
-        "Permission:Patients": "Gerenciamento de pacientes"
+        "Permission:Patients": "Gerenciamento de pacientes",
+        "Menu:Tratamentos": "Tipos de Consulta"
     }
 }

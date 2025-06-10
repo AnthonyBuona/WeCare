@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WeCare.Consultas
 {
-    public class CreateUpdateConsultaTypeDto
+    public class CreateUpdateTratamentoDto
     {
         [Required]
         public Guid PatientId { get; set; }

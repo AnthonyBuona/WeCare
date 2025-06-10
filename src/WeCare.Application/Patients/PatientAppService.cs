@@ -12,6 +12,7 @@ using Volo.Abp;
 using WeCare.Responsibles;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
+using WeCare.Shared;
 
 namespace WeCare.Patients;
 
@@ -134,5 +135,18 @@ public class PatientAppService : ApplicationService, IPatientAppService
     public async Task DeleteAsync(Guid id)
     {
         await _repository.DeleteAsync(id);
+    }
+
+    public async Task<ListResultDto<LookupDto<Guid>>> GetPatientLookupAsync()
+    {
+        var patients = await _repository.GetListAsync();
+
+        var lookupDtos = patients.Select(p => new LookupDto<Guid>
+        {
+            Id = p.Id,
+            DisplayName = p.Name
+        }).ToList();
+
+        return new ListResultDto<LookupDto<Guid>>(lookupDtos);
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
-using WeCare.Consultas;
+using WeCare.Tratamentos;
 using WeCare.Patients;
 
 namespace WeCare.Therapists
@@ -19,8 +19,8 @@ namespace WeCare.Therapists
         [MaxLength(256)]
         public string Email { get; set; }
 
-        public ConsultaType ConsultaType { get; set; }
-
         public IList<Patient> Patients { get; set; } = new List<Patient>();
+        public ICollection<Tratamento> Tratamentos { get; set; }
     }
 }
+

@@ -1,0 +1,24 @@
+﻿@page
+@model WeCare.Web.Pages.Tratamentos.EditModalModel
+@using WeCare.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<form asp-page="/Tratamentos/EditModal">
+    <abp-modal>
+        <abp-modal-header title="@L["EditTratamento"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="Id" />
+            <abp-input asp-for="Tratamento.TipoConsulta" />
+
+            <abp-select asp-for="Tratamento.PatientId" asp-items="@Model.PatientLookup" label="@L["Patient"].Value" />
+
+            <abp-input asp-for="Tratamento.TherapistId" label="@L["Therapist"].Value (ID Temporário)" />
+
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

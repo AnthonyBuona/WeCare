@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Domain.Entities.Auditing;
 using WeCare.Responsibles;
+using WeCare.Tratamentos;
 
 namespace WeCare.Patients
 {
@@ -27,5 +28,6 @@ namespace WeCare.Patients
         public Responsible PrincipalResponsible { get; set; }
 
         public IList<Responsible> Responsibles { get; set; } = new List<Responsible>();
+        public ICollection<Tratamento> Tratamentos { get; set; }
     }
 }

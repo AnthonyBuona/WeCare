@@ -90,7 +90,14 @@ public class WeCareMenuContributor : IMenuContributor
                     url: "/Consultas"
                 ).RequirePermissions(WeCarePermissions.Patients.Default)
             )
-           
+            .AddItem(
+                new ApplicationMenuItem(
+                    "Tratamento.Tratamentos",
+                    l["Menu:Tratamentos"], // Adicione "Menu:Tratamentos": "Tipos de Consulta" no seu JSON de localização
+                    url: "/Tratamentos"
+                ).RequirePermissions(WeCarePermissions.Tratamentos.Default) // Permissão específica
+            )
+
         );
 
         return Task.CompletedTask;

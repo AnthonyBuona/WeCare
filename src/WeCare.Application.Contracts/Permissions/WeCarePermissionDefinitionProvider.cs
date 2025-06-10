@@ -45,6 +45,23 @@ public class WeCarePermissionDefinitionProvider : PermissionDefinitionProvider
             WeCarePermissions.Patients.Delete,
             L("Permission:Patients.Delete")
         );
+
+        var TratamentosPermission = myGroup.AddPermission(
+            WeCarePermissions.Tratamentos.Default,
+            L("Permission:Tratamentos") // Adicione esta chave no seu arquivo de localização JSON
+        );
+        TratamentosPermission.AddChild(
+            WeCarePermissions.Tratamentos.Create,
+            L("Permission:Tratamentos.Create")
+        );
+        TratamentosPermission.AddChild(
+            WeCarePermissions.Tratamentos.Edit,
+            L("Permission:Tratamentos.Edit")
+        );
+        TratamentosPermission.AddChild(
+            WeCarePermissions.Tratamentos.Delete,
+            L("Permission:Tratamentos.Delete")
+        );
     }
 
     private static LocalizableString L(string name)
