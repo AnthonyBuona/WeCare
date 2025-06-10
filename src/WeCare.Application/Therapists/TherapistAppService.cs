@@ -4,21 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
+using Volo.Abp.Uow;
 using WeCare.Permissions;
 using WeCare.Shared;
 
-// Apelidos para resolver ambiguidade de namespaces
+// Apelido para o usuário de identidade para clareza
 using IdentityUser = Volo.Abp.Identity.IdentityUser;
-using IdentityRole = Volo.Abp.Identity.IdentityRole;
-using Volo.Abp;
 
 namespace WeCare.Therapists
 {
-    // Vamos herdar de CrudAppService para ganhar os métodos de Leitura, Update e Delete de graça.
     public class TherapistAppService : CrudAppService<
             Therapist,
             TherapistDto,
@@ -28,18 +27,21 @@ namespace WeCare.Therapists
         ITherapistAppService
     {
         private readonly IdentityUserManager _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IIdentityRoleRepository _roleRepository;
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public TherapistAppService(
             IRepository<Therapist, Guid> repository,
             IdentityUserManager userManager,
-            RoleManager<IdentityRole> roleManager)
+            IIdentityRoleRepository roleRepository,
+            IUnitOfWorkManager unitOfWorkManager) // Adicionamos o IUnitOfWorkManager
             : base(repository)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
+            _roleRepository = roleRepository;
+            _unitOfWorkManager = unitOfWorkManager;
 
-            // Definindo as permissões para as operações do CRUD
+            // Permissões padrão do CrudAppService
             GetPolicyName = WeCarePermissions.Therapists.Default;
             GetListPolicyName = WeCarePermissions.Therapists.Default;
             CreatePolicyName = WeCarePermissions.Therapists.Create;
@@ -47,7 +49,7 @@ namespace WeCare.Therapists
             DeletePolicyName = WeCarePermissions.Therapists.Delete;
         }
 
-        // Sobrescrevemos apenas o CreateAsync porque ele tem uma lógica customizada.
+        // Sobrescrevemos o CreateAsync para orquestrar a criação do usuário.
         [Authorize(WeCarePermissions.Therapists.Create)]
         public override async Task<TherapistDto> CreateAsync(CreateUpdateTherapistDto input)
         {
@@ -57,29 +59,29 @@ namespace WeCare.Therapists
                 throw new UserFriendlyException("Já existe um usuário com este nome.");
             }
 
-            var user = new IdentityUser(GuidGenerator.Create(), input.UserName, input.Email);
+            // 1. Criar o usuário de identidade.
+            var user = new IdentityUser(GuidGenerator.Create(), input.UserName, input.Email)
+            {
+                Name = input.Name
+            };
             (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
 
+            // 2. Atribuir a role "Terapeuta".
             const string therapistRole = "Terapeuta";
-            if (!await _roleManager.RoleExistsAsync(therapistRole))
-            {
-                await _roleManager.CreateAsync(new IdentityRole(GuidGenerator.Create(), therapistRole, CurrentTenant.Id));
-            }
             (await _userManager.AddToRoleAsync(user, therapistRole)).CheckErrors();
 
-            var therapist = new Therapist
-            {
-                Name = input.Name,
-                Email = input.Email,
-                UserId = user.Id
-            };
+            // 3. Salvar as mudanças para disparar o evento.
+            // O EventHandler será executado dentro desta unidade de trabalho.
+            await _unitOfWorkManager.Current.SaveChangesAsync();
 
-            await Repository.InsertAsync(therapist);
+            // 4. Buscar a entidade Therapist que foi criada pelo EventHandler.
+            var newTherapist = await Repository.FirstAsync(t => t.UserId == user.Id);
 
-            return ObjectMapper.Map<Therapist, TherapistDto>(therapist);
+            // 5. Mapear e retornar o DTO.
+            return ObjectMapper.Map<Therapist, TherapistDto>(newTherapist);
         }
 
-        // Esta é a nossa função customizada para o dropdown, ela funciona corretamente.
+        // Função de lookup para dropdowns (permanece a mesma).
         public async Task<ListResultDto<LookupDto<Guid>>> GetTherapistLookupAsync()
         {
             var therapists = await Repository.GetListAsync();
