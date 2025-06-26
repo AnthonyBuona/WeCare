@@ -39,10 +39,6 @@ public class WeCareDbContext :
 
     #region Entities from the modules
 
-    /* * ESTA É A SEÇÃO COMPLETA QUE CORRIGE OS ERROS.
-     * Note que todas as propriedades exigidas pelas interfaces estão aqui.
-    */
-
     // Identity
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
@@ -113,6 +109,11 @@ public class WeCareDbContext :
             b.ToTable(WeCareConsts.DbTablePrefix + "Therapists", WeCareConsts.DbSchema);
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+            b.HasOne<Tenant>()
+             .WithMany()
+             .HasForeignKey("TenantId") 
+             .IsRequired(true) 
+             .OnDelete(DeleteBehavior.Restrict); 
         });
 
         builder.Entity<Tratamento>(b =>

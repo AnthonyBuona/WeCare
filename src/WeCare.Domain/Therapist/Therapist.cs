@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.TenantManagement;
 using WeCare.Tratamentos;
 
 namespace WeCare.Therapists
@@ -15,11 +16,12 @@ namespace WeCare.Therapists
         [MaxLength(256)]
         public string Email { get; set; }
 
-        // --- ADICIONE ESTA LINHA ---
-        // Guarda a referência ao usuário do Identity
         public Guid UserId { get; set; }
 
         public ICollection<Tratamento> Tratamentos { get; set; }
+
+        public int TenantId { get; set; } // Chave estrangeira para o Tenant
+        public Tenant Tenant { get; set; }
 
         public Therapist()
         {
