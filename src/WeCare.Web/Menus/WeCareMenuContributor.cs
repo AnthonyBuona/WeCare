@@ -35,6 +35,16 @@ public class WeCareMenuContributor : IMenuContributor
             )
         );
 
+        // Novo menu para Terapeutas
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                "Therapists",
+                "Terapeutas",
+                url: "/Therapists",
+                icon: "fa fa-user-md"
+            ).RequirePermissions(WeCarePermissions.Therapists.Default)
+        );
+
         // Administration
         var administration = context.Menu.GetAdministration();
         administration.Order = 6;

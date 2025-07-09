@@ -1,0 +1,28 @@
+﻿@page
+@model WeCare.Web.Pages.Therapists.IndexModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@inject IHtmlLocalizer<WeCareResource> L
+
+@section scripts {
+    <abp-script src="/Pages/Therapists/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Therapists"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                <abp-button id="NewTherapistButton"
+                            text="@L["NewTherapist"].Value"
+                            icon="plus"
+                            button-type="Primary" />
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="TherapistsTable"></abp-table>
+    </abp-card-body>
+</abp-card>

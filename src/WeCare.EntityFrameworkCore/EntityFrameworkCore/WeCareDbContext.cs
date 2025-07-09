@@ -109,11 +109,13 @@ public class WeCareDbContext :
             b.ToTable(WeCareConsts.DbTablePrefix + "Therapists", WeCareConsts.DbSchema);
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+
+            // --- CORREÇÃO DEFINITIVA ---
             b.HasOne<Tenant>()
              .WithMany()
-             .HasForeignKey("TenantId") 
-             .IsRequired(true) 
-             .OnDelete(DeleteBehavior.Restrict); 
+             .HasForeignKey(x => x.TenantId)  // Alterado de "TenantId" para x => x.TenantId
+             .IsRequired(false)               // Alterado de 'true' para 'false'
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Tratamento>(b =>

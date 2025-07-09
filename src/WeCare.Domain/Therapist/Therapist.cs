@@ -20,8 +20,7 @@ namespace WeCare.Therapists
 
         public ICollection<Tratamento> Tratamentos { get; set; }
 
-        public int TenantId { get; set; } // Chave estrangeira para o Tenant
-        public Tenant Tenant { get; set; }
+        public Guid? TenantId { get; set; } 
 
         public Therapist()
         {
