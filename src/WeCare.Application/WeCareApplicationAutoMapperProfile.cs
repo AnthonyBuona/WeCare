@@ -27,7 +27,8 @@ public class WeCareApplicationAutoMapperProfile : Profile
 			.ForMember(dest => dest.TherapistName, opt => opt.MapFrom(src => src.Therapist.Name));
 		CreateMap<CreateUpdateTratamentoDto, Tratamento>();
         CreateMap<Tratamento, CreateUpdateTratamentoDto>();
-		CreateMap<Therapist, TherapistDto>();
+        CreateMap<TratamentoDto, CreateUpdateTratamentoDto>();
+        CreateMap<Therapist, TherapistDto>();
 		CreateMap<CreateUpdateTherapistDto, Therapist>();
 		CreateMap<Therapist, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 	}

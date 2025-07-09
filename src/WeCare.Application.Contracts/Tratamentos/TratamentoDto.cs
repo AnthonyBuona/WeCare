@@ -8,10 +8,10 @@ namespace WeCare.Tratamentos
     public class TratamentoDto : AuditedEntityDto<Guid>
     {
         public Guid PatientId { get; set; }
-        public string PatientName { get; set; } // Adicionado para exibição
+        public string PatientName { get; set; }
 
         public Guid TherapistId { get; set; }
-        public string TherapistName { get; set; } // Adicionado para exibição
+        public string TherapistName { get; set; }
 
         public string Tipo { get; set; }
     }

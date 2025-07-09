@@ -37,6 +37,14 @@ public static class WeCarePermissions
         public const string Delete = Default + ".Delete";
     }
 
+    public static class Consultations
+    {
+        public const string Default = GroupName + ".Consultations";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
     public static class Tratamentos
     {
         public const string Default = GroupName + ".Tratamentos";

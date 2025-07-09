@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WeCare.Tratamentos;
-using WeCare.Patients; // Adicione este using
+using WeCare.Patients;
+using WeCare.Therapists; 
 
 namespace WeCare.Web.Pages.Tratamentos
 {
@@ -18,19 +17,21 @@ namespace WeCare.Web.Pages.Tratamentos
         [BindProperty]
         public CreateUpdateTratamentoDto Tratamento { get; set; }
 
-        // Adicione esta propriedade
         public SelectList PatientLookup { get; set; }
-        // public SelectList TherapistLookup { get; set; } // Você adicionará isso mais tarde
+        public SelectList TherapistLookup { get; set; } 
 
         private readonly ITratamentoAppService _TratamentoAppService;
-        private readonly IPatientAppService _patientAppService; // Injete o serviço de lookup
+        private readonly IPatientAppService _patientAppService;
+        private readonly ITherapistAppService _therapistAppService; 
 
         public EditModalModel(
             ITratamentoAppService TratamentoAppService,
-            IPatientAppService patientAppService) // Adicione aqui
+            IPatientAppService patientAppService,
+            ITherapistAppService therapistAppService)
         {
             _TratamentoAppService = TratamentoAppService;
-            _patientAppService = patientAppService; // Adicione aqui
+            _patientAppService = patientAppService;
+            _therapistAppService = therapistAppService; 
         }
 
         public async Task OnGetAsync()
@@ -38,9 +39,12 @@ namespace WeCare.Web.Pages.Tratamentos
             var consultaDto = await _TratamentoAppService.GetAsync(Id);
             Tratamento = ObjectMapper.Map<TratamentoDto, CreateUpdateTratamentoDto>(consultaDto);
 
-            // Busque os pacientes
+
             var patientLookup = await _patientAppService.GetPatientLookupAsync();
             PatientLookup = new SelectList(patientLookup.Items, "Id", "DisplayName", Tratamento.PatientId);
+
+            var therapistLookup = await _therapistAppService.GetTherapistLookupAsync();
+            TherapistLookup = new SelectList(therapistLookup.Items, "Id", "DisplayName", Tratamento.TherapistId);
         }
 
         public async Task<IActionResult> OnPostAsync()

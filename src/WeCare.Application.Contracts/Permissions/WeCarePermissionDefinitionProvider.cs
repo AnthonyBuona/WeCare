@@ -10,7 +10,7 @@ namespace WeCare.Permissions
         {
             var myGroup = context.AddGroup(WeCarePermissions.GroupName, L("Permission:WeCare"));
 
-            // --- Books permissions ---
+
             var booksPermission = myGroup.AddPermission(
                 WeCarePermissions.Books.Default, L("Permission:Books"));
             booksPermission.AddChild(
@@ -20,7 +20,7 @@ namespace WeCare.Permissions
             booksPermission.AddChild(
                 WeCarePermissions.Books.Delete, L("Permission:Books.Delete"));
 
-            // --- Patients permissions ---
+
             var patientsPermission = myGroup.AddPermission(
                 WeCarePermissions.Patients.Default, L("Permission:Patients"));
             patientsPermission.AddChild(
@@ -30,7 +30,7 @@ namespace WeCare.Permissions
             patientsPermission.AddChild(
                 WeCarePermissions.Patients.Delete, L("Permission:Patients.Delete"));
 
-            // --- Tratamentos permissions ---
+
             var tratamentosPermission = myGroup.AddPermission(
                 WeCarePermissions.Tratamentos.Default, L("Permission:Tratamentos"));
             tratamentosPermission.AddChild(
@@ -40,7 +40,6 @@ namespace WeCare.Permissions
             tratamentosPermission.AddChild(
                 WeCarePermissions.Tratamentos.Delete, L("Permission:Tratamentos.Delete"));
 
-            // --- CORREÇÃO AQUI: Adicionando as permissões para Responsibles ---
             var responsiblesPermission = myGroup.AddPermission(
                 WeCarePermissions.Responsibles.Default, L("Permission:Responsibles"));
             responsiblesPermission.AddChild(
@@ -58,6 +57,16 @@ namespace WeCare.Permissions
                 WeCarePermissions.Therapists.Edit, L("Permission:Therapists.Edit"));
             therapistsPermission.AddChild(
                 WeCarePermissions.Therapists.Delete, L("Permission:Therapists.Delete"));
+
+            var consultationsPermission = myGroup.AddPermission(
+                WeCarePermissions.Consultations.Default, L("Permission:Consultations"));
+            consultationsPermission.AddChild(
+                WeCarePermissions.Consultations.Create, L("Permission:Consultations.Create"));
+            consultationsPermission.AddChild(
+                WeCarePermissions.Consultations.Edit, L("Permission:Consultations.Edit"));
+            consultationsPermission.AddChild(
+                WeCarePermissions.Consultations.Delete, L("Permission:Consultations.Delete"));
+
         }
 
 

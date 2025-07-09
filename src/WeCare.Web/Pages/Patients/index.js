@@ -38,7 +38,12 @@
                                             abp.notify.info(l('SuccessfullyDeleted'));
                                             dataTable.ajax.reload();
                                         });
+
                                 }
+                            },
+                            text: l('Ver tratamentos'),
+                            action: function (data) {
+                                viewTreatmentsModal.open({ patientId: data.record.id });
                             }
                         ]
                     }

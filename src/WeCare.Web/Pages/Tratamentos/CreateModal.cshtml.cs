@@ -12,7 +12,6 @@ namespace WeCare.Web.Pages.Tratamentos
         [BindProperty]
         public CreateUpdateTratamentoDto Tratamento { get; set; }
 
-        // Propriedades para popular os dropdowns
         public SelectList PatientLookup { get; set; }
         public SelectList TherapistLookup { get; set; }
 
@@ -34,11 +33,9 @@ namespace WeCare.Web.Pages.Tratamentos
         {
             Tratamento = new CreateUpdateTratamentoDto();
 
-            // Busca a lista de pacientes
             var patientLookupResult = await _patientAppService.GetPatientLookupAsync();
             PatientLookup = new SelectList(patientLookupResult.Items, "Id", "DisplayName");
 
-            // Busca a lista de terapeutas
             var therapistLookupResult = await _therapistAppService.GetTherapistLookupAsync();
             TherapistLookup = new SelectList(therapistLookupResult.Items, "Id", "DisplayName");
         }

@@ -20,7 +20,6 @@
             <abp-column size-md="_6" class="text-end">
                 @if (await Authorization.IsGrantedAsync(WeCarePermissions.Tratamentos.Create))
                 {
-                    // VERIFIQUE ESTE ID:
                     <abp-button id="NewTratamentoButton"
                                 text="@L["NewTratamento"].Value"
                                 icon="plus"
