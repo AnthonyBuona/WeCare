@@ -1,11 +1,13 @@
 ﻿$(function () {
+    //------------------- CONFIGURAÇÃO INICIAL -------------------
     var l = abp.localization.getResource('WeCare');
 
+    // Gerenciadores de modais
     var editModal = new abp.ModalManager(abp.appPath + 'Patients/EditModal');
     var createModal = new abp.ModalManager(abp.appPath + 'Patients/CreateModal');
-
     var viewTreatmentsModal = new abp.ModalManager(abp.appPath + 'Patients/ViewTreatmentsModal');
 
+    //------------------- TABELA PRINCIPAL DE PACIENTES -------------------
     var dataTable = $('#PatientsTable').DataTable(
         abp.libs.datatables.normalizeConfiguration({
             serverSide: true,
@@ -65,6 +67,44 @@
         })
     );
 
+    //------------------- LÓGICA DO MODAL DE TRATAMENTOS (NOVA) -------------------
+    // Este evento é disparado toda vez que o modal de tratamentos é aberto
+    viewTreatmentsModal.onOpen(function () {
+        // Pega os argumentos passados no método .open()
+        var args = viewTreatmentsModal.getArgs();
+        var patientId = args.patientId;
+        var tratamentoService = weCare.tratamentos.tratamento; // Serviço para buscar os tratamentos
+
+        // Inicializa a tabela DENTRO do modal
+        $('#TreatmentsTable').DataTable(
+            abp.libs.datatables.normalizeConfiguration({
+                serverSide: true,
+                paging: true,
+                order: [[0, "asc"]],
+                searching: false,
+                scrollX: true,
+                ajax: abp.libs.datatables.createAjax(function (request) {
+                    // Chama o serviço para obter a lista de tratamentos do paciente específico
+                    return tratamentoService.getListByPatient(patientId, request);
+                }),
+                columnDefs: [
+                    { title: l('Tipo de Tratamento'), data: "tipo" },
+                    { title: l('Terapeuta'), data: "therapistName" },
+                    {
+                        title: l('CreationTime'),
+                        data: "creationTime",
+                        render: function (data) {
+                            return luxon.DateTime.fromISO(data, {
+                                locale: abp.localization.currentCulture.name
+                            }).toLocaleString(luxon.DateTime.DATETIME_SHORT);
+                        }
+                    }
+                ]
+            })
+        );
+    });
+
+    //------------------- EVENTOS DOS DEMAIS MODAIS E BOTÕES -------------------
     createModal.onResult(function () {
         dataTable.ajax.reload();
     });
