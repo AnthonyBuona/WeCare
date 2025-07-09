@@ -79,5 +79,22 @@ namespace WeCare.Tratamentos
 
             return query.OrderBy(sorting);
         }
+        public async Task<PagedResultDto<TratamentoDto>> GetListByPatient(Guid patientId, PagedAndSortedResultRequestDto input)
+        {
+            var queryable = await Repository.WithDetailsAsync(x => x.Patient, x => x.Therapist);
+
+            queryable = queryable.Where(x => x.PatientId == patientId);
+
+            queryable = ApplySorting(queryable, input);
+            queryable = ApplyPaging(queryable, input);
+
+            var tratamentos = await AsyncExecuter.ToListAsync(queryable);
+            var totalCount = await Repository.CountAsync(x => x.PatientId == patientId);
+
+            return new PagedResultDto<TratamentoDto>(
+                totalCount,
+                ObjectMapper.Map<List<Tratamento>, List<TratamentoDto>>(tratamentos)
+            );
+        }
     }
 }

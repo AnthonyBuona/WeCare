@@ -1,0 +1,12 @@
+﻿@page
+@model WeCare.Web.Pages.Patients.ViewTreatmentsModalModel
+@{
+    Layout = null;
+}
+<abp-modal>
+    <abp-modal-header title="Tratamentos de @Model.Patient.Name"></abp-modal-header>
+    <abp-modal-body>
+        <abp-table striped-rows="true" id="TreatmentsTable"></abp-table>
+    </abp-modal-body>
+    <abp-modal-footer buttons="Close"></abp-modal-footer>
+</abp-modal>

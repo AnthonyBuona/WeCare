@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading.Tasks; 
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 
-namespace WeCare.Tratamentos;
-
-public interface ITratamentoAppService :
-
-    ICrudAppService< //Defines CRUD methods
-        TratamentoDto, //Used to show books
-        Guid, //Primary key 
-        PagedAndSortedResultRequestDto, //Used for paging/sorting
-        CreateUpdateTratamentoDto> //Used to create/update a bookICrudAppService< //Defines CRUD methods
-
+namespace WeCare.Tratamentos
 {
-
-
-
+    public interface ITratamentoAppService :
+        ICrudAppService<
+            TratamentoDto,
+            Guid,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateTratamentoDto>
+    {
+        // Adicione esta linha
+        Task<PagedResultDto<TratamentoDto>> GetListByPatient(Guid patientId, PagedAndSortedResultRequestDto input);
+    }
 }

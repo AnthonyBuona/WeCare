@@ -7,7 +7,11 @@
 @model IndexModel
 @inject IStringLocalizer<WeCareResource> L
 @inject IAuthorizationService AuthorizationService
-
+@section scripts
+{
+    <abp-script src="/Pages/Patients/ViewTreatmentsModal.js" />
+    <abp-script src="/Pages/Patients/index.js" />
+}
 <abp-card>
     <abp-card-header>
         <abp-row>
@@ -29,7 +33,3 @@
         <abp-table striped-rows="true" id="PatientsTable"></abp-table>
     </abp-card-body>
 </abp-card>
-@section scripts
-{
-    <abp-script src="/Pages/Patients/index.js" />
-}
