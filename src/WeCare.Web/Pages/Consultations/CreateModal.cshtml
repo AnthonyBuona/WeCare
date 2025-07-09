@@ -1,0 +1,23 @@
+﻿@page
+@model WeCare.Web.Pages.Consultations.CreateModalModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using WeCare.Localization
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<abp-dynamic-form abp-model="Consultation" asp-page="/Consultations/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["Agendar Consulta"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-form-content except="DateTime" />
+
+            <abp-input asp-for="ConsultationDate" />
+
+            <abp-input asp-for="ConsultationTime" />
+
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</abp-dynamic-form>

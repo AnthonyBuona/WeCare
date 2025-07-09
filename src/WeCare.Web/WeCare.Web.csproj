@@ -84,8 +84,4 @@
     <PackageReference Include="Volo.Abp.Studio.Client.AspNetCore" Version="0.9.25" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\NovaPasta\" />
-  </ItemGroup>
-
 </Project>

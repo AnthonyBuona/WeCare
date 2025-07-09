@@ -110,6 +110,15 @@ public class WeCareMenuContributor : IMenuContributor
 
         );
 
+        context.Menu.AddItem(
+    new ApplicationMenuItem(
+        "Consultations",
+        l["Menu:Consultations"],
+        url: "/Consultations",
+        icon: "fa fa-calendar-check-o" // Ícone sugerido
+    ).RequirePermissions(WeCarePermissions.Consultations.Default)
+);
+
         return Task.CompletedTask;
     }
 }

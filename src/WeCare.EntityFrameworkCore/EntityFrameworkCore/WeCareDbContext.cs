@@ -4,6 +4,7 @@ using WeCare.Patients;
 using WeCare.Responsibles;
 using WeCare.Therapists;
 using WeCare.Tratamentos;
+using WeCare.Consultations;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -36,6 +37,7 @@ public class WeCareDbContext :
     public DbSet<Responsible> Responsibles { get; set; }
     public DbSet<Therapist> Therapists { get; set; }
     public DbSet<Tratamento> Tratamentos { get; set; }
+    public DbSet<Consultation> Consultations { get; set; }
 
     #region Entities from the modules
 
@@ -135,6 +137,15 @@ public class WeCareDbContext :
              .HasForeignKey(x => x.TherapistId)
              .IsRequired()
              .OnDelete(DeleteBehavior.Cascade); // Se um terapeuta for deletado, seus tratamentos também são.
+        });
+        builder.Entity<Consultation>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Consultations", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Description).IsRequired().HasMaxLength(500);
+
+            b.HasOne(x => x.Patient).WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Therapist).WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

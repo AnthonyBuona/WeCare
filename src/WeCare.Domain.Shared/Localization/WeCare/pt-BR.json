@@ -3,6 +3,7 @@
     "texts": {
         "AppName": "WeCare",
         "Menu:Home": "Principal",
+        "Menu:Consultations": "Agendar Consultas",
         "Menu:ContactUs": "Entre em contato conosco",
         "Menu:ArticleSample": "Amostra de Artigo",
         "Menu:Patients": "Pacientes",
