@@ -12,27 +12,44 @@
             ajax: abp.libs.datatables.createAjax(weCare.consultations.consultation.getList),
             columnDefs: [
                 {
-                    title: l('Actions'),
+                    title: l('Ações'),
                     rowAction: {
-                        items:
-                            [
-                                // Ações de Editar e Apagar podem ser adicionadas aqui posteriormente
-                            ]
+                        items: [
+                            {
+                                text: l('Editar'), // Example Edit Action
+                                action: function (data) {
+                                    // Add your edit logic here, e.g.:
+                                    // editModal.open({ id: data.record.id });
+                                }
+                            },
+                            {
+                                text: l('Apagar'), // Example Delete Action
+                                confirmMessage: function (data) {
+                                    return l('ConsultationDeletionConfirmationMessage', data.record.patientName);
+                                },
+                                action: function (data) {
+                                    weCare.consultations.consultation
+                                        .delete(data.record.id)
+                                        .then(function () {
+                                            abp.notify.info(l('SuccessfullyDeleted'));
+                                            dataTable.ajax.reload();
+                                        });
+                                }
+                            }
+                        ]
                     }
                 },
-                { title: l('Patient'), data: "patientName" },
-                { title: l('Therapist'), data: "therapistName" },
+                { title: l('Paciente'), data: "patientName" },
+                { title: l('Terapeuta'), data: "therapistName" },
                 {
-                    title: l('DateTime'),
+                    title: l('Data/hora'),
                     data: "dateTime",
                     render: function (data) {
-                        // Converte a data string (formato ISO) para o formato local do navegador
-                        // Ex: "2025-07-10T14:30:00" -> "10/07/2025, 14:30:00"
                         if (!data) return '';
                         return new Date(data).toLocaleString();
                     }
                 },
-                { title: l('Description'), data: "description" },
+                { title: l('Descrição'), data: "description" },
             ]
         })
     );
