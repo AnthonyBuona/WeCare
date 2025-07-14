@@ -19,14 +19,12 @@
                         items: [
                             {
                                 text: l('Edit'),
-                                visible: abp.auth.isGranted('WeCare.Therapists.Edit'),
                                 action: function (data) {
                                     editModal.open({ id: data.record.id });
                                 }
                             },
                             {
                                 text: l('Delete'),
-                                visible: abp.auth.isGranted('WeCare.Therapists.Delete'),
                                 confirmMessage: function (data) {
                                     return l('TherapistDeletionConfirmationMessage', data.record.name);
                                 },

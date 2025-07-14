@@ -14,7 +14,6 @@ namespace WeCare.Therapists
         [StringLength(256)]
         public string Email { get; set; }
 
-        // --- ADICIONE ESTES CAMPOS ---
         [Required]
         [StringLength(128)]
         [Display(Name = "Nome de Usuário")]

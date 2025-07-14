@@ -43,6 +43,15 @@
         "TakePhoto": "Tirar fotos",
         "ChoosePhoto": "Escolher Foto",
         "Permission:Patients": "Gerenciamento de pacientes",
-        "Menu:Tratamentos": "Tratamentos"
+        "Menu:Tratamentos": "Tratamentos",
+        "Menu:Therapists": "Terapeutas",
+        "Therapists": "Terapeutas",
+        "NewTherapist": "Novo Terapeuta",
+        "EditTherapist": "Editar Terapeuta",
+        "TherapistDeletionConfirmationMessage": "Tem certeza que deseja apagar o terapeuta '{0}'?",
+        "Permission:Therapists": "Gerenciamento de Terapeutas",
+        "Permission:Therapists.Create": "Criar novos terapeutas",
+        "Permission:Therapists.Edit": "Editar terapeutas",
+        "Permission:Therapists.Delete": "Apagar terapeutas"
     }
 }

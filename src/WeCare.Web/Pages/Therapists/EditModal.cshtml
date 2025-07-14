@@ -1,0 +1,19 @@
+﻿@page
+@model WeCare.Web.Pages.Therapists.EditModalModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<abp-modal>
+    <abp-modal-header title="@L["EditTherapist"].Value"></abp-modal-header>
+    <abp-modal-body>
+        <abp-form id="EditTherapistForm">
+            <abp-input asp-for="Id" />
+            <abp-form-content />
+        </abp-form>
+    </abp-modal-body>
+    <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+</abp-modal>
