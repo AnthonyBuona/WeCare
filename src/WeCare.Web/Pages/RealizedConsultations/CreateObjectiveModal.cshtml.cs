@@ -14,6 +14,9 @@ namespace WeCare.Web.Pages.RealizedConsultations
         [BindProperty]
         public CreateObjectiveViewModel Objective { get; set; }
 
+        [HiddenInput]
+        public Guid PatientId { get; set; }
+
         public SelectList TherapistLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
@@ -42,25 +45,33 @@ namespace WeCare.Web.Pages.RealizedConsultations
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (TimeSpan.TryParse(Objective.FirstConsultationTime, out var timeOfDay))
+            if (!TimeSpan.TryParse(Objective.FirstConsultationTime, out _))
             {
-                // Mapeia do ViewModel para o DTO que será enviado para a camada de aplicação
-                var createDto = new CreateUpdateObjectiveDto
-                {
-                    PatientId = Objective.PatientId,
-                    ObjectiveName = Objective.ObjectiveName,
-                    TherapistId = Objective.TherapistId,
-                    Specialty = Objective.Specialty,
-                    FirstConsultationDateTime = Objective.FirstConsultationDate.Add(timeOfDay)
-                };
+                ModelState.AddModelError(nameof(Objective.FirstConsultationTime), "Formato de hora inválido. Use HH:mm.");
+            }
 
-                await _consultationAppService.CreateObjectiveAsync(createDto);
-            }
-            else
+            // Valide outras regras de negócio aqui e adicione ao ModelState se necessário
+
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError(string.Empty, "Formato de hora inválido.");
-                return Page();
+                // O framework do ABP/ASP.NET Core irá capturar o ModelState inválido
+                // e retornar um BadRequest (400) com os erros, que o modal irá exibir.
+                // Não precisamos de um 'return' explícito aqui, mas é bom para clareza.
+                // A mágica do ABP já faz o trabalho.
             }
+
+            // Se chegou até aqui, o modelo é válido
+            var timeOfDay = TimeSpan.Parse(Objective.FirstConsultationTime); // Seguro fazer o Parse agora
+            var createDto = new CreateUpdateObjectiveDto
+            {
+                PatientId = Objective.PatientId,
+                ObjectiveName = Objective.ObjectiveName,
+                TherapistId = Objective.TherapistId,
+                Specialty = Objective.Specialty,
+                FirstConsultationDateTime = Objective.FirstConsultationDate.Add(timeOfDay)
+            };
+
+            await _consultationAppService.CreateObjectiveAsync(createDto);
 
             return NoContent();
         }

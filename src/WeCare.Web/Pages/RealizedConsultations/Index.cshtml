@@ -12,6 +12,9 @@
 }
 
 @section scripts {
+    <script>
+        var patientIdForModal = '@Model.PatientId';
+    </script>
     <abp-script-bundle name="@typeof(WeCare.Web.Pages.RealizedConsultations.IndexModel).FullName">
         <abp-script src="/Pages/RealizedConsultations/index.js" />
     </abp-script-bundle>

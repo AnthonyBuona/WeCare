@@ -8,14 +8,12 @@
     Layout = null;
 }
 <abp-modal>
+     <abp-dynamic-form abp-model="Objective" name="create-objective-form">
     <abp-modal-header title="@L["AddNewObjective"].Value"></abp-modal-header>
     <abp-modal-body>
-        @* Corretíssimo! O abp-dynamic-form irá ler as propriedades
-          da classe CreateObjectiveViewModel no PageModel e gerar o formulário. 
-        *@
-        <abp-dynamic-form abp-model="Objective" name="create-objective-form">
+            <abp-input asp-for="PatientId" />
             <abp-form-content />
-        </abp-dynamic-form>
     </abp-modal-body>
     <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-dynamic-form>
 </abp-modal>
