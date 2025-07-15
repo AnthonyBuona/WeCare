@@ -1,76 +1,69 @@
 ﻿$(function () {
     var l = abp.localization.getResource('WeCare');
 
-    var createConsultationModal = new abp.ModalManager(abp.appPath + 'RealizedConsultations/CreateModal');
-    var createObjectiveModal = new abp.ModalManager(abp.appPath + 'RealizedConsultations/CreateObjectiveModal');
+    // Extrai o PatientId da URL da página
+    const urlParams = new URLSearchParams(window.location.search);
+    const patientId = urlParams.get('PatientId');
 
-    var patientId = new URLSearchParams(window.location.search).get('patientId');
-    var objectiveListContainer = $('#ObjectiveListContainer');
+    // Modal Manager para o modal de criar objetivo
+    var createObjectiveModal = new abp.ModalManager({
+        viewUrl: 'RealizedConsultations/CreateObjectiveModal'
+    });
 
     // Função para carregar/recarregar a lista de objetivos
     function loadObjectives() {
-        objectiveListContainer.html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-
-        // Chamada AJAX para o novo Page Handler
+        var container = $('#ObjectiveListContainer');
+        container.html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         abp.ajax({
-            url: abp.appPath + 'RealizedConsultations?handler=ObjectiveList&patientId=' + patientId,
+            url: '/RealizedConsultations?handler=ObjectiveList&patientId=' + patientId,
             type: 'GET',
             dataType: 'html',
             success: function (content) {
-                objectiveListContainer.html(content);
+                container.html(content);
             },
             error: function (e) {
-                objectiveListContainer.html('<div class="alert alert-danger" role="alert">Erro ao carregar os objetivos.</div>');
+                container.html('<div class="alert alert-danger">Ocorreu um erro ao carregar os objetivos.</div>');
             }
         });
     }
 
-    // Gatilhos para os botões dos modais
-    $('#NewConsultationButton').click(function (e) {
-        e.preventDefault();
-        createConsultationModal.open({ patientId: patientId });
-    });
-
+    // Evento de clique no botão "Adicionar novo objetivo"
     $('#NewObjectiveButton').click(function (e) {
         e.preventDefault();
         createObjectiveModal.open({ patientId: patientId });
     });
 
-    // Funções de callback que agora chamam a função de recarregar via AJAX
-    createConsultationModal.onResult(function () {
-        abp.notify.info('Consulta registrada com sucesso!');
-        loadObjectives(); // Recarrega apenas a lista
-    });
+    // =================================================================
+    // =========== INÍCIO DO CÓDIGO DE CORREÇÃO ADICIONADO ============
+    // =================================================================
+    // Este código é executado sempre que o modal de criar objetivo for aberto e estiver pronto
+    createObjectiveModal.onOpen(function () {
+        // Encontra o formulário e o botão Salvar dentro do modal que acabou de abrir
+        var modal = createObjectiveModal.getModal();
+        var form = modal.find('form');
+        var saveButton = modal.find('.modal-footer .btn-primary'); // Encontra o botão "Save"
 
-    createObjectiveModal.onResult(function () {
-        abp.notify.info('Novo objetivo adicionado com sucesso!');
-        loadObjectives(); // Recarrega apenas a lista
-    });
+        // Remove quaisquer "ouvintes" de clique antigos para evitar duplicação
+        saveButton.off('click');
 
-    // Lógica de filtragem (permanece a mesma, mas agora usa 'delegate' para funcionar com conteúdo dinâmico)
-    $(document).on('click', '.filter-buttons .btn', function (e) {
-        e.preventDefault();
-        var filter = $(this).data('filter');
-
-        $('.filter-buttons .btn').removeClass('active');
-        $(this).addClass('active');
-
-        if (filter === 'all') {
-            $('.objective-card, .consultation-item').show();
-        } else {
-            $('.objective-card').show();
-            $('.consultation-item').hide();
-            $('.consultation-item[data-specialization*="' + filter + '"]').show();
-        }
-
-        $('.objective-card').each(function () {
-            var $card = $(this);
-            if ($card.find('.consultation-item:visible').length === 0) {
-                $card.hide();
-            }
+        // Adiciona o nosso próprio "ouvinte" de clique
+        saveButton.on('click', function (e) {
+            e.preventDefault();
+            // Dispara manualmente o evento de submissão do formulário do ABP
+            form.submit();
         });
     });
+    // =================================================================
+    // ============= FIM DO CÓDIGO DE CORREÇÃO ADICIONADO ==============
+    // =================================================================
 
-    // Carrega a lista de objetivos na primeira vez que a página é acessada
+    // Evento disparado quando o modal de objetivo é fechado com sucesso
+    createObjectiveModal.onResult(function () {
+        // Recarrega a lista de objetivos na página principal
+        abp.notify.info('Novo objetivo adicionado com sucesso!');
+        loadObjectives();
+    });
+
+    // Carrega os objetivos pela primeira vez
     loadObjectives();
 });

@@ -102,5 +102,20 @@ namespace WeCare.Consultations
             return result;
         }
         #endregion
+        [Authorize(WeCarePermissions.Consultations.Create)]
+        public async Task CreateObjectiveAsync(CreateUpdateObjectiveDto input)
+        {
+            // Criamos uma nova entidade de consulta que representa o início do objetivo
+            var consultation = new Consultation
+            {
+                PatientId = input.PatientId,
+                TherapistId = input.TherapistId,
+                Description = input.ObjectiveName, // O nome do objetivo é a descrição da primeira consulta
+                DateTime = input.FirstConsultationDateTime,
+                Specialty = input.Specialty
+            };
+
+            await Repository.InsertAsync(consultation);
+        }
     }
 }

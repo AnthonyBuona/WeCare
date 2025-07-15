@@ -51,3 +51,12 @@
     background-color: #343a40; 
     color: white;
 }
+.modal-backdrop {
+    /* Força o fundo a ser preto. O !important garante que este estilo vai sobrepor outros. */
+    background-color: #000 !important;
+}
+
+    .modal-backdrop.show {
+        /* Força a opacidade (transparência) para 50%. */
+        opacity: 0.5 !important;
+    }

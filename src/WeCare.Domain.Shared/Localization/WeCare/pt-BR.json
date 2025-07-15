@@ -55,7 +55,7 @@
         "Permission:Therapists.Delete": "Apagar terapeutas",
         "Menu:RealizedConsultations": "Consultas Realizadas",
         "Menu:RealizedConsultationsFor": "Consultas Realizadas para {0}",
-        "+ Registrar última consulta": "+ Registrar última consulta",
-        "+ Adicionar novo objetivo": "+ Adicionar novo objetivo"
+        "RegisterLastConsultation": "+ Registrar última consulta",
+        "AddNewObjective": "+ Adicionar novo objetivo"
     }
 }

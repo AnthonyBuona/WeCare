@@ -13,7 +13,7 @@ namespace WeCare.Application.Contracts.Consultations
         PagedAndSortedResultRequestDto,
         CreateUpdateConsultationDto>
     {
-        // Novo método para buscar consultas agrupadas por objetivo para um paciente
+        Task CreateObjectiveAsync(CreateUpdateObjectiveDto input);
         Task<List<ObjectiveGroupDto>> GetGroupedByPatientAsync(Guid patientId);
     }
 }

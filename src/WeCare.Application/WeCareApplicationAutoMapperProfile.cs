@@ -47,7 +47,10 @@ namespace WeCare
             // Este é o mapeamento que estava faltando e causava o erro.
             CreateMap<Consultation, ConsultationInGroupDto>()
                 .ForMember(dest => dest.TherapistName, opt => opt.MapFrom(src => src.Therapist.Name))
-                .ForMember(dest => dest.TherapistSpecialization, opt => opt.MapFrom(src => src.Therapist.Specialization));
+                .ForMember(dest => dest.TherapistSpecialization, opt => opt.MapFrom(src =>
+                    // Se o terapeuta ou a especialização for nula, retorna uma string vazia.
+                    src.Therapist != null ? src.Therapist.Specialization : string.Empty
+                ));
         }
     }
 }

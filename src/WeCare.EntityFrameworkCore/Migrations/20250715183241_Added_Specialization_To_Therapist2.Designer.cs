@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 using WeCare.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using WeCare.EntityFrameworkCore;
 namespace WeCare.Migrations
 {
     [DbContext(typeof(WeCareDbContext))]
-    partial class WeCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715183241_Added_Specialization_To_Therapist2")]
+    partial class Added_Specialization_To_Therapist2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

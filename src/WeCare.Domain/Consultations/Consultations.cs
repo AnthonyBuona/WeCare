@@ -23,5 +23,7 @@ namespace WeCare.Consultations
 
         public Patient Patient { get; set; }
         public Therapist Therapist { get; set; }
+
+        public string Specialty { get; set; }
     }
 }
