@@ -1,66 +1,76 @@
 ﻿$(function () {
     var l = abp.localization.getResource('WeCare');
 
-    // --- Gerenciadores de modais ---
-    // Modal para registrar consulta em um objetivo que já existe
     var createConsultationModal = new abp.ModalManager(abp.appPath + 'RealizedConsultations/CreateModal');
-    // Modal para criar um novo objetivo
     var createObjectiveModal = new abp.ModalManager(abp.appPath + 'RealizedConsultations/CreateObjectiveModal');
 
-    // Pega o ID do paciente da URL
     var patientId = new URLSearchParams(window.location.search).get('patientId');
+    var objectiveListContainer = $('#ObjectiveListContainer');
 
-    // --- Gatilhos para os botões dos modais ---
+    // Função para carregar/recarregar a lista de objetivos
+    function loadObjectives() {
+        objectiveListContainer.html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+        // Chamada AJAX para o novo Page Handler
+        abp.ajax({
+            url: abp.appPath + 'RealizedConsultations?handler=ObjectiveList&patientId=' + patientId,
+            type: 'GET',
+            dataType: 'html',
+            success: function (content) {
+                objectiveListContainer.html(content);
+            },
+            error: function (e) {
+                objectiveListContainer.html('<div class="alert alert-danger" role="alert">Erro ao carregar os objetivos.</div>');
+            }
+        });
+    }
+
+    // Gatilhos para os botões dos modais
     $('#NewConsultationButton').click(function (e) {
         e.preventDefault();
-        // Este modal ainda não tem uma função clara no novo layout, mas mantemos o código
         createConsultationModal.open({ patientId: patientId });
     });
 
-    // Esta é a parte que faltava: o gatilho para o botão "Adicionar novo objetivo"
     $('#NewObjectiveButton').click(function (e) {
         e.preventDefault();
         createObjectiveModal.open({ patientId: patientId });
     });
 
-    // --- Funções de callback (o que acontece depois que o modal fecha com sucesso) ---
+    // Funções de callback que agora chamam a função de recarregar via AJAX
     createConsultationModal.onResult(function () {
-        location.reload(); // Recarrega a página para mostrar a nova consulta
+        abp.notify.info('Consulta registrada com sucesso!');
+        loadObjectives(); // Recarrega apenas a lista
     });
 
     createObjectiveModal.onResult(function () {
-        location.reload(); // Recarrega a página para mostrar o novo objetivo
+        abp.notify.info('Novo objetivo adicionado com sucesso!');
+        loadObjectives(); // Recarrega apenas a lista
     });
 
-    // --- LÓGICA DE FILTRAGEM ---
-    $('.filter-buttons .btn').click(function (e) {
+    // Lógica de filtragem (permanece a mesma, mas agora usa 'delegate' para funcionar com conteúdo dinâmico)
+    $(document).on('click', '.filter-buttons .btn', function (e) {
         e.preventDefault();
         var filter = $(this).data('filter');
 
-        // Atualiza o estado visual (classe 'active') dos botões de filtro
         $('.filter-buttons .btn').removeClass('active');
         $(this).addClass('active');
 
-        // Mostra todos os cards de objetivo antes de filtrar os itens internos
-        $('.objective-card').show();
-
         if (filter === 'all') {
-            // Se o filtro for 'todos', mostra todos os itens de consulta
-            $('.consultation-item').show();
+            $('.objective-card, .consultation-item').show();
         } else {
-            // Primeiro, esconde todos os itens de consulta
+            $('.objective-card').show();
             $('.consultation-item').hide();
-            // Depois, mostra apenas os itens que correspondem ao filtro
-            $('.consultation-item[data-specialization="' + filter + '"]').show();
+            $('.consultation-item[data-specialization*="' + filter + '"]').show();
         }
 
-        // Após filtrar, verifica se algum card de objetivo ficou sem nenhum item visível
         $('.objective-card').each(function () {
             var $card = $(this);
-            // Se não houver nenhum .consultation-item visível dentro deste card...
             if ($card.find('.consultation-item:visible').length === 0) {
-                $card.hide(); // ...esconde o card inteiro.
+                $card.hide();
             }
         });
     });
+
+    // Carrega a lista de objetivos na primeira vez que a página é acessada
+    loadObjectives();
 });

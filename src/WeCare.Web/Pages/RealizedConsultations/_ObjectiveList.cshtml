@@ -1,0 +1,40 @@
+﻿@using WeCare.Web.Pages.RealizedConsultations
+@model WeCare.Web.Pages.RealizedConsultations.ConsultationHistoryViewModel
+
+@if (!Model.Objectives.Any())
+{
+    <div class="alert alert-info" role="alert">
+        Nenhum objetivo ou consulta encontrada para este paciente.
+    </div>
+}
+else
+{
+    foreach (var objective in Model.Objectives)
+    {
+        <div class="card mb-4 objective-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">@objective.Name</h5>
+                    <span class="badge bg-primary rounded-pill">@objective.Progress%</span>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar" role="progressbar" style="width: @objective.Progress%;" aria-valuenow="@objective.Progress" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+                @foreach (var consultation in objective.Consultations)
+                {
+                    <div class="d-flex align-items-start mb-3 consultation-item" data-specialization="@consultation.TherapistSpecialization">
+                        <div class="consultation-icon @consultation.TherapistSpecialization.Replace(" ", "") me-3">
+                            @consultation.TherapistSpecialization
+                        </div>
+                        <div class="consultation-details">
+                            <h6 class="mb-0">@consultation.TherapistName</h6>
+                            <small class="text-muted">@consultation.DateTime.ToString("dd/MM/yyyy HH:mm")</small>
+                            <p class="mb-0">@consultation.Description</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
