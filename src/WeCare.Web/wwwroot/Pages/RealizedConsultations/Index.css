@@ -1,0 +1,53 @@
+﻿.consultation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-buttons .btn {
+    margin-right: 10px;
+}
+
+.objective-card .progress {
+    background-color: #e9ecef;
+}
+
+.consultation-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.consultation-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+/* Cores de exemplo para as especializações */
+.TO {
+    background-color: #007bff;
+}
+
+.NeuroPsico {
+    background-color: #28a745;
+}
+
+
+.consultation-details {
+    flex-grow: 1;
+}
+
+.filter-buttons .btn.active {
+    background-color: #343a40; 
+    color: white;
+}

@@ -22,6 +22,12 @@
                     rowAction: {
                         items: [
                             {
+                                text: l('Visualizar consultas'),
+                                action: function (data) {
+                                    window.location.href = abp.appPath + 'RealizedConsultations?patientId=' + data.record.id;
+                                }
+                            },
+                            {
                                 text: l('Editar'),
                                 action: function (data) {
                                     editModal.open({ id: data.record.id });

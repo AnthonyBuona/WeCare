@@ -24,5 +24,10 @@ namespace WeCare.Therapists
         [DataType(DataType.Password)]
         [Display(Name = "Senha")]
         public string Password { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        [Display(Name = "Formação")]
+        public string Specialization { get; set; }
     }
 }

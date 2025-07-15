@@ -52,6 +52,8 @@
         "Permission:Therapists": "Gerenciamento de Terapeutas",
         "Permission:Therapists.Create": "Criar novos terapeutas",
         "Permission:Therapists.Edit": "Editar terapeutas",
-        "Permission:Therapists.Delete": "Apagar terapeutas"
+        "Permission:Therapists.Delete": "Apagar terapeutas",
+        "Menu:RealizedConsultations": "Consultas Realizadas",
+        "Menu:RealizedConsultationsFor": "Consultas Realizadas para {0}"
     }
 }

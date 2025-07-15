@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using WeCare.Consultations;
 using WeCare.Patients;
 using WeCare.Therapists;
+using WeCare.Application.Contracts.Consultations;
 
 namespace WeCare.Web.Pages.Consultations
 {

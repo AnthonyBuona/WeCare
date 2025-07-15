@@ -1,0 +1,84 @@
+﻿@page
+@model WeCare.Web.Pages.RealizedConsultations.IndexModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@using WeCare.Web.Pages.RealizedConsultations
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    var title = Model.PatientName != null
+        ? L["Menu:RealizedConsultationsFor", Model.PatientName].Value
+        : L["Menu:RealizedConsultations"].Value;
+    ViewData["Title"] = title;
+}
+
+@section styles {
+    <link rel="stylesheet" href="/Pages/RealizedConsultations/Index.css" />
+}
+@section scripts {
+    <abp-script src="/Pages/RealizedConsultations/index.js" />
+}
+
+<div class="consultation-header">
+    <h2 class="page-title">@title</h2>
+    <div class="header-actions">
+        <abp-button id="NewConsultationButton"
+                    text="@L["Registrar última consulta"].Value"
+                    icon="plus"
+                    button-type="Primary" />
+        <abp-button id="NewObjectiveButton"
+                    text="@L["Adicionar novo objetivo"].Value"
+                    icon="plus-circle"
+                    button-type="Secondary" />
+    </div>
+</div>
+
+<abp-card class="mt-3">
+    <abp-card-body>
+        <h5>@L["Filtrar por formação"]</h5>
+        <div class="filter-buttons">
+            @* Botão para limpar o filtro *@
+            <abp-button text="Ver Todos" button-type="Outline_Dark" class="active" data-filter="all" />
+
+            @* Botões de filtro existentes *@
+            <abp-button text="NeuroPsico" button-type="Outline_Dark" data-filter="NeuroPsico" />
+            <abp-button text="Tr. Ocupacional" button-type="Outline_Dark" data-filter="T.O" />
+            <abp-button text="Psicopedagoga" button-type="Outline_Dark" data-filter="Psicopedagoga" />
+            <abp-button text="Fonoaudióloga" button-type="Outline_Dark" data-filter="Fonoaudióloga" />
+        </div>
+    </abp-card-body>
+</abp-card>
+
+
+@foreach (var objective in Model.ViewModel.Objectives)
+{
+    <abp-card class="mt-3 objective-card">
+        <abp-card-header>
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@objective.Name</h5>
+                <span class="text-muted">@objective.Progress%</span>
+            </div>
+            <div class="progress mt-2" style="height: 10px;">
+                <div class="progress-bar" role="progressbar" style="width: @(objective.Progress)%;" aria-valuenow="@objective.Progress" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </abp-card-header>
+        <abp-card-body>
+            @foreach (var consultation in objective.Consultations)
+            {
+                @* Adicionado o atributo data-specialization para o filtro funcionar *@
+                <div class="consultation-item" data-specialization="@consultation.TherapistSpecialization">
+                    <div class="consultation-icon @consultation.TherapistSpecialization.Replace(".", "")">
+                        @consultation.TherapistSpecialization
+                    </div>
+                    <div class="consultation-details">
+                        <div class="consultation-info">
+                            <strong>@consultation.TherapistName</strong> - <span class="text-muted">@consultation.DateTime.ToShortDateString()</span>
+                        </div>
+                        <div class="consultation-description">
+                            @consultation.Description
+                        </div>
+                    </div>
+                </div>
+            }
+        </abp-card-body>
+    </abp-card>
+}

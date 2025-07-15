@@ -18,6 +18,8 @@ namespace WeCare.Therapists
 
         public Guid UserId { get; set; }
 
+        [MaxLength(100)]
+        public string Specialization { get; set; }
         public ICollection<Tratamento> Tratamentos { get; set; }
 
         public Guid? TenantId { get; set; } 
