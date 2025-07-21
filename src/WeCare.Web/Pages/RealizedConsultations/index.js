@@ -9,6 +9,10 @@
         viewUrl: 'RealizedConsultations/CreateObjectiveModal'
     });
 
+    var createConsultationModal = new abp.ModalManager({
+        viewUrl: 'RealizedConsultations/CreateModal'
+    });
+
     // Função para carregar/recarregar a lista de objetivos
     function loadObjectives() {
         var container = $('#ObjectiveListContainer');
@@ -32,10 +36,21 @@
         createObjectiveModal.open({ patientId: patientId });
     });
 
+    $('#NewConsultationButton').click(function (e) {
+        e.preventDefault();
+        createConsultationModal.open({ patientId: patientId });
+    });
+
     // Evento disparado quando o modal de objetivo é fechado com sucesso
     createObjectiveModal.onResult(function () {
         // Recarrega a lista de objetivos na página principal
         abp.notify.info('Novo objetivo adicionado com sucesso!');
+        loadObjectives();
+    });
+
+    createConsultationModal.onResult(function () {
+        // Recarrega a lista de objetivos na página principal
+        abp.notify.info('Nova consulta registrada com sucesso!');
         loadObjectives();
     });
 

@@ -16,6 +16,8 @@ namespace WeCare.Web.Pages.RealizedConsultations
         [BindProperty]
         public CreateConsultationViewModel Consultation { get; set; }
 
+        [HiddenInput]
+        public Guid PatientId { get; set; }
         public SelectList TherapistLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
@@ -58,6 +60,7 @@ namespace WeCare.Web.Pages.RealizedConsultations
                     TherapistId = Consultation.TherapistId,
                     Description = Consultation.Description,
                     DateTime = Consultation.ConsultationDate.Add(timeOfDay)
+
                 };
                 await _consultationAppService.CreateAsync(dto);
             }
