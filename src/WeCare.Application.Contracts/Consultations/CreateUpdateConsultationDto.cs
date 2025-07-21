@@ -24,6 +24,10 @@ namespace WeCare.Consultations
 
 
         [Required]
+        [Display(Name = "Especialidade")]
+        public string Specialty { get; set; }
+
+        [Required]
         [StringLength(500)]
         [Display(Name = "Descrição")]
         public string Description { get; set; }

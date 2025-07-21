@@ -59,7 +59,8 @@ namespace WeCare.Web.Pages.RealizedConsultations
                     PatientId = Consultation.PatientId,
                     TherapistId = Consultation.TherapistId,
                     Description = Consultation.Description,
-                    DateTime = Consultation.ConsultationDate.Add(timeOfDay)
+                    DateTime = Consultation.ConsultationDate.Add(timeOfDay),
+                    Specialty = Consultation.Specialty
 
                 };
                 await _consultationAppService.CreateAsync(dto);
@@ -80,6 +81,11 @@ namespace WeCare.Web.Pages.RealizedConsultations
             [HiddenInput]
             public Guid PatientId { get; set; }
             public string PatientName { get; set; }
+
+
+            [Required]
+            [Display(Name = "Especialidade")]
+            public string Specialty { get; set; }
 
             [Required]
             [SelectItems("TherapistLookup")]
