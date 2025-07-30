@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Domain.Entities.Auditing;
 using WeCare.Patients;
+using WeCare.PerformedTrainings;
 using WeCare.Therapists;
 
 namespace WeCare.Consultations
@@ -25,5 +27,10 @@ namespace WeCare.Consultations
         public Therapist Therapist { get; set; }
 
         public string Specialty { get; set; }
+
+        public string MainTraining { get; set; }
+        public string Duration { get; set; }
+
+        public virtual ICollection<PerformedTraining> PerformedTrainings { get; set; }
     }
 }

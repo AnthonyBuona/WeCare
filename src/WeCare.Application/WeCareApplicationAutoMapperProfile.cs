@@ -7,7 +7,12 @@ using System;
 using WeCare.Shared;
 using WeCare.Therapists;
 using WeCare.Consultations;
-using WeCare.Application.Contracts.Consultations; // Importação necessária
+using WeCare.Application.Contracts.Consultations;
+using WeCare.Application.Contracts.PerformedTrainings;
+using WeCare.PerformedTrainings;
+using WeCare.Activities;
+using WeCare.Trainings;
+
 
 namespace WeCare
 {
@@ -43,14 +48,19 @@ namespace WeCare
                .ForMember(d => d.TherapistName, o => o.MapFrom(s => s.Therapist.Name));
             CreateMap<CreateUpdateConsultationDto, Consultation>();
 
-            // --- MAPEAMENTO CORRIGIDO E ADICIONADO ---
-            // Este é o mapeamento que estava faltando e causava o erro.
+            CreateMap<PerformedTraining, PerformedTrainingDto>();
+            CreateMap<CreateUpdatePerformedTrainingDto, PerformedTraining>();
             CreateMap<Consultation, ConsultationInGroupDto>()
                 .ForMember(dest => dest.TherapistName, opt => opt.MapFrom(src => src.Therapist.Name))
                 .ForMember(dest => dest.TherapistSpecialization, opt => opt.MapFrom(src =>
                     // Se o terapeuta ou a especialização for nula, retorna uma string vazia.
                     src.Therapist != null ? src.Therapist.Specialization : string.Empty
                 ));
+            CreateMap<Training, TrainingDto>();
+            CreateMap<CreateUpdateTrainingDto, Training>();
+
+            CreateMap<Activity, ActivityDto>();
+            CreateMap<CreateUpdateActivityDto, Activity>();
         }
     }
 }

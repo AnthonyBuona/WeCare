@@ -9,13 +9,128 @@
     Layout = null;
 }
 
-<abp-modal>
-    <abp-dynamic-form abp-model="Consultation" name="create-consultation-form">
-        <abp-modal-header title="@L["AddNewConsultation"].Value"></abp-modal-header>
-        <abp-modal-body>
-            <abp-input asp-for="PatientId" />
-            <abp-form-content />
-        </abp-modal-body>
-        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
-    </abp-dynamic-form>
+<abp-modal id="CreateConsultationModal">
+    <abp-modal-header title="@($"Registrar última consulta de {Model.Consultation.PatientName}")"></abp-modal-header>
+    <abp-modal-body>
+        <form id="CreateConsultationForm">
+            <abp-input asp-for="Consultation.PatientId" />
+
+            <abp-row>
+                <abp-column size-md="_8">
+                    <abp-select asp-for="Consultation.MainTraining" />
+                </abp-column>
+                <abp-column size-md="_4" class="d-flex align-items-end">
+                    <abp-button text="@L["Apagar"].Value" button-type="Light" id="ClearMainTrainingButton" />
+                </abp-column>
+            </abp-row>
+
+            <abp-input asp-for="Consultation.Duration" />
+            <abp-input asp-for="Consultation.ConsultationDate" />
+
+            <hr />
+
+            <h4>@L["Treinos realizados"]</h4>
+            <div id="performed-trainings-container">
+            </div>
+
+            <abp-button button-type="Outline_Primary" id="add-training-button">
+                <i class="fa fa-plus me-1"></i> @L["Adicionar outro"]
+            </abp-button>
+
+            <hr />
+
+            <abp-input asp-for="Consultation.Comments" />
+
+        </form>
+    </abp-modal-body>
+    <abp-modal-footer>
+        <abp-button button-type="Secondary" data-bs-dismiss="modal">@L["Cancel"]</abp-button>
+        <abp-button id="SaveConsultationButton" button-type="Success" text="@L["Salvar"].Value" />
+    </abp-modal-footer>
 </abp-modal>
+
+<script>
+    $(function () {
+        var l = abp.localization.getResource('WeCare');
+        var trainingItemIndex = 0;
+
+        // Função para adicionar um novo bloco de treino
+        function addTrainingItem() {
+            var container = $('#performed-trainings-container');
+
+            var template = `
+                <div class="border rounded p-3 mb-3 training-item">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn-close remove-training-button" aria-label="Close"></button>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">${l('Atividade que foi realizada')}</label>
+                        <select name="Consultation.PerformedTrainings[${trainingItemIndex}].Activity" class="form-select">
+    @foreach (var item in Model.ActivityLookup)
+    {
+                                    <option value="@item.Value">@item.Text</option>
+    }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">${l('Ajuda necessária')}</label>
+                        <select name="Consultation.PerformedTrainings[${trainingItemIndex}].HelpNeeded" class="form-select">
+    @foreach (var item in Model.HelpNeededLookup)
+    {
+                                    <option value="@item.Value">@item.Text</option>
+    }
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="TotalAttempts_${trainingItemIndex}" class="form-label">${l('Número de tentativas')}: <span id="totalAttemptsValue_${trainingItemIndex}">5</span></label>
+                            <input type="range" class="form-range" min="0" max="10" value="5" id="TotalAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].TotalAttempts" oninput="$('#totalAttemptsValue_${trainingItemIndex}').text(this.value);">
+                        </div>
+                        <div class="col">
+                            <label for="SuccessfulAttempts_${trainingItemIndex}" class="form-label">${l('Tentativas bem sucedidas')}: <span id="successfulAttemptsValue_${trainingItemIndex}">3</span></label>
+                            <input type="range" class="form-range" min="0" max="10" value="3" id="SuccessfulAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].SuccessfulAttempts" oninput="$('#successfulAttemptsValue_${trainingItemIndex}').text(this.value);">
+                        </div>
+                    </div>
+                </div>`;
+
+            container.append(template);
+            trainingItemIndex++;
+        }
+
+        // Função para reindexar os campos após a remoção
+        function reindexTrainingItems() {
+            trainingItemIndex = 0;
+            $('#performed-trainings-container .training-item').each(function () {
+                $(this).find('select, input').each(function () {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        var newName = name.replace(/\[\d+\]/, '[' + trainingItemIndex + ']');
+                        $(this).attr('name', newName);
+                    }
+                });
+                trainingItemIndex++;
+            });
+        }
+
+        // --- Event Handlers ---
+
+        // Adiciona um novo item
+        $('#add-training-button').click(function () {
+            addTrainingItem();
+        });
+
+        // Limpa o dropdown principal
+        $('#ClearMainTrainingButton').click(function(){
+            $('#Consultation_MainTraining').val('');
+        });
+
+        // Remove um item
+        $('#performed-trainings-container').on('click', '.remove-training-button', function () {
+            $(this).closest('.training-item').remove();
+            reindexTrainingItems();
+        });
+
+        // Adiciona o primeiro item de treino assim que o modal carregar
+        addTrainingItem();
+    });
+</script>

@@ -20,6 +20,9 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using WeCare.PerformedTrainings;
+using WeCare.Activities;
+using WeCare.Trainings;
 
 namespace WeCare.EntityFrameworkCore;
 
@@ -38,6 +41,10 @@ public class WeCareDbContext :
     public DbSet<Therapist> Therapists { get; set; }
     public DbSet<Tratamento> Tratamentos { get; set; }
     public DbSet<Consultation> Consultations { get; set; }
+    public DbSet<PerformedTraining> PerformedTrainings { get; set; }
+    public DbSet<Training> Trainings { get; set; }
+    public DbSet<Activity> Activities { get; set; }
+
 
     #region Entities from the modules
 
@@ -146,6 +153,25 @@ public class WeCareDbContext :
 
             b.HasOne(x => x.Patient).WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(x => x.Therapist).WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<Training>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Trainings", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
+
+            // Configura a relação "um-para-muitos"
+            b.HasMany(t => t.Activities)
+             .WithOne(a => a.Training)
+             .HasForeignKey(a => a.TrainingId)
+             .IsRequired();
+        });
+
+        builder.Entity<Activity>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Activities", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
         });
     }
 }
