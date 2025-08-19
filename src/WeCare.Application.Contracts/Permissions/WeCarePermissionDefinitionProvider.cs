@@ -67,6 +67,12 @@ namespace WeCare.Permissions
             consultationsPermission.AddChild(
                 WeCarePermissions.Consultations.Delete, L("Permission:Consultations.Delete"));
 
+            var trainingsPermission = myGroup.AddPermission(WeCarePermissions.Trainings.Default, L("Permission:Trainings"));
+            trainingsPermission.AddChild(WeCarePermissions.Trainings.Create, L("Permission:Trainings.Create"));
+            trainingsPermission.AddChild(WeCarePermissions.Trainings.Edit, L("Permission:Trainings.Edit"));
+            trainingsPermission.AddChild(WeCarePermissions.Trainings.Delete, L("Permission:Trainings.Delete"));
+
+
         }
 
 

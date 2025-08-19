@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Form;
 using WeCare.Application.Contracts.Consultations;
-using WeCare.Therapists; // Referência para ITherapistAppService
+using WeCare.Therapists;
 
 namespace WeCare.Web.Pages.RealizedConsultations
 {
@@ -14,9 +14,6 @@ namespace WeCare.Web.Pages.RealizedConsultations
         [BindProperty]
         public CreateObjectiveViewModel Objective { get; set; }
 
-        [HiddenInput]
-        public Guid PatientId { get; set; }
-
         public SelectList TherapistLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
@@ -24,10 +21,10 @@ namespace WeCare.Web.Pages.RealizedConsultations
 
         public CreateObjectiveModalModel(
             IConsultationAppService consultationAppService,
-            ITherapistAppService therapistAppService)
+            ITherapistAppService therapistAppservice)
         {
             _consultationAppService = consultationAppService;
-            _therapistAppService = therapistAppService;
+            _therapistAppService = therapistAppservice;
         }
 
         public async Task OnGetAsync(Guid patientId)
@@ -43,6 +40,13 @@ namespace WeCare.Web.Pages.RealizedConsultations
             TherapistLookup = new SelectList(therapistLookupResult.Items, "Id", "DisplayName");
         }
 
+        // NOVO MÉTODO: Busca a especialidade do terapeuta para o JavaScript
+        public async Task<JsonResult> OnGetSpecialtyAsync(Guid therapistId)
+        {
+            var therapist = await _therapistAppService.GetAsync(therapistId);
+            return new JsonResult(new { specialty = therapist.Specialization });
+        }
+
         public async Task<IActionResult> OnPostAsync()
         {
             if (!TimeSpan.TryParse(Objective.FirstConsultationTime, out _))
@@ -50,24 +54,23 @@ namespace WeCare.Web.Pages.RealizedConsultations
                 ModelState.AddModelError(nameof(Objective.FirstConsultationTime), "Formato de hora inválido. Use HH:mm.");
             }
 
-            // Valide outras regras de negócio aqui e adicione ao ModelState se necessário
-
             if (!ModelState.IsValid)
             {
-                // O framework do ABP/ASP.NET Core irá capturar o ModelState inválido
-                // e retornar um BadRequest (400) com os erros, que o modal irá exibir.
-                // Não precisamos de um 'return' explícito aqui, mas é bom para clareza.
-                // A mágica do ABP já faz o trabalho.
+                // A validação do modelo é tratada automaticamente pelo ABP Framework.
             }
 
-            // Se chegou até aqui, o modelo é válido
-            var timeOfDay = TimeSpan.Parse(Objective.FirstConsultationTime); // Seguro fazer o Parse agora
+            var timeOfDay = TimeSpan.Parse(Objective.FirstConsultationTime);
+
+            // ALTERAÇÃO: Busca o terapeuta para obter a especialidade diretamente do banco,
+            // garantindo a integridade dos dados.
+            var therapist = await _therapistAppService.GetAsync(Objective.TherapistId);
+
             var createDto = new CreateUpdateObjectiveDto
             {
                 PatientId = Objective.PatientId,
                 ObjectiveName = Objective.ObjectiveName,
                 TherapistId = Objective.TherapistId,
-                Specialty = Objective.Specialty,
+                Specialty = therapist.Specialization, // Usa a especialidade do terapeuta
                 FirstConsultationDateTime = Objective.FirstConsultationDate.Add(timeOfDay)
             };
 
@@ -76,7 +79,6 @@ namespace WeCare.Web.Pages.RealizedConsultations
             return NoContent();
         }
 
-        // ViewModel para o formulário do modal
         public class CreateObjectiveViewModel
         {
             [HiddenInput]
@@ -86,13 +88,13 @@ namespace WeCare.Web.Pages.RealizedConsultations
             [Display(Name = "Nome do Objetivo")]
             public string ObjectiveName { get; set; }
 
-            [Required]
+            // ALTERAÇÃO: O campo agora é apenas para exibição, a validação foi removida.
             [Display(Name = "Especialidade")]
             public string Specialty { get; set; }
 
             [Required]
             [SelectItems("TherapistLookup")]
-            [Display(Name = "Primeiro Terapeuta")]
+            [Display(Name = "Terapeuta Responsável")]
             public Guid TherapistId { get; set; }
 
             [Required]

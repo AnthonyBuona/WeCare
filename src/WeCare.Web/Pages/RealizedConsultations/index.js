@@ -13,6 +13,37 @@
         viewUrl: 'RealizedConsultations/CreateModal'
     });
 
+    createObjectiveModal.onOpen(function () {
+        // Seleciona os elementos DO MODAL que acabou de abrir
+        var therapistSelect = $('#Objective_TherapistId');
+        var specialtyInput = $('#Objective_Specialty');
+
+        // Função para atualizar a especialidade
+        function updateSpecialty() {
+            var selectedTherapistId = therapistSelect.val();
+
+            if (selectedTherapistId) {
+                // Monta a URL para o handler do backend
+                var url = '/RealizedConsultations/CreateObjectiveModal?handler=Specialty&therapistId=' + selectedTherapistId;
+
+                // Faz a chamada AJAX para buscar a especialidade
+                $.get(url, function (response) {
+                    specialtyInput.val(response.specialty);
+                });
+            } else {
+                // Limpa o campo se nenhum terapeuta for selecionado
+                specialtyInput.val('');
+            }
+        }
+
+        // Adiciona o evento 'change' ao dropdown de terapeutas
+        therapistSelect.on('change', updateSpecialty);
+
+        // Chama a função uma vez no carregamento para preencher o campo
+        // caso um terapeuta já venha pré-selecionado (não é o caso aqui, mas é uma boa prática)
+        updateSpecialty();
+    });
+
     // Função para carregar/recarregar a lista de objetivos
     function loadObjectives() {
         var container = $('#ObjectiveListContainer');
