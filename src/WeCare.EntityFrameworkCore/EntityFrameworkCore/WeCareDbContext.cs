@@ -23,6 +23,7 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using WeCare.PerformedTrainings;
 using WeCare.Activities;
 using WeCare.Trainings;
+using WeCare.Objectives;
 
 namespace WeCare.EntityFrameworkCore;
 
@@ -44,6 +45,8 @@ public class WeCareDbContext :
     public DbSet<PerformedTraining> PerformedTrainings { get; set; }
     public DbSet<Training> Trainings { get; set; }
     public DbSet<Activity> Activities { get; set; }
+
+    public DbSet<Objective> Objectives { get; set; }
 
 
     #region Entities from the modules

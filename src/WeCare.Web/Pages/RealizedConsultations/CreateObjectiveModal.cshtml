@@ -10,13 +10,13 @@
 <abp-modal>
     <abp-modal-header title="@L["Novo objetivo"].Value"></abp-modal-header>
     <abp-modal-body>
-        <abp-form asp-page="/RealizedConsultations/CreateObjectiveModal">
+        <abp-form asp-page="/RealizedConsultations/CreateObjectiveModal" id="CreateObjectiveForm">
             <abp-input asp-for="Objective.PatientId" />
             <abp-input asp-for="Objective.ObjectiveName" />
             <abp-select asp-for="Objective.TherapistId" />
-            
+
             <abp-input asp-for="Objective.Specialty" readonly="true" />
-            
+
             <abp-input asp-for="Objective.FirstConsultationDate" />
             <abp-input asp-for="Objective.FirstConsultationTime" />
         </abp-form>

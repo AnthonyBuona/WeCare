@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Form;
+using WeCare.Application.Contracts.Consultations;
 
 namespace WeCare.Web.Pages.RealizedConsultations
 {
@@ -30,29 +31,8 @@ namespace WeCare.Web.Pages.RealizedConsultations
     }
 
     // ViewModel para o formulário do modal "Adicionar Novo Objetivo"
-    public class ObjectiveViewModel
+    public class ObjectiveGroupViewModel
     {
-        [HiddenInput]
-        public Guid PatientId { get; set; }
-        public string PatientName { get; set; }
-
-        [Required]
-        [Display(Name = "Nome do Objetivo")]
-        public string ObjectiveName { get; set; }
-
-        [Required]
-        [SelectItems("TherapistLookup")]
-        [Display(Name = "Primeiro Terapeuta")]
-        public Guid TherapistId { get; set; }
-
-        [Required]
-        [Display(Name = "Data da Primeira Consulta")]
-        [DataType(DataType.Date)]
-        public DateTime FirstConsultationDate { get; set; }
-
-        [Required]
-        [Display(Name = "Hora da Primeira Consulta")]
-        [DataType(DataType.Time)]
-        public string FirstConsultationTime { get; set; }
+        public List<ObjectiveGroupDto> ObjectiveGroups { get; set; } = new();
     }
 }

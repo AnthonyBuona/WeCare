@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Form;
 using WeCare.Application.Contracts.Consultations;
 using WeCare.Therapists;
+using WeCare.Objectives;
 
 namespace WeCare.Web.Pages.RealizedConsultations
 {
@@ -17,13 +18,16 @@ namespace WeCare.Web.Pages.RealizedConsultations
         public SelectList TherapistLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
+        private readonly IObjectiveAppService _objectiveAppService;
         private readonly ITherapistAppService _therapistAppService;
 
         public CreateObjectiveModalModel(
             IConsultationAppService consultationAppService,
+            IObjectiveAppService objectiveAppService,
             ITherapistAppService therapistAppservice)
         {
             _consultationAppService = consultationAppService;
+            _objectiveAppService = objectiveAppService;
             _therapistAppService = therapistAppservice;
         }
 
@@ -68,13 +72,13 @@ namespace WeCare.Web.Pages.RealizedConsultations
             var createDto = new CreateUpdateObjectiveDto
             {
                 PatientId = Objective.PatientId,
-                ObjectiveName = Objective.ObjectiveName,
+                Name = Objective.ObjectiveName,
                 TherapistId = Objective.TherapistId,
-                Specialty = therapist.Specialization, // Usa a especialidade do terapeuta
-                FirstConsultationDateTime = Objective.FirstConsultationDate.Add(timeOfDay)
+                StartDate = Objective.FirstConsultationDate.Add(timeOfDay),
+                Status = "Ativo",
             };
 
-            await _consultationAppService.CreateObjectiveAsync(createDto);
+            await _objectiveAppService.CreateAsync(createDto);
 
             return NoContent();
         }

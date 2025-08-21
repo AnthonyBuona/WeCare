@@ -13,8 +13,6 @@ namespace WeCare.Application.Contracts.Consultations
         PagedAndSortedResultRequestDto,
         CreateUpdateConsultationDto>
     {
-        Task CreateObjectiveAsync(CreateUpdateObjectiveDto input);
-        Task<List<ObjectiveGroupDto>> GetGroupedByPatientAsync(Guid patientId);
-        Task<ListResultDto<string>> GetObjectiveNamesForPatientAsync(Guid patientId);
+
     }
 }

@@ -8,6 +8,7 @@ using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Form;
 using WeCare.Application.Contracts.Consultations;
 using WeCare.Patients;
 using WeCare.Therapists;
+using WeCare.Objectives;
 
 namespace WeCare.Web.Pages.RealizedConsultations
 {
@@ -19,17 +20,22 @@ namespace WeCare.Web.Pages.RealizedConsultations
         // Propriedades para popular os dropdowns
         public SelectList MainTrainingLookup { get; set; }
         public SelectList ActivityLookup { get; set; }
+
+        public SelectList ObjectiveLookup { get; set; }
         public SelectList HelpNeededLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
         private readonly IPatientAppService _patientAppService;
+        private readonly IObjectiveAppService _objectiveAppService;
 
         public CreateModalModel(
             IConsultationAppService consultationAppService,
-            IPatientAppService patientAppService)
+            IPatientAppService patientAppService,
+            IObjectiveAppService objectiveAppService)
         {
             _consultationAppService = consultationAppService;
             _patientAppService = patientAppService;
+            _objectiveAppService = objectiveAppService;
             Consultation = new RegisterConsultationViewModel();
         }
 
@@ -44,9 +50,9 @@ namespace WeCare.Web.Pages.RealizedConsultations
                 ConsultationDate = DateTime.Now.Date
             };
 
-            // Simulação de dados para os dropdowns
-            // TODO: Substituir por uma busca real no banco de dados, se necessário
-            MainTrainingLookup = new SelectList(new List<string> { "Treino A", "Treino B", "Treino C" });
+            // Carregar a lista de objetivos para o dropdown
+            var objectiveLookupResult = await _objectiveAppService.GetObjectiveLookupAsync(patientId);
+            ObjectiveLookup = new SelectList(objectiveLookupResult.Items, "Id", "DisplayName");
             ActivityLookup = new SelectList(new List<string> { "Atividade 1", "Atividade 2", "Atividade 3" });
             HelpNeededLookup = new SelectList(new List<string> { "Nenhuma", "Pouca", "Muita" });
         }
@@ -72,6 +78,12 @@ namespace WeCare.Web.Pages.RealizedConsultations
         [HiddenInput]
         public Guid PatientId { get; set; }
         public string PatientName { get; set; }
+
+        [Required]
+        [SelectItems(nameof(CreateModalModel.ObjectiveLookup))]
+        [Display(Name = "Objetivo ")]
+        public Guid ObjectiveId { get; set; }
+
 
         [Display(Name = "Treino realizado")]
         [SelectItems(nameof(CreateModalModel.MainTrainingLookup))]

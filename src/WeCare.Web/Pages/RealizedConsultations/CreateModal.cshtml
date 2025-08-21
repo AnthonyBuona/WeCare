@@ -17,10 +17,13 @@
 
             <abp-row>
                 <abp-column size-md="_8">
-                    <abp-select asp-for="Consultation.MainTraining" />
+                    <abp-select asp-for="Consultation.ObjectiveId" asp-items="@Model.ObjectiveLookup" />
                 </abp-column>
                 <abp-column size-md="_4" class="d-flex align-items-end">
-                    <abp-button text="@L["Apagar"].Value" button-type="Light" id="ClearMainTrainingButton" />
+                    <abp-button id="NewObjectiveButton"
+                                text="@L["Novo objetivo"].Value"
+                                icon="plus"
+                                button-type="Secondary" />
                 </abp-column>
             </abp-row>
 

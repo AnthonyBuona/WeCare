@@ -32,5 +32,7 @@ namespace WeCare.Consultations
         public string Duration { get; set; }
 
         public virtual ICollection<PerformedTraining> PerformedTrainings { get; set; }
+
+        public Guid ObjectiveId { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using WeCare.Application.Contracts.PerformedTrainings; // IMPORTANTE: Adicionar 
 using WeCare.Permissions;
 using WeCare.PerformedTrainings; // IMPORTANTE: Adicionar este using
 using WeCare.Therapists;
+using WeCare.Objectives;
 
 
 namespace WeCare.Consultations
@@ -26,13 +27,17 @@ namespace WeCare.Consultations
         IConsultationAppService
     {
         private readonly IRepository<Therapist, Guid> _therapistRepository;
+        private readonly IRepository<Objective, Guid> _objectiveRepository;
 
         public ConsultationAppService(
             IRepository<Consultation, Guid> repository,
-            IRepository<Therapist, Guid> therapistRepository)
+            IRepository<Therapist, Guid> therapistRepository,
+            IRepository<Objective, Guid> objectiveRepository)
             : base(repository)
         {
             _therapistRepository = therapistRepository;
+            _objectiveRepository = objectiveRepository;
+
             GetPolicyName = WeCarePermissions.Consultations.Default;
             GetListPolicyName = WeCarePermissions.Consultations.Default;
             CreatePolicyName = WeCarePermissions.Consultations.Create;
@@ -134,15 +139,26 @@ namespace WeCare.Consultations
         [Authorize(WeCarePermissions.Consultations.Create)]
         public async Task CreateObjectiveAsync(CreateUpdateObjectiveDto input)
         {
-            var consultation = new Consultation
+            var objective = new Objective
             {
                 PatientId = input.PatientId,
                 TherapistId = input.TherapistId,
-                Description = input.ObjectiveName,
-                DateTime = input.FirstConsultationDateTime,
-                Specialty = input.Specialty
+                Name = input.Name,
+                StartDate = input.StartDate.Date,
+                Status = "Ativo" 
             };
-
+            await _objectiveRepository.InsertAsync(objective);
+            var consultation = new Consultation
+            {
+                ObjectiveId = objective.Id, 
+                PatientId = input.PatientId,
+                TherapistId = input.TherapistId,
+                Description = "Consulta Inicial: " + input.Name,
+                DateTime = input.StartDate,
+                Specialty = input.TherapistId != Guid.Empty
+                    ? (await _therapistRepository.GetAsync(input.TherapistId)).Specialization
+                    : "Geral",
+            };
             await Repository.InsertAsync(consultation);
         }
 

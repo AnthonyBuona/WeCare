@@ -12,7 +12,7 @@ using WeCare.Application.Contracts.PerformedTrainings;
 using WeCare.PerformedTrainings;
 using WeCare.Activities;
 using WeCare.Trainings;
-
+using WeCare.Objectives;
 
 namespace WeCare
 {
@@ -61,6 +61,9 @@ namespace WeCare
 
             CreateMap<Activity, ActivityDto>();
             CreateMap<CreateUpdateActivityDto, Activity>();
+
+            CreateMap<Objective, ObjectiveDto>();
+            CreateMap<CreateUpdateObjectiveDto, Objective>();
         }
     }
 }

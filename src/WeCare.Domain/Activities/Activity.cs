@@ -12,6 +12,7 @@ namespace WeCare.Activities
         public string Name { get; set; }
 
         public string Description { get; set; }
+        public Guid ObjectiveId { get; set; }
 
         public Guid TrainingId { get; set; } 
         public virtual Training Training { get; set; } 
