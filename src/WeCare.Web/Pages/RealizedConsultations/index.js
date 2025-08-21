@@ -1,4 +1,6 @@
-﻿$(function () {
+﻿alert("VERSÃO NOVA DO SCRIPT CARREGADA!"); 
+
+$(function () {
     var l = abp.localization.getResource('WeCare');
 
     // Extrai o PatientId da URL da página
@@ -14,33 +16,35 @@
     });
 
     createObjectiveModal.onOpen(function () {
-        // Seleciona os elementos DO MODAL que acabou de abrir
-        var therapistSelect = $('#Objective_TherapistId');
-        var specialtyInput = $('#Objective_Specialty');
+        console.log("Modal de Criar Objetivo ABERTO. Tentando configurar os scripts...");
 
-        // Função para atualizar a especialidade
+        // --- CORREÇÃO AQUI ---
+        // Os seletores foram ajustados para corresponder aos IDs gerados pela <abp-form>
+        // quando não se usa abp-model no form.
+        var therapistSelect = $('#Objective_TherapistId'); // O ID correto é Objective_TherapistId
+        var specialtyInput = $('#Objective_Specialty');   // O ID correto é Objective_Specialty
+
+        if (therapistSelect.length === 0) {
+            console.error("ERRO: O seletor de terapeuta '#Objective_TherapistId' não foi encontrado. Verifique o ID no HTML do modal.");
+            return;
+        }
+
         function updateSpecialty() {
             var selectedTherapistId = therapistSelect.val();
 
             if (selectedTherapistId) {
-                // Monta a URL para o handler do backend
                 var url = '/RealizedConsultations/CreateObjectiveModal?handler=Specialty&therapistId=' + selectedTherapistId;
-
-                // Faz a chamada AJAX para buscar a especialidade
                 $.get(url, function (response) {
                     specialtyInput.val(response.specialty);
                 });
             } else {
-                // Limpa o campo se nenhum terapeuta for selecionado
                 specialtyInput.val('');
             }
         }
 
-        // Adiciona o evento 'change' ao dropdown de terapeutas
         therapistSelect.on('change', updateSpecialty);
 
-        // Chama a função uma vez no carregamento para preencher o campo
-        // caso um terapeuta já venha pré-selecionado (não é o caso aqui, mas é uma boa prática)
+        // Chama a função imediatamente para o caso de um valor já estar selecionado
         updateSpecialty();
     });
 
