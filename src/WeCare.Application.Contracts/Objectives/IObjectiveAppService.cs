@@ -17,5 +17,6 @@ namespace WeCare.Objectives
     {
         Task<ListResultDto<LookupDto<Guid>>> GetObjectiveLookupAsync(Guid patientId);
         Task<List<ObjectiveGroupDto>> GetGroupedObjectivesByPatientAsync(Guid patientId);
+        Task<ListResultDto<LookupDto<Guid>>> GetTrainingsForObjectiveAsync(Guid objectiveId);
     }
 }

@@ -7,46 +7,12 @@
 @{
     Layout = null;
 }
-<abp-modal>
-    <abp-modal-header title="@L["Novo objetivo"].Value"></abp-modal-header>
-    <abp-modal-body>
-        <abp-form id="CreateObjectiveForm" method="post">
-            <abp-input asp-for="Objective.PatientId" />
-            <abp-input asp-for="Objective.ObjectiveName" />
-            <abp-select asp-for="Objective.TherapistId" />
-
-            <abp-input asp-for="Objective.Specialty" readonly="true" />
-
-            <abp-input asp-for="Objective.FirstConsultationDate" />
-            <abp-input asp-for="Objective.FirstConsultationTime" />
-        </abp-form>
-    </abp-modal-body>
-    <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
-</abp-modal>
-
-<script>
-    function () {
-        var therapistSelect = $('#Objective_TherapistId');
-        var specialtyInput = $('#Objective_Specialty');
-
-        if (therapistSelect.length === 0) {
-            console.error("ERRO: O seletor de terapeuta '#Objective_TherapistId' não foi encontrado.");
-            return;
-        }
-
-        function updateSpecialty() {
-            var selectedTherapistId = therapistSelect.val();
-            if (selectedTherapistId) {
-                // Chama o handler no PageModel para buscar a especialidade do terapeuta.
-                var url = '/RealizedConsultations/CreateObjectiveModal?handler=Specialty&therapistId=' + selectedTherapistId;
-                $.get(url, function (response) {
-                    specialtyInput.val(response.specialty);
-                });
-            } else {
-                specialtyInput.val('');
-            }
-        }
-
-        therapistSelect.on('change', updateSpecialty);
-        updateSpecialty();
-</script>
+<abp-dynamic-form abp-model="Objective" asp-page="/RealizedConsultations/CreateObjectiveModal">
+    <abp-modal>
+        <abp-modal-header title="@L["Novo objetivo"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-form-content />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</abp-dynamic-form>

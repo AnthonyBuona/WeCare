@@ -13,7 +13,9 @@
 
     // Modal secundário para criar um novo objetivo, chamado a partir do modal de consulta.
     var createObjectiveModal = new abp.ModalManager({
-        viewUrl: '/RealizedConsultations/CreateObjectiveModal'
+        viewUrl: abp.appPath + 'RealizedConsultations/CreateObjectiveModal',
+        scriptUrl: abp.appPath + 'Pages/RealizedConsultations/createObjectiveModal.js', // Adicione esta linha
+        modalClass: 'objectiveCreate'
     });
 
 

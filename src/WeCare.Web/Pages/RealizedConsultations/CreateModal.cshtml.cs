@@ -89,8 +89,9 @@ namespace WeCare.Web.Pages.RealizedConsultations
         [SelectItems(nameof(CreateModalModel.MainTrainingLookup))]
         public string MainTraining { get; set; }
 
+        [Required]
         [Display(Name = "Duração")]
-        public string Duration { get; set; }
+        public int Duration { get; set; }
 
         [Required]
         [Display(Name = "Data da última consulta")]
