@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic; // Adicione este using
+using System.Collections.Generic; 
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Volo.Abp.Domain.Entities.Auditing;
-using WeCare.Activities; // Adicione este using
+using WeCare.Activities; 
+using WeCare.Objectives; 
 
 namespace WeCare.Trainings
 {
@@ -14,6 +15,9 @@ namespace WeCare.Trainings
         public string Name { get; set; }
 
         public string Description { get; set; }
+        public Guid ObjectiveId { get; set; } 
+        public virtual Objective Objective { get; set; }
+
         public virtual ICollection<Activities.Activity> Activities { get; set; }
         public Training()
         {

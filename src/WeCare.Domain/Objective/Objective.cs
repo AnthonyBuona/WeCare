@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
 using WeCare.Consultations;
+using WeCare.Trainings;
 
 namespace WeCare.Objectives
 {
@@ -17,5 +18,12 @@ namespace WeCare.Objectives
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public ICollection<Consultation> Consultations { get; set; }
+        public virtual ICollection<Training> Trainings { get; protected set; } // Adicione esta linha
+
+        public Objective()
+        {
+            Consultations = new HashSet<Consultation>();
+            Trainings = new HashSet<Training>(); // Inicialize a coleção
+        }
     }
 }

@@ -4,7 +4,6 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
 @inject IHtmlLocalizer<WeCareResource> L
-
 @{
     Layout = null;
 }
@@ -12,7 +11,7 @@
 <abp-modal id="CreateConsultationModal">
     <abp-modal-header title="@($"Registrar última consulta de {Model.Consultation.PatientName}")"></abp-modal-header>
     <abp-modal-body>
-        <form id="CreateConsultationForm">
+        <form id="CreateConsultationForm" method="post">
             <abp-input asp-for="Consultation.PatientId" />
 
             <abp-row>
@@ -34,6 +33,7 @@
 
             <h4>@L["Treinos realizados"]</h4>
             <div id="performed-trainings-container">
+                <!-- Os itens de treino serão adicionados aqui pelo JavaScript -->
             </div>
 
             <abp-button button-type="Outline_Primary" id="add-training-button">
@@ -48,92 +48,129 @@
     </abp-modal-body>
     <abp-modal-footer>
         <abp-button button-type="Secondary" data-bs-dismiss="modal">@L["Cancel"]</abp-button>
-        <abp-button id="SaveConsultationButton" button-type="Success" text="@L["Salvar"].Value" />
+        <abp-button id="SaveConsultationButton" type="submit" button-type="Success" text="@L["Salvar"].Value" />
     </abp-modal-footer>
 </abp-modal>
 
+<!-- CORREÇÃO: A tag <script> agora está DENTRO da tag <abp-script> -->
 <script>
-    $(function () {
-        var l = abp.localization.getResource('WeCare');
-        var trainingItemIndex = 0;
+        $(function () {
+            var l = abp.localization.getResource('WeCare');
+            var trainingItemIndex = 0;
+            var objectiveTrainings = [];
+            var form = $('#CreateConsultationForm');
+            var modalManager = $('#CreateConsultationModal').data('abp-modal');
 
-        // Função para adicionar um novo bloco de treino
-        function addTrainingItem() {
-            var container = $('#performed-trainings-container');
+            var objectiveService = weCare.objectives.objective;
+            var consultationService = weCare.consultations.consultation;
 
-            var template = `
-                <div class="border rounded p-3 mb-3 training-item">
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn-close remove-training-button" aria-label="Close"></button>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">${l('Atividade que foi realizada')}</label>
-                        <select name="Consultation.PerformedTrainings[${trainingItemIndex}].Activity" class="form-select">
-    @foreach (var item in Model.ActivityLookup)
-    {
-                                    <option value="@item.Value">@item.Text</option>
-    }
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">${l('Ajuda necessária')}</label>
-                        <select name="Consultation.PerformedTrainings[${trainingItemIndex}].HelpNeeded" class="form-select">
-    @foreach (var item in Model.HelpNeededLookup)
-    {
-                                    <option value="@item.Value">@item.Text</option>
-    }
-                        </select>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label for="TotalAttempts_${trainingItemIndex}" class="form-label">${l('Número de tentativas')}: <span id="totalAttemptsValue_${trainingItemIndex}">5</span></label>
-                            <input type="range" class="form-range" min="0" max="10" value="5" id="TotalAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].TotalAttempts" oninput="$('#totalAttemptsValue_${trainingItemIndex}').text(this.value);">
-                        </div>
-                        <div class="col">
-                            <label for="SuccessfulAttempts_${trainingItemIndex}" class="form-label">${l('Tentativas bem sucedidas')}: <span id="successfulAttemptsValue_${trainingItemIndex}">3</span></label>
-                            <input type="range" class="form-range" min="0" max="10" value="3" id="SuccessfulAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].SuccessfulAttempts" oninput="$('#successfulAttemptsValue_${trainingItemIndex}').text(this.value);">
-                        </div>
-                    </div>
-                </div>`;
-
-            container.append(template);
-            trainingItemIndex++;
-        }
-
-        // Função para reindexar os campos após a remoção
-        function reindexTrainingItems() {
-            trainingItemIndex = 0;
-            $('#performed-trainings-container .training-item').each(function () {
-                $(this).find('select, input').each(function () {
-                    var name = $(this).attr('name');
-                    if (name) {
-                        var newName = name.replace(/\[\d+\]/, '[' + trainingItemIndex + ']');
-                        $(this).attr('name', newName);
-                    }
+            function fetchTrainingsForObjective(objectiveId) {
+                if (!objectiveId) {
+                    objectiveTrainings = [];
+                    updateAllTrainingSelects();
+                    return;
+                }
+                objectiveService.getTrainingsForObjective(objectiveId).done(function (result) {
+                    objectiveTrainings = result.items;
+                    updateAllTrainingSelects();
                 });
-                trainingItemIndex++;
-            });
+            }
+
+            function populateTrainingSelect(selectElement) {
+                var $select = $(selectElement);
+                $select.empty().append($('<option>', { value: '', text: 'Selecione um treino...' }));
+                if (objectiveTrainings && objectiveTrainings.length > 0) {
+                    objectiveTrainings.forEach(function (training) {
+                        $select.append($('<option>', {
+                            value: training.id,
+                            text: training.displayName
+                        }));
+                    });
+                }
+            }
+
+            function updateAllTrainingSelects() {
+                $('#performed-trainings-container .training-select').each(function() {
+                    populateTrainingSelect(this);
+                });
+            }
+
+            function addTrainingItem() {
+                var container = $('#performed-trainings-container');
+                var template = `
+                    <div class="border rounded p-3 mb-3 training-item">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn-close remove-training-button" aria-label="Close"></button>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">${l('Atividade que foi realizada')}</label>
+                            <select name="Consultation.PerformedTrainings[${trainingItemIndex}].TrainingId" class="form-select training-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">${l('Ajuda necessária')}</label>
+                            <select name="Consultation.PerformedTrainings[${trainingItemIndex}].HelpNeeded" class="form-select">
+        @foreach (var item in Model.HelpNeededLookup)
+        {
+                                        <option value="@item.Value">@item.Text</option>
         }
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="TotalAttempts_${trainingItemIndex}" class="form-label">${l('Número de tentativas')}: <span id="totalAttemptsValue_${trainingItemIndex}">5</span></label>
+                                <input type="range" class="form-range" min="0" max="10" value="5" id="TotalAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].TotalAttempts" oninput="$('#totalAttemptsValue_${trainingItemIndex}').text(this.value);">
+                            </div>
+                            <div class="col">
+                                <label for="SuccessfulAttempts_${trainingItemIndex}" class="form-label">${l('Tentativas bem sucedidas')}: <span id="successfulAttemptsValue_${trainingItemIndex}">3</span></label>
+                                <input type="range" class="form-range" min="0" max="10" value="3" id="SuccessfulAttempts_${trainingItemIndex}" name="Consultation.PerformedTrainings[${trainingItemIndex}].SuccessfulAttempts" oninput="$('#successfulAttemptsValue_${trainingItemIndex}').text(this.value);">
+                            </div>
+                        </div>
+                    </div>`;
+                container.append(template);
+                var newSelect = container.find('.training-item:last .training-select');
+                populateTrainingSelect(newSelect[0]);
+                trainingItemIndex++;
+            }
 
-        // --- Event Handlers ---
+            function reindexTrainingItems() {
+                var index = 0;
+                $('#performed-trainings-container .training-item').each(function () {
+                    $(this).find('select, input').each(function () {
+                        var name = $(this).attr('name');
+                        if (name) {
+                            var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                            $(this).attr('name', newName);
+                        }
+                    });
+                    index++;
+                });
+                trainingItemIndex = index;
+            }
 
-        // Adiciona um novo item
-        $('#add-training-button').click(function () {
+            $('#Consultation_ObjectiveId').on('change', function() {
+                fetchTrainingsForObjective($(this).val());
+            });
+
+            $('#add-training-button').click(addTrainingItem);
+
+            $('#performed-trainings-container').on('click', '.remove-training-button', function () {
+                $(this).closest('.training-item').remove();
+                reindexTrainingItems();
+            });
+
+            form.submit(function (e) {
+                e.preventDefault();
+                if (!form.valid()) return;
+                var formData = form.serializeFormToObject();
+                consultationService.create(formData.Consultation)
+                    .then(function (result) {
+                        modalManager.close();
+                        abp.notify.success('Consulta registrada com sucesso!');
+                        abp.event.trigger('app.consultation.created', result);
+                    });
+            });
+
             addTrainingItem();
+            $('#Consultation_ObjectiveId').trigger('change');
         });
-
-        // Limpa o dropdown principal
-        $('#ClearMainTrainingButton').click(function(){
-            $('#Consultation_MainTraining').val('');
-        });
-
-        // Remove um item
-        $('#performed-trainings-container').on('click', '.remove-training-button', function () {
-            $(this).closest('.training-item').remove();
-            reindexTrainingItems();
-        });
-
-        // Adiciona o primeiro item de treino assim que o modal carregar
-        addTrainingItem();
-    });
 </script>
