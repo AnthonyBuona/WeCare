@@ -163,11 +163,6 @@ public class WeCareDbContext :
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
 
-            // Configura a relação "um-para-muitos"
-            b.HasMany(t => t.Activities)
-             .WithOne(a => a.Training)
-             .HasForeignKey(a => a.TrainingId)
-             .IsRequired();
         });
 
         builder.Entity<Activity>(b =>

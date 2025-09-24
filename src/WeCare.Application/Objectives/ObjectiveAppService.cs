@@ -72,7 +72,7 @@ namespace WeCare.Objectives
         }
 
         // Agora este método funcionará, pois _trainingRepository existe!
-        public async Task<ListResultDto<LookupDto<Guid>>> GetTrainingsForObjectiveAsync(Guid objectiveId)
+        public async Task<ListResultDto<LookupDto<Guid>>> GetTrainingsForObjective(Guid objectiveId)
         {
             var trainings = await _trainingRepository.GetListAsync(t => t.ObjectiveId == objectiveId);
 

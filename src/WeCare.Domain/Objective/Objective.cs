@@ -23,7 +23,7 @@ namespace WeCare.Objectives
         public Objective()
         {
             Consultations = new HashSet<Consultation>();
-            Trainings = new HashSet<Training>(); // Inicialize a coleção
+            Trainings = new HashSet<Training>(); 
         }
     }
 }

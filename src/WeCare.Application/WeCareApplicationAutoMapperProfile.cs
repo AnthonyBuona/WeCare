@@ -64,6 +64,13 @@ namespace WeCare
 
             CreateMap<Objective, ObjectiveDto>();
             CreateMap<CreateUpdateObjectiveDto, Objective>();
+
+            CreateMap<CreateUpdatePerformedTrainingDto, PerformedTraining>();
+            CreateMap<PerformedTraining, PerformedTrainingDto>()
+                .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.Training.Name));
+
+            CreateMap<Training, TrainingDto>();
+            CreateMap<CreateUpdateTrainingDto, Training>();
         }
     }
 }

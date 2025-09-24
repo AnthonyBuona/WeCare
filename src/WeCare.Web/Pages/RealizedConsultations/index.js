@@ -1,31 +1,36 @@
 ﻿$(function () {
     var l = abp.localization.getResource('WeCare');
 
-    // 1. O patientId é pego da URL da página. Ele é a referência principal.
     const urlParams = new URLSearchParams(window.location.search);
     const patientId = urlParams.get('patientId');
 
-    // 2. CONFIGURAÇÃO DOS MODAIS
-    // Modal principal para registrar uma consulta/sessão.
+    // --- 1. CONFIGURAÇÃO DOS MODAIS ---
+    // Todos os modais que a página pode abrir são definidos aqui.
+
     var createConsultationModal = new abp.ModalManager({
-        viewUrl: '/RealizedConsultations/CreateModal'
+        viewUrl: '/RealizedConsultations/CreateModal',
+        scriptUrl: '/Pages/RealizedConsultations/createModal.js' // Garante que o script do modal seja carregado
     });
 
-    // Modal secundário para criar um novo objetivo, chamado a partir do modal de consulta.
     var createObjectiveModal = new abp.ModalManager({
         viewUrl: abp.appPath + 'RealizedConsultations/CreateObjectiveModal',
-        scriptUrl: abp.appPath + 'Pages/RealizedConsultations/createObjectiveModal.js', // Adicione esta linha
+        scriptUrl: abp.appPath + 'Pages/RealizedConsultations/createObjectiveModal.js',
         modalClass: 'objectiveCreate'
     });
 
+    // NOVO: Adicionamos a definição do modal de criar treino aqui.
+    var createTrainingModal = new abp.ModalManager({
+        viewUrl: abp.appPath + 'Trainings/CreateModal'
+        // Não precisa de scriptUrl se o modal for simples (só HTML e post)
+    });
 
-    // 3. FUNÇÃO PARA CARREGAR A LISTA DE OBJETIVOS E CONSULTAS
-    // Esta função é chamada sempre que a página precisa ser atualizada.
+
+    // --- 2. FUNÇÃO PARA CARREGAR CONTEÚDO DA PÁGINA ---
     function loadObjectives() {
         var container = $('#ObjectiveListContainer');
         if (container.length === 0 || !patientId) return;
 
-        container.html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        container.html('<div class="d-flex justify-content-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
 
         abp.ajax({
             url: '/RealizedConsultations?handler=ObjectiveList&patientId=' + patientId,
@@ -40,84 +45,58 @@
         });
     }
 
+    // --- 3. EVENTOS E MANIPULADORES ---
 
-    // 4. EVENTOS E MANIPULADORES (HANDLERS)
-
-    // --- Lógica do Modal de Registrar Consulta ---
-
-    // Quando o botão principal "Registrar última consulta" é clicado.
+    // Abre o modal principal para registrar uma consulta
     $('#NewConsultationButton').click(function (e) {
         e.preventDefault();
-        // Abre o modal passando o patientId para ele carregar os dados corretos (ex: lista de objetivos).
         createConsultationModal.open({ patientId: patientId });
     });
 
-    // Evento disparado QUANDO o modal de consulta é aberto.
+    // Anexa os eventos DEPOIS que o modal de consulta for aberto
     createConsultationModal.onOpen(function () {
         var modal = createConsultationModal.getModal();
 
-        // Procura o botão "+ Novo Objetivo" DENTRO do modal de consulta e anexa um evento de clique.
+        // Evento para o botão "+ Novo Objetivo"
         modal.find('#NewObjectiveButton').on('click', function (e) {
             e.preventDefault();
-            // Abre o modal de criar objetivo.
             createObjectiveModal.open({ patientId: patientId });
+        });
+
+        // Evento para o botão "+ Novo Treino" (delegado, pois os botões são criados dinamicamente)
+        modal.find('#performed-trainings-container').on('click', '.add-new-training-button', function () {
+            var objectiveId = modal.find('#Consultation_ObjectiveId').val();
+            if (!objectiveId) {
+                abp.notify.warn('Por favor, selecione um objetivo primeiro.');
+                return;
+            }
+            createTrainingModal.open({ objectiveId: objectiveId });
         });
     });
 
-    // Quando o modal de consulta é fechado com SUCESSO.
-    createConsultationModal.onResult(function () {
-        abp.notify.info('Nova consulta registrada com sucesso!');
-        loadObjectives(); // Apenas recarrega a lista na página principal.
+    // Ouve o evento global que o createModal.js dispara quando uma consulta é salva
+    abp.event.on('app.consultation.created', function () {
+        abp.notify.success('Nova consulta registrada com sucesso!');
+        loadObjectives(); // Recarrega a lista na página principal.
     });
 
-
-    // --- Lógica do Modal de Novo Objetivo ---
-
-    // Evento disparado QUANDO o modal de criar objetivo é aberto.
-    createObjectiveModal.onOpen(function () {
-        var therapistSelect = $('#Objective_TherapistId');
-        var specialtyInput = $('#Objective_Specialty');
-
-        if (therapistSelect.length === 0) {
-            console.error("ERRO: O seletor de terapeuta '#Objective_TherapistId' não foi encontrado.");
-            return;
-        }
-
-        function updateSpecialty() {
-            var selectedTherapistId = therapistSelect.val();
-            if (selectedTherapistId) {
-                // Chama o handler no PageModel para buscar a especialidade do terapeuta.
-                var url = '/RealizedConsultations/CreateObjectiveModal?handler=Specialty&therapistId=' + selectedTherapistId;
-                $.get(url, function (response) {
-                    specialtyInput.val(response.specialty);
-                });
-            } else {
-                specialtyInput.val('');
-            }
-        }
-
-        therapistSelect.on('change', updateSpecialty);
-        updateSpecialty(); // Chama uma vez para preencher o campo se já houver um terapeuta selecionado.
-    });
-
-    // Quando o modal de criar objetivo é fechado com SUCESSO.
+    // Lógica quando um NOVO OBJETIVO é criado com sucesso
     createObjectiveModal.onResult(function () {
         abp.notify.info('Novo objetivo criado com sucesso!');
-
-        // ** O FLUXO INTELIGENTE ACONTECE AQUI **
-        // 1. Fecha o modal de consulta que estava aberto no fundo.
+        // Fecha e reabre o modal de consulta para atualizar a lista de objetivos
         createConsultationModal.close();
-
-        // 2. Espera um instante e abre o modal de consulta novamente.
-        // Isso força o modal a recarregar seus dados (o OnGetAsync), fazendo com que
-        // o novo objetivo apareça na lista do dropdown.
         setTimeout(function () {
             createConsultationModal.open({ patientId: patientId });
-        }, 500); // Meio segundo de espera para garantir que tudo seja processado.
+        }, 500);
     });
 
+    // Lógica quando um NOVO TREINO é criado com sucesso
+    createTrainingModal.onResult(function (ajaxResult) {
+        abp.notify.info('Novo treino criado com sucesso!');
+        // Dispara um evento personalizado para que o createModal.js possa ouvi-lo
+        abp.event.trigger('app.training.created', ajaxResult.responseJSON);
+    });
 
-    // 5. CARGA INICIAL
-    // Chama a função para carregar a lista de objetivos assim que a página é aberta.
+    // --- 4. CARGA INICIAL ---
     loadObjectives();
 });
