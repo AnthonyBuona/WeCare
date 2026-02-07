@@ -9,6 +9,9 @@ using Volo.Abp.Domain.Repositories;
 using WeCare.Application.Contracts.Consultations;
 using WeCare.Consultations;
 using WeCare.Shared;
+using WeCare.Patients;
+using WeCare.Permissions;
+using WeCare.Therapists;
 using WeCare.Trainings;
 
 namespace WeCare.Objectives
@@ -21,16 +24,25 @@ namespace WeCare.Objectives
         CreateUpdateObjectiveDto>,
         IObjectiveAppService
     {
-        // 1. Declare o repositório de treinos que será usado.
         private readonly IRepository<Training, Guid> _trainingRepository;
+        private readonly IRepository<Patient, Guid> _patientRepository;
+        private readonly IRepository<Therapist, Guid> _therapistRepository;
 
-        // 2. Modifique o construtor para receber o IRepository<Training, Guid>.
         public ObjectiveAppService(
             IRepository<Objective, Guid> repository,
-            IRepository<Training, Guid> trainingRepository) : base(repository) // Adicione trainingRepository aqui
+            IRepository<Training, Guid> trainingRepository,
+            IRepository<Patient, Guid> patientRepository,
+            IRepository<Therapist, Guid> therapistRepository) : base(repository)
         {
-            // 3. Atribua o repositório injetado à sua variável local.
             _trainingRepository = trainingRepository;
+            _patientRepository = patientRepository;
+            _therapistRepository = therapistRepository;
+
+            GetPolicyName = WeCarePermissions.Objectives.Default;
+            GetListPolicyName = WeCarePermissions.Objectives.Default;
+            CreatePolicyName = WeCarePermissions.Objectives.Create;
+            UpdatePolicyName = WeCarePermissions.Objectives.Edit;
+            DeletePolicyName = WeCarePermissions.Objectives.Delete;
         }
 
         public override async Task<ObjectiveDto> CreateAsync(CreateUpdateObjectiveDto input)
@@ -82,6 +94,22 @@ namespace WeCare.Objectives
                 .ToList();
 
             return new ListResultDto<LookupDto<Guid>>(lookupDtos);
+        }
+
+        public async Task<ListResultDto<LookupDto<Guid>>> GetPatientLookupAsync()
+        {
+            var patients = await _patientRepository.GetListAsync();
+            return new ListResultDto<LookupDto<Guid>>(
+                ObjectMapper.Map<List<Patient>, List<LookupDto<Guid>>>(patients)
+            );
+        }
+
+        public async Task<ListResultDto<LookupDto<Guid>>> GetTherapistLookupAsync()
+        {
+            var therapists = await _therapistRepository.GetListAsync();
+            return new ListResultDto<LookupDto<Guid>>(
+                ObjectMapper.Map<List<Therapist>, List<LookupDto<Guid>>>(therapists)
+            );
         }
     }
 }

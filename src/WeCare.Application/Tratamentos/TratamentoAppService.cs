@@ -39,6 +39,11 @@ namespace WeCare.Tratamentos
             var query = queryable.Where(x => x.Id == id);
             var tratamento = await AsyncExecuter.FirstOrDefaultAsync(query);
 
+            if (tratamento == null)
+            {
+                throw new Volo.Abp.Domain.Entities.EntityNotFoundException(typeof(Tratamento), id);
+            }
+
             return ObjectMapper.Map<Tratamento, TratamentoDto>(tratamento);
         }
 

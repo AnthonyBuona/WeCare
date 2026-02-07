@@ -96,28 +96,46 @@ public class WeCareMenuContributor : IMenuContributor
             .AddItem(
                 new ApplicationMenuItem(
                     "Tratamento.Consultas",
-                    l["Consultas"],  // mesmo rótulo “Patients”
+                    l["Consultas"], 
                     url: "/Consultas"
-                ).RequirePermissions(WeCarePermissions.Patients.Default)
+                ).RequirePermissions(WeCarePermissions.Consultations.Default)
             )
             .AddItem(
                 new ApplicationMenuItem(
                     "Tratamento.Tratamentos",
                     l["Menu:Tratamentos"], 
                     url: "/Tratamentos"
-                ).RequirePermissions(WeCarePermissions.Tratamentos.Default) // Permissão específica
+                ).RequirePermissions(WeCarePermissions.Tratamentos.Default)
             )
 
         );
 
         context.Menu.AddItem(
-    new ApplicationMenuItem(
-        "Consultations",
-        l["Menu:Consultations"],
-        url: "/Consultations",
-        icon: "fa fa-calendar-check-o" // Ícone sugerido
-    ).RequirePermissions(WeCarePermissions.Consultations.Default)
-);
+            new ApplicationMenuItem(
+                "Objectives",
+                l["Menu:Objectives"],
+                url: "/Objectives",
+                icon: "fa fa-bullseye"
+            ).RequirePermissions(WeCarePermissions.Objectives.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                "Guests",
+                l["Menu:Guests"],
+                url: "/Guests",
+                icon: "fa fa-users"
+            ).RequirePermissions(WeCarePermissions.Guests.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                "Activities",
+                l["Menu:Activities"],
+                url: "/Activities",
+                icon: "fa fa-tasks"
+            ).RequirePermissions(WeCarePermissions.Activities.Default)
+        );
 
         return Task.CompletedTask;
     }

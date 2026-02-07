@@ -1,0 +1,25 @@
+@page
+@using WeCare.Web.Pages.Objectives
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model EditModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<abp-dynamic-form abp-model="Objective" asp-page="/Objectives/EditModal">
+    <abp-modal>
+        <abp-modal-header title="@L["EditObjective"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="Id" />
+            <abp-select asp-for="Objective.PatientId" asp-items="Model.PatientList" />
+            <abp-select asp-for="Objective.TherapistId" asp-items="Model.TherapistList" />
+            <abp-input asp-for="Objective.Name" />
+            <abp-input asp-for="Objective.Status" />
+            <abp-input asp-for="Objective.StartDate" type="date"/>
+            <abp-input asp-for="Objective.EndDate" type="date"/>
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</abp-dynamic-form>

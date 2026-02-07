@@ -24,6 +24,8 @@ using WeCare.PerformedTrainings;
 using WeCare.Activities;
 using WeCare.Trainings;
 using WeCare.Objectives;
+using WeCare.Clinics;
+using WeCare.Guests;
 
 namespace WeCare.EntityFrameworkCore;
 
@@ -45,8 +47,9 @@ public class WeCareDbContext :
     public DbSet<PerformedTraining> PerformedTrainings { get; set; }
     public DbSet<Training> Trainings { get; set; }
     public DbSet<Activity> Activities { get; set; }
-
     public DbSet<Objective> Objectives { get; set; }
+    public DbSet<Clinic> Clinics { get; set; }
+    public DbSet<Guest> Guests { get; set; }
 
 
     #region Entities from the modules
@@ -76,7 +79,7 @@ public class WeCareDbContext :
     {
         base.OnModelCreating(builder);
 
-        /* Inclua os mÛdulos no seu contexto de migraÁ„o */
+        /* Inclua os m√≥dulos no seu contexto de migra√ß√£o */
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
         builder.ConfigureBackgroundJobs();
@@ -87,7 +90,7 @@ public class WeCareDbContext :
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
 
-        /* Configure suas prÛprias tabelas/entidades aqui */
+        /* Configure suas pr√≥prias tabelas/entidades aqui */
         builder.Entity<Book>(b =>
         {
             b.ToTable(WeCareConsts.DbTablePrefix + "Books", WeCareConsts.DbSchema);
@@ -122,7 +125,7 @@ public class WeCareDbContext :
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
 
-            // --- CORRE«√O DEFINITIVA ---
+            // --- CORRE√á√ÉO DEFINITIVA ---
             b.HasOne<Tenant>()
              .WithMany()
              .HasForeignKey(x => x.TenantId)  // Alterado de "TenantId" para x => x.TenantId
@@ -140,13 +143,13 @@ public class WeCareDbContext :
              .WithMany(p => p.Tratamentos)
              .HasForeignKey(x => x.PatientId)
              .IsRequired()
-             .OnDelete(DeleteBehavior.Cascade); // Se um paciente for deletado, seus tratamentos tambÈm s„o.
+             .OnDelete(DeleteBehavior.Cascade); // Se um paciente for deletado, seus tratamentos tamb√©m s√£o.
 
             b.HasOne(x => x.Therapist)
              .WithMany(t => t.Tratamentos)
              .HasForeignKey(x => x.TherapistId)
              .IsRequired()
-             .OnDelete(DeleteBehavior.Cascade); // Se um terapeuta for deletado, seus tratamentos tambÈm s„o.
+             .OnDelete(DeleteBehavior.Cascade); // Se um terapeuta for deletado, seus tratamentos tamb√©m s√£o.
         });
         builder.Entity<Consultation>(b =>
         {
@@ -170,6 +173,31 @@ public class WeCareDbContext :
             b.ToTable(WeCareConsts.DbTablePrefix + "Activities", WeCareConsts.DbSchema);
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
+        });
+
+        builder.Entity<Clinic>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Clinics", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+        });
+
+        builder.Entity<Guest>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Guests", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+            b.Property(x => x.Email).IsRequired().HasMaxLength(256);
+
+            b.HasOne(x => x.Responsible)
+             .WithMany()
+             .HasForeignKey(x => x.ResponsibleId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.Patient)
+             .WithMany()
+             .HasForeignKey(x => x.PatientId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

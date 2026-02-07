@@ -1,0 +1,29 @@
+@page
+@using WeCare.Web.Pages.Activities
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<WeCareResource> L
+@section scripts
+{
+    <abp-script src="/Pages/Activities/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Activities"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                <abp-button id="NewActivityButton"
+                            text="@L["NewActivity"].Value"
+                            icon="plus"
+                            button-type="Primary" />
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="ActivitiesTable"></abp-table>
+    </abp-card-body>
+</abp-card>

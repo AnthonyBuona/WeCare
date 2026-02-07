@@ -1,0 +1,29 @@
+@page
+@using WeCare.Web.Pages.Guests
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<WeCareResource> L
+@section scripts
+{
+    <abp-script src="/Pages/Guests/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Guests"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                <abp-button id="NewGuestButton"
+                            text="@L["NewGuest"].Value"
+                            icon="plus"
+                            button-type="Primary" />
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="GuestsTable"></abp-table>
+    </abp-card-body>
+</abp-card>

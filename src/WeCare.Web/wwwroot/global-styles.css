@@ -1,5 +1,164 @@
 /* Your Global Styles */
-:root .lpx-brand-logo {
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Brand Colors */
+    --primary-color: #5e72e4;
+    --primary-dark: #324cdd;
+    --secondary-color: #8392ab;
+    --success-color: #2dce89;
+    --info-color: #11cdef;
+    --warning-color: #fb6340;
+    --danger-color: #f5365c;
+
+    /* Backgrounds */
+    --bg-body: #f8f9fe;
+    --bg-card: #ffffff;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(150deg, #5e72e4 0%, #825ee4 100%);
+    --gradient-info: linear-gradient(150deg, #11cdef 0%, #1171ef 100%);
+    --gradient-success: linear-gradient(150deg, #2dce89 0%, #2dcecc 100%);
+    --gradient-warning: linear-gradient(150deg, #fb6340 0%, #fbb140 100%);
+    --gradient-danger: linear-gradient(150deg, #f5365c 0%, #f56036 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 0 2rem 0 rgba(136, 152, 170, .15);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    --shadow-hover: 0 1rem 3rem rgba(0, 0, 0, .175);
+
+    /* Typography */
+    --font-family-sans: 'Inter', sans-serif;
+    --font-family-heading: 'Outfit', sans-serif;
+
+    /* LeptonX Overrides */
     --lpx-logo: url('/images/logo/leptonxlite/logo-light.png');
     --lpx-logo-icon: url('/images/logo/leptonxlite/logo-light-thumbnail.png');
+}
+
+body {
+    font-family: var(--font-family-sans);
+    background-color: var(--bg-body);
+    color: #525f7f;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #32325d;
+}
+
+/* Card Styling */
+.card {
+    border: 0;
+    box-shadow: var(--shadow-sm);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Utilities */
+.bg-gradient-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.bg-gradient-success {
+    background: var(--gradient-success) !important;
+}
+
+.bg-gradient-info {
+    background: var(--gradient-info) !important;
+}
+
+.bg-gradient-warning {
+    background: var(--gradient-warning) !important;
+}
+
+.bg-gradient-danger {
+    background: var(--gradient-danger) !important;
+}
+
+.text-white-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-premium,
+.btn-primary {
+    background: var(--gradient-primary) !important;
+    border-color: transparent !important;
+    color: white;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: none !important;
+    transition: all 0.15s ease;
+}
+
+.btn-premium:hover,
+.btn-primary:hover {
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    filter: brightness(1.1);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+}
+
+
+/* Icon Shapes */
+.icon-shape {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.icon-lg {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.5rem;
+}
+
+/* Hover Effects */
+.card-hover-effect .card {
+    transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover .card {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover) !important;
+}
+
+/* Decorative Shapes */
+.blob-shape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* Letter Spacing */
+.ls-1 {
+    letter-spacing: 1px;
 }

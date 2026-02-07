@@ -5,12 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 using WeCare.Patients;
 
 namespace WeCare.Responsibles
 {
-    public class Responsible : AuditedAggregateRoot<Guid>
+    public class Responsible : AuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public Guid? TenantId { get; set; }
+
         // Construtor sem parâmetros (necessário para EF)
         public Responsible() { }
 
@@ -36,6 +39,8 @@ namespace WeCare.Responsibles
         [Display(Name = "E-mail do Responsável")]
         public string EmailAddress { get; set; } = string.Empty;
 
+        public Guid? UserId { get; set; } // Opcional inicialmente para não quebrar dados existentes
+        
         [Phone]
         [StringLength(20)]
         [Display(Name = "Telefone do Responsável")]

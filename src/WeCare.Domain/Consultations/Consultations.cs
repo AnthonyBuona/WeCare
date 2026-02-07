@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 using WeCare.Patients;
 using WeCare.PerformedTrainings;
 using WeCare.Therapists;
 
 namespace WeCare.Consultations
 {
-    public class Consultation : AuditedAggregateRoot<Guid>
+    public class Consultation : AuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public Guid? TenantId { get; set; }
+
         [Required]
         public Guid PatientId { get; set; }
 

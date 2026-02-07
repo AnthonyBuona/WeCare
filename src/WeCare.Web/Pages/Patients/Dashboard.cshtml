@@ -1,0 +1,449 @@
+@page "{id:Guid}"
+@model WeCare.Web.Pages.Patients.DashboardModel
+@using WeCare.Web.Menus
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@inject IPageLayout PageLayout
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    ViewBag.PageTitle = $"{L["Dashboard"].Value}: {Model.DashboardData.PatientName}";
+    PageLayout.Content.MenuItemName = WeCareMenus.Patients;
+}
+
+@section styles {
+    <style>
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+        
+        /* Stat Cards now use global .card but adding specific icon positioning */
+        .stat-card {
+            border: none;
+            border-radius: 1rem;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card-icon {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 1;
+        }
+
+        .content-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            background: white;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .content-card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            font-weight: 700;
+            color: #32325d;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-family-heading);
+        }
+
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 1rem 1.5rem;
+        }
+        .list-group-item:last-child { border-bottom: none; }
+
+        .badge-pill {
+            border-radius: 50px;
+            padding: 0.5em 1em;
+            font-weight: 600;
+        }
+
+        .table-custom th {
+            border-top: none;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #8898aa;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            color: #5e72e4;
+            background-color: #f6f9fc;
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+        }
+        
+        .timeline-date {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #adb5bd;
+        }
+
+        @@media print {
+            .no-print, .lp-sidebar, .lp-header, footer, .btn { display: none !important; }
+            .dashboard-header { margin-top: 0; }
+            .content-card, .stat-card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+            body { background-color: white !important; }
+        }
+    </style>
+}
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Options for premium look
+            Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+            Chart.defaults.color = '#8898aa';
+            
+            var ctx = document.getElementById('evolutionChart').getContext('2d');
+            var labels = @Json.Serialize(Model.DashboardData.PerformanceHistory.Select(x => x.Label));
+            var dataPoints = @Json.Serialize(Model.DashboardData.PerformanceHistory.Select(x => x.SuccessRate));
+
+            // Evolution Line Chart
+            var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(94, 114, 228, 0.2)');
+            gradient.addColorStop(1, 'rgba(94, 114, 228, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Taxa de Sucesso (%)',
+                        data: dataPoints,
+                        borderColor: '#5e72e4',
+                        backgroundColor: gradient,
+                        pointBackgroundColor: '#5e72e4',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#5e72e4',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { borderDash: [2, 2], drawBorder: false, color: '#e9ecef' },
+                            ticks: { padding: 10, color: '#8898aa' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#8898aa' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#172b4d', padding: 12, cornerRadius: 8 }
+                    }
+                }
+            });
+
+            // Skills Bar Chart
+            var trainingCtx = document.getElementById('skillsChart').getContext('2d');
+            var topTrainings = @Json.Serialize(Model.DashboardData.TrainingStats.Take(5).Select(x => x.TrainingName));
+            var topRates = @Json.Serialize(Model.DashboardData.TrainingStats.Take(5).Select(x => x.AverageSuccessRate));
+
+            new Chart(trainingCtx, {
+                type: 'bar',
+                data: {
+                    labels: topTrainings,
+                    datasets: [{
+                        label: 'Média de Sucesso (%)',
+                        data: topRates,
+                        backgroundColor: '#11cdef',
+                        borderRadius: 8,
+                        barPercentage: 0.6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { borderDash: [2, 2], drawBorder: false, color: '#e9ecef' },
+                            ticks: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#8898aa',
+                                callback: function(val, index) {
+                                    return this.getLabelForValue(val).substr(0, 10) + '...';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+<div class="dashboard-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="mb-1">@Model.DashboardData.PatientName</h2>
+        <span class="text-muted h5 fw-light">Relatório de Evolução Clínica</span>
+    </div>
+    <div class="no-print">
+        <a href="/Patients" class="btn btn-outline-secondary me-2 px-4 rounded-pill">Voltar</a>
+        <button onclick="window.print()" class="btn btn-premium px-4 rounded-pill">
+            <i class="fa fa-print me-2"></i> Relatório
+        </button>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="stat-card bg-gradient-primary shadow">
+            <div class="card-body p-4">
+                <div class="text-uppercase text-white-50 text-xs font-weight-bold mb-2">Total Consultas</div>
+                <div class="h1 mb-0 font-weight-bold">@Model.DashboardData.TotalConsultations</div>
+                <div class="stat-card-icon"><i class="fa fa-calendar-check-o"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="stat-card bg-gradient-success shadow">
+            <div class="card-body p-4">
+                <div class="text-uppercase text-white-50 text-xs font-weight-bold mb-2">Objetivos Concluídos</div>
+                <div class="h1 mb-0 font-weight-bold">@Model.DashboardData.CompletedObjectives</div>
+                <div class="stat-card-icon"><i class="fa fa-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="stat-card bg-gradient-info shadow">
+            <div class="card-body p-4">
+                <div class="text-uppercase text-white-50 text-xs font-weight-bold mb-2">Objetivos Ativos</div>
+                <div class="h1 mb-0 font-weight-bold">@Model.DashboardData.ActiveObjectives</div>
+                <div class="stat-card-icon"><i class="fa fa-bullseye"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-warning shadow">
+            <div class="card-body p-4">
+                <div class="text-uppercase text-white-50 text-xs font-weight-bold mb-2">Taxa de Sucesso Média</div>
+                @{
+                    var avg = Model.DashboardData.PerformanceHistory.Any() 
+                            ? Math.Round(Model.DashboardData.PerformanceHistory.Average(x => x.SuccessRate), 1) 
+                            : 0;
+                }
+                <div class="h1 mb-0 font-weight-bold">@avg%</div>
+                <div class="stat-card-icon"><i class="fa fa-line-chart"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Chart Column -->
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="content-card-header">
+                <span>Evolução Geral</span>
+                <span class="badge badge-pill bg-light text-primary">Últimas Atividades</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-area" style="height: 350px;">
+                    <canvas id="evolutionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objectives List Column -->
+    <div class="col-lg-4">
+        <!-- Skills Chart -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <span>Top Habilidades</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-area" style="height: 150px;">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Objectives list -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <span>Objetivos Recentes</span>
+            </div>
+            @if (Model.DashboardData.ObjectivesList.Any())
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var obj in Model.DashboardData.ObjectivesList)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark text-truncate" style="max-width: 150px;">@obj.Name</h6>
+                                <span class="timeline-date">Início: @obj.StartDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <span class="badge badge-pill @(obj.Status == "Ativo" ? "bg-primary" : "bg-success")">@obj.Status</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="p-4 text-center text-muted">
+                    <i class="fa fa-sticky-note-o fa-2x mb-2 d-block"></i>
+                    Nenhum objetivo registrado.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Stats -->
+<div class="row">
+    <div class="col-12">
+        <div class="content-card">
+            <div class="content-card-header">
+                <span>Análise de Treinos</span>
+                <small class="text-muted fw-normal">Detalhes agregados</small>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-custom align-items-center table-flush table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="ps-4">Treino</th>
+                            <th class="text-center">Execuções</th>
+                            <th class="text-center">Tentativas</th>
+                            <th class="text-center">Sucessos</th>
+                            <th class="text-center">Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DashboardData.TrainingStats.Any())
+                        {
+                            @foreach (var stat in Model.DashboardData.TrainingStats)
+                            {
+                                <tr>
+                                    <td class="ps-4 font-weight-bold text-dark">
+                                        @stat.TrainingName
+                                    </td>
+                                    <td class="text-center">@stat.TotalExecutions</td>
+                                    <td class="text-center text-muted">@stat.TotalAttempts</td>
+                                    <td class="text-center text-success">@stat.TotalSuccesses</td>
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="me-2 text-sm font-weight-bold">@stat.AverageSuccessRate%</span>
+                                            <div class="progress progress-xs w-50" style="height: 5px;">
+                                                <div class="progress-bar @(stat.AverageSuccessRate >= 80 ? "bg-success" : (stat.AverageSuccessRate >= 50 ? "bg-warning" : "bg-danger"))" 
+                                                     role="progressbar" 
+                                                     style="width: @stat.AverageSuccessRate%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center py-4">Sem dados disponíveis.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History -->
+<div class="row">
+    <div class="col-12">
+        <div class="content-card">
+            <div class="content-card-header">
+                <span>Diário de Consultas</span>
+            </div>
+            <div class="card-body">
+                @if (Model.DashboardData.RecentConsultations.Any())
+                {
+                    <div class="accordion" id="accordionHistory">
+                        @foreach (var consult in Model.DashboardData.RecentConsultations.Select((value, i) => new { i, value }))
+                        {
+                            <div class="accordion-item border-0 mb-2 shadow-sm rounded overflow-hidden">
+                                <h2 class="accordion-header" id="heading_@consult.i">
+                                    <button class="accordion-button @(consult.i > 0 ? "collapsed" : "") fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@consult.i" aria-expanded="@(consult.i == 0 ? "true" : "false")">
+                                        <div class="row w-100 align-items-center">
+                                            <div class="col-md-2 text-primary">@consult.value.Date.ToString("dd/MM/yyyy")</div>
+                                            <div class="col-md-4 text-muted small text-uppercase">@consult.value.TherapistName</div>
+                                            <div class="col-md-5 text-end"><span class="badge bg-light text-dark border">@consult.value.ObjectiveName</span></div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse_@consult.i" class="accordion-collapse collapse @(consult.i == 0 ? "show" : "")" data-bs-parent="#accordionHistory">
+                                    <div class="accordion-body bg-white p-4">
+                                        <div class="mb-3 text-muted">
+                                            <i class="fa fa-quote-left me-2 text-primary opacity-25"></i>
+                                            @consult.value.Description
+                                        </div>
+                                        
+                                        @if (consult.value.PerformedTrainings.Any())
+                                        {
+                                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                                @foreach (var pt in consult.value.PerformedTrainings)
+                                                {
+                                                    <div class="d-flex align-items-center border rounded p-2 pe-3 bg-light">
+                                                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-sm me-2" 
+                                                             style="width: 40px; height: 40px; font-weight: bold; color: #5e72e4;">
+                                                            @Math.Round(pt.SuccessRate, 0)%
+                                                        </div>
+                                                        <div style="line-height:1.1;">
+                                                            <div class="fw-bold text-dark" style="font-size: 0.9rem;">@pt.TrainingName</div>
+                                                            <div class="text-xs text-muted">Ajuda: @pt.HelpNeeded</div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">Ainda não há histórico de consultas.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

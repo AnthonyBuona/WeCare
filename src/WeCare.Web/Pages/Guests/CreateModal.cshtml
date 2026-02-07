@@ -1,0 +1,21 @@
+@page
+@using WeCare.Web.Pages.Guests
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model CreateModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<form asp-page="/Guests/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["NewGuest"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-select asp-for="Guest.PatientId" asp-items="Model.PatientLookup" label="@L["Patient"].Value" />
+            <abp-input asp-for="Guest.Name" label="@L["Name"].Value" />
+            <abp-input asp-for="Guest.Email" label="@L["Email"].Value" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

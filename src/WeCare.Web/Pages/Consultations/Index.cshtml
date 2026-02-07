@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "/Consultas"
 @model WeCare.Web.Pages.Consultations.IndexModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @using WeCare.Localization
@@ -6,21 +6,30 @@
 @section scripts {
     <abp-script src="/Pages/Consultations/index.js" />
 }
-<abp-card>
-    <abp-card-header>
-        <abp-row>
-            <abp-column size-md="_6">
-                <abp-card-title>@L["Histórico de consultas"]</abp-card-title>
-            </abp-column>
-            <abp-column size-md="_6" class="text-end">
-                <abp-button id="NewConsultationButton"
-                            text="@L["Novo agendamento"].Value"
-                            icon="plus"
-                            button-type="Primary" />
-            </abp-column>
-        </abp-row>
-    </abp-card-header>
-    <abp-card-body>
-        <abp-table id="ConsultationsTable" class="nowrap"></abp-table>
-    </abp-card-body>
-</abp-card>
+
+<div class="row mb-4 align-items-center justify-content-between">
+    <div class="col-md-6 col-12 mb-3 mb-md-0">
+        <div class="d-flex align-items-center">
+            <div class="icon-shape bg-gradient-primary text-white rounded-circle shadow me-3">
+                <i class="fa fa-calendar-check-o"></i>
+            </div>
+            <div>
+                <h2 class="mb-0 text-dark fw-bold">@L["Consultations"]</h2>
+                <p class="text-muted mb-0">Gerencie os agendamentos e históricos de sessões</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12 text-md-end">
+        <button id="NewConsultationButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
+            <i class="fa fa-plus me-2"></i> @L["Novo Agendamento"]
+        </button>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <abp-table id="ConsultationsTable" class="table align-items-center table-flush table-hover mb-0" />
+        </div>
+    </div>
+</div>

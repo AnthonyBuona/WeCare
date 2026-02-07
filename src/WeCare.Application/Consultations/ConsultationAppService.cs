@@ -79,6 +79,10 @@ namespace WeCare.Consultations
             var queryable = await Repository.WithDetailsAsync(x => x.Patient, x => x.Therapist, x => x.PerformedTrainings);
             var query = queryable.Where(x => x.Id == id);
             var consultation = await AsyncExecuter.FirstOrDefaultAsync(query);
+            if (consultation == null)
+            {
+                throw new Volo.Abp.Domain.Entities.EntityNotFoundException(typeof(Consultation), id);
+            }
             return ObjectMapper.Map<Consultation, ConsultationDto>(consultation);
         }
 

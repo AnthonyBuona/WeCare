@@ -8,5 +8,6 @@ namespace WeCare.Activities
         public string Name { get; set; }
         public string Description { get; set; }
         public Guid TrainingId { get; set; }
+        public string TrainingName { get; set; }
     }
 }

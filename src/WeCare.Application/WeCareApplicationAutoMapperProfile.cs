@@ -13,6 +13,8 @@ using WeCare.PerformedTrainings;
 using WeCare.Activities;
 using WeCare.Trainings;
 using WeCare.Objectives;
+using WeCare.Clinics;
+using WeCare.Guests;
 
 namespace WeCare
 {
@@ -26,6 +28,8 @@ namespace WeCare
             CreateMap<Patient, PatientDto>();
             CreateMap<CreateUpdatePatientDto, Patient>();
             CreateMap<PatientDto, CreateUpdatePatientDto>();
+            CreateMap<Patient, LookupDto<Guid>>()
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
             CreateMap<Responsible, ResponsibleDto>();
             CreateMap<CreateUpdateResponsibleDto, Responsible>();
@@ -53,13 +57,14 @@ namespace WeCare
             CreateMap<Consultation, ConsultationInGroupDto>()
                 .ForMember(dest => dest.TherapistName, opt => opt.MapFrom(src => src.Therapist.Name))
                 .ForMember(dest => dest.TherapistSpecialization, opt => opt.MapFrom(src =>
-                    // Se o terapeuta ou a especialização for nula, retorna uma string vazia.
                     src.Therapist != null ? src.Therapist.Specialization : string.Empty
                 ));
             CreateMap<Training, TrainingDto>();
             CreateMap<CreateUpdateTrainingDto, Training>();
 
-            CreateMap<Activity, ActivityDto>();
+            CreateMap<Activity, ActivityDto>()
+                .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.Training.Name));
+            CreateMap<ActivityDto, CreateUpdateActivityDto>();
             CreateMap<CreateUpdateActivityDto, Activity>();
 
             CreateMap<Objective, ObjectiveDto>();
@@ -69,8 +74,13 @@ namespace WeCare
             CreateMap<PerformedTraining, PerformedTrainingDto>()
                 .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.Training.Name));
 
-            CreateMap<Training, TrainingDto>();
-            CreateMap<CreateUpdateTrainingDto, Training>();
+            // Duplicates removed
+            
+            // Adicionados
+            CreateMap<Clinic, ClinicDto>();
+            CreateMap<CreateUpdateClinicDto, Clinic>();
+            
+            CreateMap<Guest, GuestDto>();
         }
     }
 }

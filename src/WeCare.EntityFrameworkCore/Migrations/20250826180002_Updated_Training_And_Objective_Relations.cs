@@ -85,7 +85,7 @@ namespace WeCare.Migrations
                 column: "TrainingId",
                 principalTable: "AppTrainings",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />

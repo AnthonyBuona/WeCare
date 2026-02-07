@@ -1,0 +1,43 @@
+@page
+@using WeCare.Web.Pages.Objectives
+@using WeCare.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using WeCare.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<WeCareResource> L
+@inject IAuthorizationService AuthorizationService
+@inject IPageLayout PageLayout
+@model IndexModel
+@{
+    ViewBag.Title = L["Objectives"].Value;
+    PageLayout.Content.Title = L["Objectives"].Value;
+    PageLayout.Content.BreadCrumb.Add(L["Menu:Objectives"].Value);
+    PageLayout.Content.MenuItemName = "Objectives"; 
+}
+
+@section scripts {
+    <abp-script src="/Pages/Objectives/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Objectives"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Objectives.Create))
+                {
+                    <abp-button id="NewObjectiveButton"
+                                text="@L["NewObjective"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="ObjectivesTable"></abp-table>
+    </abp-card-body>
+</abp-card>

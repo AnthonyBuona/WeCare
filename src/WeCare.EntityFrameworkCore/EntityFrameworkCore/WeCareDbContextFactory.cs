@@ -26,7 +26,8 @@ public class WeCareDbContextFactory : IDesignTimeDbContextFactory<WeCareDbContex
     {
         var builder = new ConfigurationBuilder()
             .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../WeCare.DbMigrator/"))
-            .AddJsonFile("appsettings.json", optional: false);
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile("appsettings.secrets.json", optional: true);
 
         return builder.Build();
     }

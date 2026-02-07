@@ -72,10 +72,19 @@ namespace WeCare.Therapists
 
             // 3. Salvar as mudanças para disparar o evento.
             // O EventHandler será executado dentro desta unidade de trabalho.
-            await _unitOfWorkManager.Current.SaveChangesAsync();
+            if (_unitOfWorkManager.Current != null)
+            {
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+            }
 
             // 4. Buscar a entidade Therapist que foi criada pelo EventHandler.
-            var newTherapist = await Repository.FirstAsync(t => t.UserId == user.Id);
+            var newTherapist = await Repository.FirstOrDefaultAsync(t => t.UserId == user.Id);
+            if (newTherapist == null)
+            {
+                // Fallback: This should ideally catch the race condition if EventHandler hasn't fired yet
+                // But since we called SaveChangesAsync, it should be there.
+                throw new UserFriendlyException("Falha ao criar terapeuta. O usuário foi criado, mas o registro de terapeuta não.");
+            }
 
             // 5. Mapear e retornar o DTO.
             return ObjectMapper.Map<Therapist, TherapistDto>(newTherapist);

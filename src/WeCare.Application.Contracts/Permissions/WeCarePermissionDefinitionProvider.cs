@@ -72,6 +72,27 @@ namespace WeCare.Permissions
             trainingsPermission.AddChild(WeCarePermissions.Trainings.Edit, L("Permission:Trainings.Edit"));
             trainingsPermission.AddChild(WeCarePermissions.Trainings.Delete, L("Permission:Trainings.Delete"));
 
+            var clinicsPermission = myGroup.AddPermission(WeCarePermissions.Clinics.Default, L("Permission:Clinics"));
+            clinicsPermission.AddChild(WeCarePermissions.Clinics.Create, L("Permission:Clinics.Create"));
+            clinicsPermission.AddChild(WeCarePermissions.Clinics.Edit, L("Permission:Clinics.Edit"));
+            clinicsPermission.AddChild(WeCarePermissions.Clinics.Delete, L("Permission:Clinics.Delete"));
+            clinicsPermission.AddChild(WeCarePermissions.Clinics.ManageStatus, L("Permission:Clinics.ManageStatus"));
+
+            var objectivesPermission = myGroup.AddPermission(WeCarePermissions.Objectives.Default, L("Permission:Objectives"));
+            objectivesPermission.AddChild(WeCarePermissions.Objectives.Create, L("Permission:Objectives.Create"));
+            objectivesPermission.AddChild(WeCarePermissions.Objectives.Edit, L("Permission:Objectives.Edit"));
+            objectivesPermission.AddChild(WeCarePermissions.Objectives.Delete, L("Permission:Objectives.Delete"));
+
+            var guestsPermission = myGroup.AddPermission(WeCarePermissions.Guests.Default, L("Permission:Guests"));
+            guestsPermission.AddChild(WeCarePermissions.Guests.Create, L("Permission:Guests.Create"));
+            guestsPermission.AddChild(WeCarePermissions.Guests.Edit, L("Permission:Guests.Edit"));
+            guestsPermission.AddChild(WeCarePermissions.Guests.Delete, L("Permission:Guests.Delete"));
+
+            var activitiesPermission = myGroup.AddPermission(WeCarePermissions.Activities.Default, L("Permission:Activities"));
+            activitiesPermission.AddChild(WeCarePermissions.Activities.Create, L("Permission:Activities.Create"));
+            activitiesPermission.AddChild(WeCarePermissions.Activities.Edit, L("Permission:Activities.Edit"));
+            activitiesPermission.AddChild(WeCarePermissions.Activities.Delete, L("Permission:Activities.Delete"));
+
 
         }
 

@@ -6,24 +6,25 @@
         abp.libs.datatables.normalizeConfiguration({
             serverSide: true,
             paging: true,
-            order: [[1, "asc"]],
+            order: [[3, "desc"]], // Order by DateTime descending by default
             searching: false,
             scrollX: true,
             ajax: abp.libs.datatables.createAjax(weCare.consultations.consultation.getList),
             columnDefs: [
                 {
-                    title: l('Ações'),
+                    title: l('Actions'),
                     rowAction: {
                         items: [
                             {
-                                text: l('Editar'), // Example Edit Action
+                                text: l('Edit'),
+                                iconClass: 'fa fa-pencil',
                                 action: function (data) {
-                                    // Add your edit logic here, e.g.:
                                     // editModal.open({ id: data.record.id });
                                 }
                             },
                             {
-                                text: l('Apagar'), // Example Delete Action
+                                text: l('Delete'),
+                                iconClass: 'fa fa-trash',
                                 confirmMessage: function (data) {
                                     return l('ConsultationDeletionConfirmationMessage', data.record.patientName);
                                 },
@@ -39,17 +40,39 @@
                         ]
                     }
                 },
-                { title: l('Paciente'), data: "patientName" },
-                { title: l('Terapeuta'), data: "therapistName" },
                 {
-                    title: l('Data/hora'),
+                    title: l('Paciente'),
+                    data: "patientName",
+                    render: function (data) {
+                        return '<span class="fw-bold text-dark">' + data + '</span>';
+                    }
+                },
+                {
+                    title: l('Terapeuta'),
+                    data: "therapistName",
+                    render: function (data) {
+                        return '<span class="text-muted">' + data + '</span>';
+                    }
+                },
+                {
+                    title: l('Data/Hora'),
                     data: "dateTime",
                     render: function (data) {
                         if (!data) return '';
-                        return new Date(data).toLocaleString();
+                        var date = new Date(data);
+                        return '<div class="d-flex align-items-center">' +
+                            '<div class="icon-shape icon-sm bg-light text-primary rounded-circle me-2" style="width:30px;height:30px;"><i class="fa fa-calendar"></i></div>' +
+                            '<div>' + date.toLocaleDateString() + ' <small class="text-muted">' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</small></div>' +
+                            '</div>';
                     }
                 },
-                { title: l('Descrição'), data: "description" },
+                {
+                    title: l('Descrição'),
+                    data: "description",
+                    render: function (data) {
+                        return '<span class="text-truncate d-inline-block" style="max-width: 200px;">' + (data || '-') + '</span>';
+                    }
+                },
             ]
         })
     );

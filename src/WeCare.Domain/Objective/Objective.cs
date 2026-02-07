@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 using WeCare.Consultations;
 using WeCare.Trainings;
 
 namespace WeCare.Objectives
 {
-    public class Objective : AuditedAggregateRoot<Guid>
+    public class Objective : AuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public Guid? TenantId { get; set; }
+
         public Guid PatientId { get; set; }
         public Guid TherapistId { get; set; }
         public string Name { get; set; }

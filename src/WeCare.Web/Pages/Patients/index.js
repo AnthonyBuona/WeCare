@@ -22,6 +22,15 @@
                     rowAction: {
                         items: [
                             {
+                                text: l('Dashboard'),
+                                action: function (data) {
+                                    window.location.href = abp.appPath + 'Patients/Dashboard/' + data.record.id;
+                                },
+                                visible: function (data) {
+                                    return true; // Optionally check permissions here
+                                }
+                            },
+                            {
                                 text: l('Visualizar consultas'),
                                 action: function (data) {
                                     window.location.href = abp.appPath + 'RealizedConsultations?patientId=' + data.record.id;

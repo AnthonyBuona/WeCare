@@ -5,10 +5,14 @@ using Volo.Abp.Domain.Entities.Auditing;
 using WeCare.Responsibles;
 using WeCare.Tratamentos;
 
+using Volo.Abp.MultiTenancy;
+
 namespace WeCare.Patients
 {
-    public class Patient : AuditedAggregateRoot<Guid>
+    public class Patient : AuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public Guid? TenantId { get; set; }
+
         [Required]
         [MaxLength(128)]
         public string Name { get; set; }
