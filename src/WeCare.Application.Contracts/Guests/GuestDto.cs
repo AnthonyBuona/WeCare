@@ -1,30 +1,19 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Application.Dtos;
 
 namespace WeCare.Guests
 {
-    public class GuestDto : EntityDto<Guid>
+    public class GuestDto : FullAuditedEntityDto<Guid>
     {
-        public Guid ResponsibleId { get; set; }
+        public Guid? TenantId { get; set; }
+        public Guid? ResponsibleId { get; set; }
         public Guid PatientId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
+        public string Relationship { get; set; }
         public Guid? UserId { get; set; }
-    }
-
-    public class CreateGuestDto
-    {
-        [Required]
-        public Guid PatientId { get; set; }
         
-        [Required]
-        [MaxLength(128)]
-        public string Name { get; set; }
-        
-        [Required]
-        [EmailAddress]
-        [MaxLength(256)]
-        public string Email { get; set; }
+        // Extra properties for UI
+        public string PatientName { get; set; }
     }
 }

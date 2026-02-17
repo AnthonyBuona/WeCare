@@ -33,6 +33,8 @@
     "Permission:Books.Edit": "Editing the books",
     "Permission:Books.Delete": "Deleting the books",
     "Menu:Home": "Home",
+    "Menu:Scheduling": "Scheduling",
+    "Novo Agendamento": "New Appointment",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
     "Welcome": "Welcome"
   }

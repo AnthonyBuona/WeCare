@@ -11,8 +11,7 @@ namespace WeCare.Guests
     {
         public Guid? TenantId { get; set; }
 
-        [Required]
-        public Guid ResponsibleId { get; set; }
+        public Guid? ResponsibleId { get; set; }
 
         [Required]
         public Guid PatientId { get; set; }
@@ -25,6 +24,9 @@ namespace WeCare.Guests
         [EmailAddress]
         [MaxLength(256)]
         public string Email { get; set; }
+
+        [MaxLength(50)]
+        public string Relationship { get; set; }
 
         public Guid? UserId { get; set; }
 

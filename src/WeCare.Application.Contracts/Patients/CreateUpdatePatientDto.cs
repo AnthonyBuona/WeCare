@@ -43,5 +43,16 @@ namespace WeCare.Patients
         [StringLength(40)]
         [Display(Name = "Diagnóstico")]
         public string? Diag { get; set; }
+
+        [Required]
+        [StringLength(256)]
+        [Display(Name = "Usuário do Responsável")]
+        public string ResponsibleUserName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(128)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Senha do Responsável")]
+        public string ResponsiblePassword { get; set; } = string.Empty;
     }
 }

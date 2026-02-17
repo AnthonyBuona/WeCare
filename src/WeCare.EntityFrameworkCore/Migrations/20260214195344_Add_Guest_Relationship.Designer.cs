@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 using WeCare.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using WeCare.EntityFrameworkCore;
 namespace WeCare.Migrations
 {
     [DbContext(typeof(WeCareDbContext))]
-    partial class WeCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260214195344_Add_Guest_Relationship")]
+    partial class Add_Guest_Relationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1965,20 +1968,9 @@ namespace WeCare.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("AddressNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("AppointmentDurationMinutes")
-                        .HasColumnType("int");
-
                     b.Property<string>("CNPJ")
                         .HasMaxLength(18)
                         .HasColumnType("nvarchar(18)");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -2012,14 +2004,6 @@ namespace WeCare.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<string>("FacebookUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("InstagramUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -2034,42 +2018,18 @@ namespace WeCare.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<string>("LinkedInUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<string>("Neighborhood")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("PrimaryColor")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("SecondaryColor")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.Property<string>("Specializations")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("State")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -2078,58 +2038,9 @@ namespace WeCare.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TenantId");
 
-                    b.Property<string>("WebsiteUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("WelcomeMessage")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ZipCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.HasKey("Id");
 
                     b.ToTable("AppClinics", (string)null);
-                });
-
-            modelBuilder.Entity("WeCare.Clinics.ClinicOperatingHour", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<TimeSpan?>("BreakEnd")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan?>("BreakStart")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("ClinicId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("bit");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("TenantId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClinicId");
-
-                    b.ToTable("AppClinicOperatingHours", (string)null);
                 });
 
             modelBuilder.Entity("WeCare.Consultations.Consultation", b =>
@@ -2339,8 +2250,6 @@ namespace WeCare.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
 
                     b.ToTable("Objectives");
                 });
@@ -2882,15 +2791,6 @@ namespace WeCare.Migrations
                     b.Navigation("Training");
                 });
 
-            modelBuilder.Entity("WeCare.Clinics.ClinicOperatingHour", b =>
-                {
-                    b.HasOne("WeCare.Clinics.Clinic", null)
-                        .WithMany("OperatingHours")
-                        .HasForeignKey("ClinicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WeCare.Consultations.Consultation", b =>
                 {
                     b.HasOne("WeCare.Objectives.Objective", null)
@@ -2932,17 +2832,6 @@ namespace WeCare.Migrations
                     b.Navigation("Patient");
 
                     b.Navigation("Responsible");
-                });
-
-            modelBuilder.Entity("WeCare.Objectives.Objective", b =>
-                {
-                    b.HasOne("WeCare.Patients.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("WeCare.Patients.Patient", b =>
@@ -3051,11 +2940,6 @@ namespace WeCare.Migrations
             modelBuilder.Entity("Volo.Abp.TenantManagement.Tenant", b =>
                 {
                     b.Navigation("ConnectionStrings");
-                });
-
-            modelBuilder.Entity("WeCare.Clinics.Clinic", b =>
-                {
-                    b.Navigation("OperatingHours");
                 });
 
             modelBuilder.Entity("WeCare.Consultations.Consultation", b =>

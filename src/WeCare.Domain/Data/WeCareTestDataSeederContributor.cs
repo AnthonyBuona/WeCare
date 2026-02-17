@@ -12,6 +12,7 @@ using WeCare.Objectives;
 using WeCare.Consultations;
 using WeCare.Trainings;
 using WeCare.PerformedTrainings;
+using WeCare.Clinics;
 using WeCare.Domain.Shared.PerformedTrainings;
 
 namespace WeCare.Data
@@ -25,6 +26,7 @@ namespace WeCare.Data
         private readonly IRepository<Consultation, Guid> _consultationRepository;
         private readonly IRepository<Training, Guid> _trainingRepository;
         private readonly IRepository<PerformedTraining, Guid> _performedTrainingRepository;
+        private readonly IRepository<Clinic, Guid> _clinicRepository;
         private readonly IGuidGenerator _guidGenerator;
 
         public WeCareTestDataSeederContributor(
@@ -35,6 +37,7 @@ namespace WeCare.Data
             IRepository<Consultation, Guid> consultationRepository,
             IRepository<Training, Guid> trainingRepository,
             IRepository<PerformedTraining, Guid> performedTrainingRepository,
+            IRepository<Clinic, Guid> clinicRepository,
             IGuidGenerator guidGenerator)
         {
             _responsibleRepository = responsibleRepository;
@@ -44,6 +47,7 @@ namespace WeCare.Data
             _consultationRepository = consultationRepository;
             _trainingRepository = trainingRepository;
             _performedTrainingRepository = performedTrainingRepository;
+            _clinicRepository = clinicRepository;
             _guidGenerator = guidGenerator;
         }
 
@@ -52,7 +56,21 @@ namespace WeCare.Data
             // Verificar se já existem dados
             if (await _patientRepository.GetCountAsync() > 0)
             {
-                return; // Já existem dados, não semear novamente
+                // return; // Já existem dados, não semear novamente
+            }
+
+            // 0. Criar Clínica WeCare (Host)
+            if (await _clinicRepository.CountAsync(x => x.Name == "WeCare") == 0)
+            {
+                var weCareClinic = new Clinic
+                {
+                    Name = "WeCare",
+                    Email = "admin@wecare.com.br",
+                    Address = "Sede WeCare",
+                    Status = ClinicStatus.Active,
+                    TenantId = null // Host
+                };
+                await _clinicRepository.InsertAsync(weCareClinic, autoSave: true);
             }
 
             // 1. Criar Responsáveis

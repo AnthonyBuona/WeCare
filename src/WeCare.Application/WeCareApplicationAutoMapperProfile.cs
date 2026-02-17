@@ -78,9 +78,14 @@ namespace WeCare
             
             // Adicionados
             CreateMap<Clinic, ClinicDto>();
+            CreateMap<Clinic, ClinicSettingsDto>();
             CreateMap<CreateUpdateClinicDto, Clinic>();
+            CreateMap<ClinicOperatingHour, ClinicOperatingHourDto>();
+            CreateMap<ClinicOperatingHourDto, ClinicOperatingHour>();
             
-            CreateMap<Guest, GuestDto>();
+            CreateMap<Guest, GuestDto>()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.Name));
+            CreateMap<CreateUpdateGuestDto, Guest>();
         }
     }
 }

@@ -2,6 +2,7 @@ using WeCare.Localization;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Localization;
 
+using Volo.Abp.MultiTenancy;
 namespace WeCare.Permissions
 {
     public class WeCarePermissionDefinitionProvider : PermissionDefinitionProvider
@@ -72,11 +73,14 @@ namespace WeCare.Permissions
             trainingsPermission.AddChild(WeCarePermissions.Trainings.Edit, L("Permission:Trainings.Edit"));
             trainingsPermission.AddChild(WeCarePermissions.Trainings.Delete, L("Permission:Trainings.Delete"));
 
-            var clinicsPermission = myGroup.AddPermission(WeCarePermissions.Clinics.Default, L("Permission:Clinics"));
+            var clinicsPermission = myGroup.AddPermission(WeCarePermissions.Clinics.Default, L("Permission:Clinics"), multiTenancySide: MultiTenancySides.Host);
             clinicsPermission.AddChild(WeCarePermissions.Clinics.Create, L("Permission:Clinics.Create"));
             clinicsPermission.AddChild(WeCarePermissions.Clinics.Edit, L("Permission:Clinics.Edit"));
             clinicsPermission.AddChild(WeCarePermissions.Clinics.Delete, L("Permission:Clinics.Delete"));
             clinicsPermission.AddChild(WeCarePermissions.Clinics.ManageStatus, L("Permission:Clinics.ManageStatus"));
+
+            // Clinic Settings — available for both host and tenant admins
+            myGroup.AddPermission(WeCarePermissions.Clinics.Settings, L("Permission:ClinicSettings"));
 
             var objectivesPermission = myGroup.AddPermission(WeCarePermissions.Objectives.Default, L("Permission:Objectives"));
             objectivesPermission.AddChild(WeCarePermissions.Objectives.Create, L("Permission:Objectives.Create"));

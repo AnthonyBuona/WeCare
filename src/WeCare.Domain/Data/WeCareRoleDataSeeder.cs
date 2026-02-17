@@ -68,13 +68,25 @@ namespace WeCare.Data
 
             // 3. Responsible (Responsável)
             await GrantPermissionsAsync("Responsible", new[] {
+                 WeCarePermissions.Patients.Default,
+                 WeCarePermissions.Consultations.Default,
+                 WeCarePermissions.Tratamentos.Default,
+                 WeCarePermissions.Trainings.Default,
+                 WeCarePermissions.Activities.Default,
+                 WeCarePermissions.Objectives.Default,
                  WeCarePermissions.Guests.Default,
-                 WeCarePermissions.Guests.Create,
-                 WeCarePermissions.Guests.Delete,
             }, context.TenantId);
             
             // 4. Guest (Convidado)
             // Acesso somente leitura
+            await GrantPermissionsAsync("Guest", new[] {
+                WeCarePermissions.Patients.Default,
+                WeCarePermissions.Consultations.Default,
+                WeCarePermissions.Tratamentos.Default,
+                WeCarePermissions.Trainings.Default,
+                WeCarePermissions.Activities.Default,
+                WeCarePermissions.Objectives.Default
+            }, context.TenantId);
         }
 
         private async Task CreateRolesAsync(System.Guid? tenantId)

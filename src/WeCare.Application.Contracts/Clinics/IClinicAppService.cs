@@ -15,5 +15,10 @@ namespace WeCare.Clinics
         Task<ClinicDto> ChangeStatusAsync(Guid id, ChangeClinicStatusDto input);
         Task<ClinicDto> FreezeAsync(Guid id);
         Task<ClinicDto> ActivateAsync(Guid id);
+
+        Task<ClinicSettingsDto> GetSettingsAsync(Guid id);
+        Task<ClinicSettingsDto> GetCurrentClinicSettingsAsync();
+        Task UpdateSettingsAsync(Guid id, ClinicSettingsDto input);
+        Task UpdateCurrentClinicSettingsAsync(ClinicSettingsDto input);
     }
 }

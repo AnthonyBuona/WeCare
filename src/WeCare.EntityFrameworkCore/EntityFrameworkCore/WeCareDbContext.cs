@@ -49,11 +49,12 @@ public class WeCareDbContext :
     public DbSet<Activity> Activities { get; set; }
     public DbSet<Objective> Objectives { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
+    public DbSet<ClinicOperatingHour> ClinicOperatingHours { get; set; }
     public DbSet<Guest> Guests { get; set; }
 
 
     #region Entities from the modules
-
+    
     // Identity
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
@@ -180,6 +181,17 @@ public class WeCareDbContext :
             b.ToTable(WeCareConsts.DbTablePrefix + "Clinics", WeCareConsts.DbSchema);
             b.ConfigureByConvention();
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
+
+            b.HasMany(x => x.OperatingHours)
+             .WithOne()
+             .HasForeignKey(x => x.ClinicId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ClinicOperatingHour>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "ClinicOperatingHours", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
         });
 
         builder.Entity<Guest>(b =>

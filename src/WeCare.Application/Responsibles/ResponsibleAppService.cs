@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using WeCare.Permissions;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 using System.Linq.Dynamic.Core;
 
 namespace WeCare.Responsibles;
@@ -15,10 +18,14 @@ namespace WeCare.Responsibles;
 public class ResponsibleAppService : ApplicationService, IResponsibleAppService
 {
     private readonly IRepository<Responsible, Guid> _repository;
+    private readonly IdentityUserManager _userManager;
 
-    public ResponsibleAppService(IRepository<Responsible, Guid> repository)
+    public ResponsibleAppService(
+        IRepository<Responsible, Guid> repository,
+        IdentityUserManager userManager)
     {
         _repository = repository;
+        _userManager = userManager;
     }
 
     public async Task<ResponsibleDto> GetAsync(Guid id)
@@ -47,9 +54,29 @@ public class ResponsibleAppService : ApplicationService, IResponsibleAppService
     [Authorize(WeCarePermissions.Responsibles.Create)]
     public async Task<ResponsibleDto> CreateAsync(CreateUpdateResponsibleDto input)
     {
-        var Responsible = ObjectMapper.Map<CreateUpdateResponsibleDto, Responsible>(input);
-        await _repository.InsertAsync(Responsible);
-        return ObjectMapper.Map<Responsible, ResponsibleDto>(Responsible);
+        // 1. Criar IdentityUser
+        var user = new Volo.Abp.Identity.IdentityUser(
+            GuidGenerator.Create(),
+            input.UserName,
+            input.EmailAddress,
+            CurrentTenant.Id
+        )
+        {
+            Name = input.NameResponsible
+        };
+
+        (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
+        
+        // 2. Atribuir Role "Responsible"
+        (await _userManager.AddToRoleAsync(user, "Responsible")).CheckErrors();
+
+        // 3. Criar entidade Responsible vinculada
+        var responsible = ObjectMapper.Map<CreateUpdateResponsibleDto, Responsible>(input);
+        responsible.UserId = user.Id;
+
+        await _repository.InsertAsync(responsible);
+        
+        return ObjectMapper.Map<Responsible, ResponsibleDto>(responsible);
     }
 
     //[Authorize(WeCarePermissions.Responsibles.Edit)]

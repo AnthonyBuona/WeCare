@@ -13,6 +13,9 @@ using WeCare.Permissions;
 using WeCare.PerformedTrainings; // IMPORTANTE: Adicionar este using
 using WeCare.Therapists;
 using WeCare.Objectives;
+using WeCare.Guests;
+using WeCare.Responsibles;
+using Volo.Abp;
 
 
 namespace WeCare.Consultations
@@ -28,15 +31,21 @@ namespace WeCare.Consultations
     {
         private readonly IRepository<Therapist, Guid> _therapistRepository;
         private readonly IRepository<Objective, Guid> _objectiveRepository;
+        private readonly IRepository<Responsible, Guid> _responsibleRepository;
+        private readonly IRepository<Guest, Guid> _guestRepository;
 
         public ConsultationAppService(
             IRepository<Consultation, Guid> repository,
             IRepository<Therapist, Guid> therapistRepository,
-            IRepository<Objective, Guid> objectiveRepository)
+            IRepository<Objective, Guid> objectiveRepository,
+            IRepository<Responsible, Guid> responsibleRepository,
+            IRepository<Guest, Guid> guestRepository)
             : base(repository)
         {
             _therapistRepository = therapistRepository;
             _objectiveRepository = objectiveRepository;
+            _responsibleRepository = responsibleRepository;
+            _guestRepository = guestRepository;
 
             GetPolicyName = WeCarePermissions.Consultations.Default;
             GetListPolicyName = WeCarePermissions.Consultations.Default;
@@ -89,10 +98,42 @@ namespace WeCare.Consultations
         public override async Task<PagedResultDto<ConsultationDto>> GetListAsync(PagedAndSortedResultRequestDto input)
         {
             var queryable = await Repository.WithDetailsAsync(x => x.Patient, x => x.Therapist);
+
+            // Filtro de Segurança por Papel (Role)
+            if (CurrentUser.IsInRole("Responsible"))
+            {
+                var responsible = await _responsibleRepository.FirstOrDefaultAsync(r => r.UserId == CurrentUser.Id);
+                if (responsible != null)
+                {
+                    // Mostrar apenas consultas dos pacientes sob responsabilidade deste usuário
+                    queryable = queryable.Where(x => x.Patient.PrincipalResponsibleId == responsible.Id);
+                }
+                else
+                {
+                    queryable = queryable.Where(x => false);
+                }
+            }
+            else if (CurrentUser.IsInRole("Guest"))
+            {
+                var guest = await _guestRepository.FirstOrDefaultAsync(g => g.UserId == CurrentUser.Id);
+                if (guest != null)
+                {
+                    // Mostrar apenas consultas do paciente vinculado a este convidado
+                    queryable = queryable.Where(x => x.PatientId == guest.PatientId);
+                }
+                else
+                {
+                    queryable = queryable.Where(x => false);
+                }
+            }
+
+            var totalCount = await AsyncExecuter.CountAsync(queryable);
+
             queryable = ApplySorting(queryable, input);
             queryable = ApplyPaging(queryable, input);
+
             var consultations = await AsyncExecuter.ToListAsync(queryable);
-            var totalCount = await Repository.GetCountAsync();
+
             return new PagedResultDto<ConsultationDto>(
                 totalCount,
                 ObjectMapper.Map<List<Consultation>, List<ConsultationDto>>(consultations)

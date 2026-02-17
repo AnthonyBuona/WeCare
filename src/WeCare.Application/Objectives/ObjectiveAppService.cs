@@ -13,6 +13,9 @@ using WeCare.Patients;
 using WeCare.Permissions;
 using WeCare.Therapists;
 using WeCare.Trainings;
+using WeCare.Guests;
+using WeCare.Responsibles;
+using Volo.Abp;
 
 namespace WeCare.Objectives
 {
@@ -27,22 +30,49 @@ namespace WeCare.Objectives
         private readonly IRepository<Training, Guid> _trainingRepository;
         private readonly IRepository<Patient, Guid> _patientRepository;
         private readonly IRepository<Therapist, Guid> _therapistRepository;
+        private readonly IRepository<Responsible, Guid> _responsibleRepository;
+        private readonly IRepository<Guest, Guid> _guestRepository;
 
         public ObjectiveAppService(
             IRepository<Objective, Guid> repository,
             IRepository<Training, Guid> trainingRepository,
             IRepository<Patient, Guid> patientRepository,
-            IRepository<Therapist, Guid> therapistRepository) : base(repository)
+            IRepository<Therapist, Guid> therapistRepository,
+            IRepository<Responsible, Guid> responsibleRepository,
+            IRepository<Guest, Guid> guestRepository) : base(repository)
         {
             _trainingRepository = trainingRepository;
             _patientRepository = patientRepository;
             _therapistRepository = therapistRepository;
+            _responsibleRepository = responsibleRepository;
+            _guestRepository = guestRepository;
 
             GetPolicyName = WeCarePermissions.Objectives.Default;
             GetListPolicyName = WeCarePermissions.Objectives.Default;
-            CreatePolicyName = WeCarePermissions.Objectives.Create;
+            CreatePolicyName = WeCarePermissions.Objectives.Edit; // Note: Creating an objective usually happens during consultation or by therapist
             UpdatePolicyName = WeCarePermissions.Objectives.Edit;
             DeletePolicyName = WeCarePermissions.Objectives.Delete;
+        }
+
+        private async Task CheckPatientAccessAsync(Guid patientId)
+        {
+            if (CurrentUser.IsInRole("Responsible"))
+            {
+                var responsible = await _responsibleRepository.FirstOrDefaultAsync(r => r.UserId == CurrentUser.Id);
+                var patient = await _patientRepository.GetAsync(patientId);
+                if (responsible == null || patient.PrincipalResponsibleId != responsible.Id)
+                {
+                    throw new UserFriendlyException("Você não tem permissão para acessar os dados deste paciente.");
+                }
+            }
+            else if (CurrentUser.IsInRole("Guest"))
+            {
+                var guest = await _guestRepository.FirstOrDefaultAsync(g => g.UserId == CurrentUser.Id);
+                if (guest == null || guest.PatientId != patientId)
+                {
+                    throw new UserFriendlyException("Você não tem permissão para acessar os dados deste paciente.");
+                }
+            }
         }
 
         public override async Task<ObjectiveDto> CreateAsync(CreateUpdateObjectiveDto input)
@@ -52,8 +82,49 @@ namespace WeCare.Objectives
             return ObjectMapper.Map<Objective, ObjectiveDto>(objective);
         }
 
+        public override async Task<PagedResultDto<ObjectiveDto>> GetListAsync(PagedAndSortedResultRequestDto input)
+        {
+            var queryable = await Repository.GetQueryableAsync();
+
+            if (CurrentUser.IsInRole("Responsible"))
+            {
+                var responsible = await _responsibleRepository.FirstOrDefaultAsync(r => r.UserId == CurrentUser.Id);
+                if (responsible != null)
+                {
+                    queryable = queryable.Where(x => x.Patient.PrincipalResponsibleId == responsible.Id);
+                }
+                else
+                {
+                    queryable = queryable.Where(x => false);
+                }
+            }
+            else if (CurrentUser.IsInRole("Guest"))
+            {
+                var guest = await _guestRepository.FirstOrDefaultAsync(g => g.UserId == CurrentUser.Id);
+                if (guest != null)
+                {
+                    queryable = queryable.Where(x => x.PatientId == guest.PatientId);
+                }
+                else
+                {
+                    queryable = queryable.Where(x => false);
+                }
+            }
+
+            var totalCount = await AsyncExecuter.CountAsync(queryable);
+            queryable = ApplySorting(queryable, input);
+            queryable = ApplyPaging(queryable, input);
+            var objectives = await AsyncExecuter.ToListAsync(queryable);
+
+            return new PagedResultDto<ObjectiveDto>(
+                totalCount,
+                ObjectMapper.Map<List<Objective>, List<ObjectiveDto>>(objectives)
+            );
+        }
+
         public async Task<ListResultDto<LookupDto<Guid>>> GetObjectiveLookupAsync(Guid patientId)
         {
+            await CheckPatientAccessAsync(patientId);
             var objectives = await Repository.GetListAsync(x => x.PatientId == patientId);
             var lookupDtos = objectives
                 .Select(x => new LookupDto<Guid>(x.Id, x.Name))
@@ -63,6 +134,7 @@ namespace WeCare.Objectives
 
         public async Task<List<ObjectiveGroupDto>> GetGroupedObjectivesByPatientAsync(Guid patientId)
         {
+            await CheckPatientAccessAsync(patientId);
             var objectivesWithConsultations = await Repository.WithDetailsAsync(o => o.Consultations);
             var patientObjectives = objectivesWithConsultations
                 .Where(o => o.PatientId == patientId)

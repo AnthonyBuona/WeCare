@@ -3,6 +3,8 @@
   "texts": {
     "AppName": "WeCare",
     "Menu:Home": "Principal",
+    "Menu:Scheduling": "Agendamento",
+    "Novo Agendamento": "Novo Agendamento",
     "Menu:Consultations": "Agendar Consultas",
     "Menu:ContactUs": "Entre em contato conosco",
     "Menu:ArticleSample": "Amostra de Artigo",
@@ -66,6 +68,7 @@
     "Permission:Guests.Delete": "Remover convidados",
     "Permission:Clinics": "Gerenciamento de Clínicas",
     "Permission:Clinics.ManageStatus": "Gerenciar Status da Clínica",
+    "Permission:ClinicSettings": "Configurações da Clínica",
     "Activities": "Atividades",
     "NewActivity": "Nova Atividade",
     "EditActivity": "Editar Atividade",

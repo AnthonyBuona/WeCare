@@ -56,18 +56,24 @@ namespace WeCare.Therapists
             var existingUser = await _userManager.FindByNameAsync(input.UserName);
             if (existingUser != null)
             {
-                throw new UserFriendlyException("Já existe um usuário com este nome.");
+                throw new UserFriendlyException("Já existe um usuário com este nome de usuário.");
+            }
+
+            var existingEmailUser = await _userManager.FindByEmailAsync(input.Email);
+            if (existingEmailUser != null)
+            {
+                throw new UserFriendlyException("Este e-mail já está em uso por outro usuário.");
             }
 
             // 1. Criar o usuário de identidade.
-            var user = new IdentityUser(GuidGenerator.Create(), input.UserName, input.Email)
+            var user = new Volo.Abp.Identity.IdentityUser(GuidGenerator.Create(), input.UserName, input.Email)
             {
                 Name = input.Name
             };
             (await _userManager.CreateAsync(user, input.Password)).CheckErrors();
 
             // 2. Atribuir a role "Terapeuta".
-            const string therapistRole = "Terapeuta";
+            const string therapistRole = "Therapist";
             (await _userManager.AddToRoleAsync(user, therapistRole)).CheckErrors();
 
             // 3. Salvar as mudanças para disparar o evento.

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
+using WeCare.Patients;
 using WeCare.Consultations;
 using WeCare.Trainings;
 
@@ -15,6 +16,7 @@ namespace WeCare.Objectives
         public Guid? TenantId { get; set; }
 
         public Guid PatientId { get; set; }
+        public virtual Patient Patient { get; set; }
         public Guid TherapistId { get; set; }
         public string Name { get; set; }
         public string Status { get; set; } // Ex: "Ativo", "Concluído"

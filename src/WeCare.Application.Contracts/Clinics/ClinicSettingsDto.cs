@@ -1,22 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Volo.Abp.Domain.Entities.Auditing;
-using Volo.Abp.MultiTenancy;
 
 namespace WeCare.Clinics
 {
-    public class Clinic : FullAuditedAggregateRoot<Guid>, IMultiTenant
+    public class ClinicSettingsDto
     {
-        public Guid? TenantId { get; set; }
+        // White-Label
+        [MaxLength(500)]
+        public string? LogoUrl { get; set; }
+        
+        [MaxLength(10)]
+        public string? PrimaryColor { get; set; }
+        
+        [MaxLength(10)]
+        public string? SecondaryColor { get; set; }
 
-        [Required]
-        [MaxLength(128)]
-        public string Name { get; set; }
-
-        [MaxLength(18)] // CNPJ: 00.000.000/0000-00
-        public string? CNPJ { get; set; }
-
+        // Address & Contact
         [MaxLength(256)]
         public string? Address { get; set; }
 
@@ -27,22 +27,6 @@ namespace WeCare.Clinics
         [MaxLength(256)]
         public string? Email { get; set; }
 
-        [MaxLength(500)]
-        public string? Specializations { get; set; } // Lista separada por vírgulas
-
-        public ClinicStatus Status { get; set; }
-
-        // White-Label
-        [MaxLength(500)]
-        public string? LogoUrl { get; set; }
-        
-        [MaxLength(10)]
-        public string? PrimaryColor { get; set; } // Hex Code
-        
-        [MaxLength(10)]
-        public string? SecondaryColor { get; set; } // Hex Code
-
-        // Address & Contact
         [MaxLength(20)]
         public string? AddressNumber { get; set; }
         
@@ -74,16 +58,8 @@ namespace WeCare.Clinics
         public string? WelcomeMessage { get; set; }
 
         // Scheduling
-        public int AppointmentDurationMinutes { get; set; } = 30; // Default duration
+        public int AppointmentDurationMinutes { get; set; }
 
-        public ICollection<ClinicOperatingHour> OperatingHours { get; set; }
-
-        public Clinic()
-        {
-            Status = ClinicStatus.Active;
-            OperatingHours = new List<ClinicOperatingHour>();
-        }
+        public List<ClinicOperatingHourDto> OperatingHours { get; set; } = new();
     }
-
-
 }

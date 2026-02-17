@@ -67,6 +67,7 @@ public static class WeCarePermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
         public const string ManageStatus = Default + ".ManageStatus";
+        public const string Settings = GroupName + ".ClinicSettings";
     }
 
     public static class Objectives

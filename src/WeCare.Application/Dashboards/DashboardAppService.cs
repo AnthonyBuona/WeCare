@@ -11,6 +11,7 @@ using WeCare.Objectives;
 using WeCare.Consultations;
 using WeCare.Responsibles;
 using WeCare.Trainings;
+using WeCare.Guests;
 using Volo.Abp.Users;
 using Microsoft.AspNetCore.Authorization;
 
@@ -26,6 +27,7 @@ namespace WeCare.Dashboards
         private readonly IRepository<Responsible, Guid> _responsibleRepository;
         private readonly IRepository<Objective, Guid> _objectiveRepository;
         private readonly IRepository<Training, Guid> _trainingRepository;
+        private readonly IRepository<Guest, Guid> _guestRepository;
 
         public DashboardAppService(
             IRepository<Patient, Guid> patientRepository,
@@ -34,7 +36,8 @@ namespace WeCare.Dashboards
             IRepository<Consultation, Guid> consultationRepository,
             IRepository<Responsible, Guid> responsibleRepository,
             IRepository<Objective, Guid> objectiveRepository,
-            IRepository<Training, Guid> trainingRepository)
+            IRepository<Training, Guid> trainingRepository,
+            IRepository<Guest, Guid> guestRepository)
         {
             _patientRepository = patientRepository;
             _therapistRepository = therapistRepository;
@@ -43,6 +46,7 @@ namespace WeCare.Dashboards
             _responsibleRepository = responsibleRepository;
             _objectiveRepository = objectiveRepository;
             _trainingRepository = trainingRepository;
+            _guestRepository = guestRepository;
         }
 
         public async Task<WeCareDashboardHeaderStatsDto> GetStatsAsync()
@@ -75,6 +79,25 @@ namespace WeCare.Dashboards
 
         public async Task<PatientDashboardDto> GetPatientDashboardAsync(Guid patientId)
         {
+            // Security Check
+            if (CurrentUser.IsInRole("Responsible"))
+            {
+                var responsible = await _responsibleRepository.FirstOrDefaultAsync(r => r.UserId == CurrentUser.Id);
+                var patientCheck = await _patientRepository.GetAsync(patientId);
+                if (responsible == null || patientCheck.PrincipalResponsibleId != responsible.Id)
+                {
+                    throw new Volo.Abp.UserFriendlyException("Você não tem permissão para visualizar o dashboard deste paciente.");
+                }
+            }
+            else if (CurrentUser.IsInRole("Guest"))
+            {
+                var guest = await _guestRepository.FirstOrDefaultAsync(g => g.UserId == CurrentUser.Id);
+                if (guest == null || guest.PatientId != patientId)
+                {
+                    throw new Volo.Abp.UserFriendlyException("Você não tem permissão para visualizar o dashboard deste paciente.");
+                }
+            }
+
             var patient = await _patientRepository.GetAsync(patientId);
             
             var dashboard = new PatientDashboardDto

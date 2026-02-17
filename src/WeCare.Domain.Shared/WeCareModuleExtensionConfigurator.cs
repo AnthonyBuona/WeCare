@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Identity;
+using Volo.Abp.Localization;
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
 
@@ -67,5 +68,56 @@ public static class WeCareModuleExtensionConfigurator
          * See the documentation for more:
          * https://docs.abp.io/en/abp/latest/Module-Entity-Extensions
          */
+
+        ObjectExtensionManager.Instance.Modules()
+            .ConfigureTenantManagement(tenantManagement =>
+            {
+                tenantManagement.ConfigureTenant(tenant =>
+                {
+                    tenant.AddOrUpdateProperty<string>(
+                        "AdminEmail",
+                        property =>
+                        {
+                            property.Attributes.Add(new EmailAddressAttribute());
+                            property.UI.OnTable.IsVisible = true;
+                            property.UI.OnCreateForm.IsVisible = false;
+                            property.UI.OnEditForm.IsVisible = true;
+                            property.DisplayName = new FixedLocalizableString("Admin Email");
+                        }
+                    );
+                    tenant.AddOrUpdateProperty<string>(
+                        "AdminPassword",
+                        property =>
+                        {
+                            property.UI.OnTable.IsVisible = true;
+                            property.UI.OnCreateForm.IsVisible = false;
+                            property.UI.OnEditForm.IsVisible = true;
+                            property.DisplayName = new FixedLocalizableString("Admin Password");
+                        }
+                    );
+
+                    tenant.AddOrUpdateProperty<int?>(
+                        "MaxPatients",
+                        property =>
+                        {
+                            property.UI.OnTable.IsVisible = true;
+                            property.UI.OnCreateForm.IsVisible = true;
+                            property.UI.OnEditForm.IsVisible = true;
+                            property.DisplayName = new FixedLocalizableString("Max Patients");
+                        }
+                    );
+
+                    tenant.AddOrUpdateProperty<int?>(
+                        "MaxGuestsPerPatient",
+                        property =>
+                        {
+                            property.UI.OnTable.IsVisible = true;
+                            property.UI.OnCreateForm.IsVisible = true;
+                            property.UI.OnEditForm.IsVisible = true;
+                            property.DisplayName = new FixedLocalizableString("Max Guests Per Patient");
+                        }
+                    );
+                });
+            });
     }
 }
