@@ -19,8 +19,15 @@
 
 <div class="row align-items-center mb-5">
     <div class="col-lg-7">
-        <h1 class="display-3 text-primary mb-2">@L["Welcome"], <span class="fw-bold">WeCare</span></h1>
-        <p class="lead text-muted mb-4">@L["LongWelcomeMessage"]</p>
+        <h1 class="display-3 text-primary mb-2">@L["Welcome"], <span class="fw-bold">@(CurrentUser.Name ?? CurrentUser.UserName ?? "WeCare")</span></h1>
+        @if (!string.IsNullOrEmpty(Model.ClinicInfo?.WelcomeMessage))
+        {
+            <p class="lead text-muted mb-4">@Model.ClinicInfo.WelcomeMessage</p>
+        }
+        else
+        {
+            <p class="lead text-muted mb-4">@L["LongWelcomeMessage"]</p>
+        }
         
         @if (!CurrentUser.IsAuthenticated)
         {
@@ -42,7 +49,14 @@
     </div>
     <div class="col-lg-5 d-none d-lg-block text-center position-relative">
         <div class="blob-shape bg-gradient-success opacity-10 position-absolute w-100 h-100 rounded-circle" style="filter: blur(80px); transform: translate(20px, -20px);"></div>
-        <img src="/images/logo/leptonxlite/logo-light.png" alt="WeCare Hero" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
+        @if (!string.IsNullOrEmpty(Model.ClinicInfo?.LogoUrl))
+        {
+            <img src="@Model.ClinicInfo.LogoUrl" alt="Logo da Clínica" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
+        }
+        else
+        {
+            <img src="/images/logo/leptonxlite/logo-light.png" alt="WeCare Hero" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
+        }
     </div>
 </div>
 
@@ -179,4 +193,119 @@
             </div>
         </div>
     </div>
+
+    @if (Model.ClinicInfo != null && HasContactInfo(Model.ClinicInfo))
+    {
+        <div class="mt-5">
+            <h4 class="mb-4 text-dark fw-bold"><i class="fa fa-building me-2"></i>Informações da Clínica</h4>
+            <div class="row">
+                @if (HasAddress(Model.ClinicInfo))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-map-marker me-2 text-primary"></i>Endereço</h6>
+                                <p class="mb-0">
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Address))
+                                    {
+                                        @Model.ClinicInfo.Address
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.AddressNumber))
+                                        {
+                                            <text>, @Model.ClinicInfo.AddressNumber</text>
+                                        }
+                                        <br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Neighborhood))
+                                    {
+                                        @Model.ClinicInfo.Neighborhood<br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.City))
+                                    {
+                                        @Model.ClinicInfo.City
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.State))
+                                        {
+                                            <text> - @Model.ClinicInfo.State</text>
+                                        }
+                                        <br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.ZipCode))
+                                    {
+                                        <text>CEP: @Model.ClinicInfo.ZipCode</text>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (HasContactDetails(Model.ClinicInfo))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-phone me-2 text-primary"></i>Contato</h6>
+                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.Phone))
+                                {
+                                    <p class="mb-2"><i class="fa fa-phone me-2 text-muted"></i> @Model.ClinicInfo.Phone</p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.Email))
+                                {
+                                    <p class="mb-2"><i class="fa fa-envelope me-2 text-muted"></i> <a href="mailto:@Model.ClinicInfo.Email">@Model.ClinicInfo.Email</a></p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.WebsiteUrl))
+                                {
+                                    <p class="mb-0"><i class="fa fa-globe me-2 text-muted"></i> <a href="@Model.ClinicInfo.WebsiteUrl" target="_blank">@Model.ClinicInfo.WebsiteUrl</a></p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (HasSocialLinks(Model.ClinicInfo))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-share-alt me-2 text-primary"></i>Redes Sociais</h6>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.InstagramUrl))
+                                    {
+                                        <a href="@Model.ClinicInfo.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-instagram me-1"></i> Instagram
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.FacebookUrl))
+                                    {
+                                        <a href="@Model.ClinicInfo.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-facebook me-1"></i> Facebook
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.LinkedInUrl))
+                                    {
+                                        <a href="@Model.ClinicInfo.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-linkedin me-1"></i> LinkedIn
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@functions {
+    bool HasContactInfo(WeCare.Clinics.ClinicSettingsDto c) =>
+        HasAddress(c) || HasContactDetails(c) || HasSocialLinks(c);
+
+    bool HasAddress(WeCare.Clinics.ClinicSettingsDto c) =>
+        !string.IsNullOrEmpty(c.Address) || !string.IsNullOrEmpty(c.City) || !string.IsNullOrEmpty(c.ZipCode);
+
+    bool HasContactDetails(WeCare.Clinics.ClinicSettingsDto c) =>
+        !string.IsNullOrEmpty(c.Phone) || !string.IsNullOrEmpty(c.Email) || !string.IsNullOrEmpty(c.WebsiteUrl);
+
+    bool HasSocialLinks(WeCare.Clinics.ClinicSettingsDto c) =>
+        !string.IsNullOrEmpty(c.InstagramUrl) || !string.IsNullOrEmpty(c.FacebookUrl) || !string.IsNullOrEmpty(c.LinkedInUrl);
 }

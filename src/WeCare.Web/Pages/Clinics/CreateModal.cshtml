@@ -1,0 +1,25 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using WeCare.Localization
+@using WeCare.Web.Pages.Clinics
+@model CreateModalModel
+@inject IHtmlLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<form asp-page="/Clinics/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["NewClinic"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="Input.Name" />
+            <abp-input asp-for="Input.AdminEmailAddress" />
+            <abp-input asp-for="Input.AdminPassword" type="password" />
+            <abp-input asp-for="Input.CNPJ" />
+            <abp-input asp-for="Input.Address" />
+            <abp-input asp-for="Input.Phone" />
+            <abp-input asp-for="Input.Specializations" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

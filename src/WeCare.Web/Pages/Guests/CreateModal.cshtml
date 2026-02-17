@@ -1,20 +1,32 @@
 @page
-@using WeCare.Web.Pages.Guests
 @using WeCare.Localization
-@using Microsoft.Extensions.Localization
+@using WeCare.Web.Pages.Guests
+@using Microsoft.AspNetCore.Mvc.Localization
 @using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
 @model CreateModalModel
-@inject IStringLocalizer<WeCareResource> L
+@inject IHtmlLocalizer<WeCareResource> L
 @{
     Layout = null;
 }
-<form asp-page="/Guests/CreateModal">
+<form asp-page="/Guests/CreateModal" id="CreateGuestForm" abp-model="Guest">
     <abp-modal>
         <abp-modal-header title="@L["NewGuest"].Value"></abp-modal-header>
         <abp-modal-body>
-            <abp-select asp-for="Guest.PatientId" asp-items="Model.PatientLookup" label="@L["Patient"].Value" />
-            <abp-input asp-for="Guest.Name" label="@L["Name"].Value" />
-            <abp-input asp-for="Guest.Email" label="@L["Email"].Value" />
+            <abp-input asp-for="Guest.Name" />
+            <abp-input asp-for="Guest.Email" />
+            <abp-input asp-for="Guest.Password" type="password" />
+            <abp-input asp-for="Guest.Relationship" />
+            
+            @if (Model.IsResponsible)
+            {
+                <input type="hidden" asp-for="Guest.PatientId" />
+                <input type="hidden" asp-for="Guest.ResponsibleId" />
+            }
+            else
+            {
+                <abp-select asp-for="Guest.PatientId" asp-items="Model.PatientLookupList" label="@L["Patient"].Value" />
+                <abp-select asp-for="Guest.ResponsibleId" asp-items="Model.ResponsibleLookupList" label="@L["Responsible"].Value" />
+            }
         </abp-modal-body>
         <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
     </abp-modal>

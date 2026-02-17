@@ -8,12 +8,19 @@
 @{
     Layout = null;
 }
-<form asp-page="/Guests/EditModal">
+<form asp-page="/Guests/EditModal" id="EditGuestForm" abp-model="Guest">
     <abp-modal>
         <abp-modal-header title="@L["EditGuest"].Value"></abp-modal-header>
         <abp-modal-body>
             <abp-input asp-for="Id" />
-            <abp-select asp-for="Guest.PatientId" asp-items="Model.PatientLookup" label="@L["Patient"].Value" />
+            @if (Model.IsResponsible)
+            {
+                <input type="hidden" asp-for="Guest.PatientId" />
+            }
+            else
+            {
+                <abp-select asp-for="Guest.PatientId" asp-items="Model.PatientLookup" label="@L["Patient"].Value" />
+            }
             <abp-input asp-for="Guest.Name" label="@L["Name"].Value" />
             <abp-input asp-for="Guest.Email" label="@L["Email"].Value" />
         </abp-modal-body>

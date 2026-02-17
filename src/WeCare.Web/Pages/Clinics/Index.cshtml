@@ -1,0 +1,43 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using WeCare.Permissions
+@using WeCare.Web.Menus
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@using WeCare.Web.Pages.Clinics
+@model IndexModel
+@inject IHtmlLocalizer<WeCareResource> L
+@inject IAuthorizationService AuthorizationService
+@inject IPageLayout PageLayout
+@{
+    PageLayout.Content.Title = L["Clinics"].Value;
+    PageLayout.Content.BreadCrumb.Add(L["Menu:Clinics"].Value);
+    PageLayout.Content.MenuItemName = "WeCare.Clinics";
+}
+
+@section scripts {
+    <abp-script src="/Pages/Clinics/Index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Clinics"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Clinics.Create))
+                {
+                    <abp-button id="NewClinicButton"
+                                text="@L["NewClinic"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="ClinicsTable"></abp-table>
+    </abp-card-body>
+</abp-card>

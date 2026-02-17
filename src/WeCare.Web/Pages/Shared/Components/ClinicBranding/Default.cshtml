@@ -1,0 +1,385 @@
+@using WeCare.Clinics
+@model ClinicSettingsDto
+
+@if (Model != null)
+{
+    var primary = Model.PrimaryColor ?? "#5e72e4";
+    var secondary = Model.SecondaryColor ?? "#2dce89";
+    var primaryDark = AdjustBrightness(primary, -30);
+
+    <style>
+        /* ===================================================================
+           Clinic Branding — Dynamic Color Overrides
+           Injected via LayoutHooks.Head.Last so these override everything
+           =================================================================== */
+
+        /* Override the CSS variables used by global-styles.css */
+        :root {
+            --primary-color: @primary !important;
+            --primary-dark: @primaryDark !important;
+            --primary-rgb: @(ConvertHexToRgb(primary)) !important;
+            --secondary-color: @secondary !important;
+            --gradient-primary: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+            --gradient-success: linear-gradient(150deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
+
+            /* Bootstrap core */
+            --bs-primary: @primary !important;
+            --bs-primary-rgb: @(ConvertHexToRgb(primary)) !important;
+            --bs-success: @secondary !important;
+            --bs-link-color: @primary !important;
+            --bs-link-hover-color: @primaryDark !important;
+
+            /* Native form elements (select, checkbox, radio, range) */
+            accent-color: @primary !important;
+        }
+
+        /* Force accent-color on all form elements */
+        select, input, textarea, button,
+        .form-select, .form-control {
+            accent-color: @primary !important;
+        }
+
+        /* ---- ALL BUTTONS ---- */
+        .btn-primary,
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active,
+        .btn-primary:active:focus,
+        .btn-primary:visited {
+            background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+            border-color: @primary !important;
+            color: #fff !important;
+        }
+
+        .btn-premium,
+        .btn-premium:hover,
+        .btn-premium:focus {
+            background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+            border-color: @primary !important;
+            color: #fff !important;
+        }
+
+        .btn-outline-primary {
+            color: @primary !important;
+            border-color: @primary !important;
+        }
+        .btn-outline-primary:hover,
+        .btn-outline-primary:active,
+        .btn-outline-primary:focus {
+            background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+            border-color: @primary !important;
+            color: #fff !important;
+        }
+
+        /* ABP action button wrapper — must be transparent so gradient only shows on the button */
+        .abp-action-button {
+            background-color: transparent !important;
+            background-image: none !important;
+            border: none !important;
+        }
+
+        /* ---- SIDEBAR DROPDOWN ARROWS (pink → primary) ---- */
+        .lpx-caret,
+        .dd-icon,
+        .lpx-menu-item-link .lpx-caret,
+        .lpx-menu-item-link .dd-icon,
+        i.lpx-caret,
+        i.bi-chevron-down.lpx-caret {
+            color: @primary !important;
+        }
+
+        /* ---- TOOLBAR ICONS (globe, etc. — pink → primary) ---- */
+        #languageDropdown .lpx-icon,
+        #languageDropdown i,
+        .lpx-topbar-area .lpx-icon,
+        .lpx-topbar .lpx-icon,
+        .lpx-navbar .lpx-icon,
+        .lpx-toolbar-container .lpx-icon {
+            color: @primary !important;
+        }
+
+        /* ---- TEXT & LINKS ---- */
+        .text-primary { color: @primary !important; }
+        a:not(.btn):not(.nav-link):not(.dropdown-item):not(.abp-action-button) { color: @primary; }
+        a:not(.btn):not(.nav-link):not(.dropdown-item):hover { color: @primaryDark; }
+
+        /* ---- BACKGROUNDS ---- */
+        .bg-primary { background-color: @primary !important; }
+        .bg-gradient-primary {
+            background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+        }
+        .bg-gradient-success {
+            background: linear-gradient(150deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
+        }
+
+        /* ---- SIDEBAR ICONS — primary color, TEXT — white ---- */
+        /* Icons use primary color */
+        .lpx-menu-item-link .lpx-menu-item-icon,
+        .lpx-menu-item-link .lpx-menu-item-icon i,
+        .lpx-menu-item-link .lpx-menu-item-icon i.lpx-icon,
+        .lpx-menu-item-link .lpx-menu-item-icon .fa,
+        .lpx-menu-item-link .lpx-menu-item-icon .fas,
+        .lpx-menu-item-link .lpx-menu-item-icon .far,
+        .lpx-menu-item-link .lpx-menu-item-icon .bi {
+            color: @primary !important;
+        }
+
+        /* Text stays white on dark sidebar — subtle */
+        .lpx-menu-item-link .lpx-menu-item-text {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        /* Selected/Active item — icon = primary, text = white */
+        .lpx-menu-item-link.selected .lpx-menu-item-icon,
+        .lpx-menu-item-link.selected .lpx-menu-item-icon i,
+        .lpx-menu-item-link.selected .lpx-menu-item-icon i.lpx-icon,
+        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-icon i {
+            color: @primary !important;
+        }
+        .lpx-menu-item-link.selected,
+        .lpx-menu-item-link.selected .lpx-menu-item-text,
+        a.lpx-menu-item-link.lpx-menu-item.selected {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        /* Selected item left indicator bar */
+        .lpx-menu-item-link.selected::before,
+        a.lpx-menu-item-link.selected::before {
+            background-color: @primary !important;
+        }
+
+        /* Hover state — icon brightens, text stays white */
+        .lpx-menu-item-link:hover .lpx-menu-item-icon,
+        .lpx-menu-item-link:hover .lpx-menu-item-icon i {
+            color: @primary !important;
+            filter: brightness(1.2);
+        }
+        .lpx-menu-item-link:hover,
+        .lpx-menu-item-link:hover .lpx-menu-item-text {
+            color: #fff !important;
+        }
+
+        /* Sidebar dropdown arrows — primary color */
+        .lpx-caret,
+        .dd-icon,
+        .lpx-menu-item-link .lpx-caret,
+        i.lpx-caret,
+        i.bi-chevron-down.lpx-caret {
+            color: @primary !important;
+        }
+
+        /* ---- WHITE TEXT ON DARK BACKGROUNDS ---- */
+        .bg-primary,
+        .bg-gradient-primary,
+        .bg-gradient-success,
+        .bg-gradient-info,
+        .bg-gradient-warning,
+        .bg-gradient-danger,
+        .btn-primary,
+        .btn-premium,
+        .badge.bg-primary,
+        .page-item.active .page-link {
+            color: #fff !important;
+        }
+
+        /* ---- LeptonX THEME COLOR OVERRIDES — COMPREHENSIVE ---- */
+        /* This is the ROOT CAUSE: LeptonX uses these CSS custom properties for its pink accent */
+        :root {
+            --lpx-theme-color: @primary !important;
+            --lpx-theme-rgb: @(ConvertHexToRgb(primary)) !important;
+            --lpx-sidebar-active-color: @primary !important;
+            --lpx-theme-primary: @primary !important;
+            --lpx-theme-primary-rgb: @(ConvertHexToRgb(primary)) !important;
+            --lpx-theme-secondary: @secondary !important;
+            --lpx-primary: @primary !important;
+            --lpx-primary-rgb: @(ConvertHexToRgb(primary)) !important;
+            --lpx-primary-hover: @primaryDark !important;
+            --lpx-primary-light: rgba(@(ConvertHexToRgb(primary)), 0.15) !important;
+            --lpx-theme-light: rgba(@(ConvertHexToRgb(primary)), 0.1) !important;
+            --lpx-theme-dark: @primaryDark !important;
+        }
+
+        /* LeptonX breadcrumb & toolbar accent */
+        .lpx-content-header {
+            border-bottom-color: rgba(@(ConvertHexToRgb(primary)), 0.15) !important;
+        }
+        .breadcrumb-item.active {
+            color: @primary !important;
+        }
+
+        /* ---- FOCUS RINGS ---- */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: @primary !important;
+            box-shadow: 0 0 0 0.2rem rgba(@(ConvertHexToRgb(primary)), 0.25) !important;
+        }
+
+        /* ---- CHECKBOXES / RADIOS / TOGGLES ---- */
+        .form-check-input:checked {
+            background-color: @primary !important;
+            border-color: @primary !important;
+        }
+        .form-switch .form-check-input:checked {
+            background-color: @primary !important;
+        }
+
+        /* ---- NAV TABS ---- */
+        .nav-tabs .nav-link.active {
+            border-bottom-color: @primary !important;
+            color: @primary !important;
+        }
+        .nav-tabs .nav-link:hover {
+            color: @primary !important;
+        }
+        .nav-pills .nav-link.active {
+            background-color: @primary !important;
+        }
+
+        /* ---- PAGINATION (including DataTables) ---- */
+        /* Ultra-high specificity to beat LeptonX */
+        .dt-paging-button.page-item.active > button.page-link,
+        .dt-paging-button.page-item.active > .page-link,
+        li.dt-paging-button.page-item.active > button.page-link,
+        li.page-item.active > button.page-link,
+        li.page-item.active > .page-link,
+        .page-item.active .page-link,
+        .page-item.active button.page-link,
+        button.page-link[aria-current="page"],
+        button.page-link.current,
+        .dataTables_paginate .paginate_button.current,
+        .dataTables_paginate .paginate_button.current:hover {
+            background-color: @primary !important;
+            background: @primary !important;
+            border-color: @primary !important;
+            color: #fff !important;
+        }
+        .page-link { color: @primary !important; }
+        .page-link:hover {
+            color: @primaryDark !important;
+            background-color: rgba(@(ConvertHexToRgb(primary)), 0.1) !important;
+        }
+
+        /* ---- SELECT / OPTION ---- */
+        option:checked,
+        option:active,
+        select option:checked {
+            background-color: @primary !important;
+            color: #fff !important;
+        }
+
+        /* ---- BADGES ---- */
+        .badge.bg-primary { background-color: @primary !important; }
+
+        /* ---- BORDER ---- */
+        .border-primary { border-color: @primary !important; }
+
+        /* ---- PROGRESS BARS ---- */
+        .progress-bar {
+            background-color: @primary !important;
+        }
+
+        /* ---- SPINNER ---- */
+        .spinner-border.text-primary {
+            color: @primary !important;
+        }
+
+        /* ---- ABP MODAL HEADER ---- */
+        .modal-header {
+            border-bottom-color: rgba(@(ConvertHexToRgb(primary)), 0.1) !important;
+        }
+
+        /* ---- DROPDOWN active/focus ---- */
+        .dropdown-item.active,
+        .dropdown-item:active {
+            background-color: @primary !important;
+        }
+
+        /* ---- TABLE accent ---- */
+        .table-primary {
+            --bs-table-bg: rgba(@(ConvertHexToRgb(primary)), 0.1) !important;
+        }
+
+        /* ---- CARD SPECIFIC overrides for stat cards on home ---- */
+        .icon-shape.bg-gradient-primary {
+            background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+        }
+    </style>
+
+    <!-- Inject CSS into body to ensure maximum priority over LeptonX -->
+    <script>
+        (function() {
+            var s = document.createElement('style');
+            s.textContent = `
+                /* Hard override for native options using gradient hack */
+                select option:checked,
+                select option:hover,
+                select option:focus,
+                select option:active,
+                select:focus > option:checked {
+                    background: @(primary) !important;
+                    background-color: @(primary) !important;
+                    background-image: linear-gradient(0deg, @(primary) 0%, @(primary) 100%) !important;
+                    color: #fff !important;
+                    -webkit-text-fill-color: #fff !important;
+                    box-shadow: 0 0 0 100px @(primary) inset !important;
+                }
+                /* Also force accent-color again just in case */
+                select, .form-select {
+                    accent-color: @(primary) !important;
+                }
+            `;
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.appendChild(s);
+                console.log('WeCare Branding: Option colors overrides injected.');
+            });
+        })();
+    </script>
+
+    @if (!string.IsNullOrEmpty(Model.LogoUrl))
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var selectors = [
+                    ".navbar-brand img",
+                    ".lpx-brand img",
+                    ".lpx-brand-logo img",
+                    ".brand-logo img"
+                ];
+                for (var i = 0; i < selectors.length; i++) {
+                    var logoImg = document.querySelector(selectors[i]);
+                    if (logoImg) {
+                        logoImg.src = "@Model.LogoUrl";
+                        logoImg.style.maxHeight = "36px";
+                        logoImg.style.width = "auto";
+                        logoImg.style.objectFit = "contain";
+                        break;
+                    }
+                }
+            });
+        </script>
+    }
+}
+
+@functions {
+    string ConvertHexToRgb(string hex)
+    {
+        if (string.IsNullOrEmpty(hex)) return "94, 114, 228";
+        hex = hex.TrimStart('#');
+        if (hex.Length != 6) return "94, 114, 228";
+        var r = Convert.ToInt32(hex.Substring(0, 2), 16);
+        var g = Convert.ToInt32(hex.Substring(2, 2), 16);
+        var b = Convert.ToInt32(hex.Substring(4, 2), 16);
+        return $"{r}, {g}, {b}";
+    }
+
+    string AdjustBrightness(string hex, int amount)
+    {
+        if (string.IsNullOrEmpty(hex)) return "#4a5cc7";
+        hex = hex.TrimStart('#');
+        if (hex.Length != 6) return "#4a5cc7";
+        var r = Math.Max(0, Math.Min(255, Convert.ToInt32(hex.Substring(0, 2), 16) + amount));
+        var g = Math.Max(0, Math.Min(255, Convert.ToInt32(hex.Substring(2, 2), 16) + amount));
+        var b = Math.Max(0, Math.Min(255, Convert.ToInt32(hex.Substring(4, 2), 16) + amount));
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+}

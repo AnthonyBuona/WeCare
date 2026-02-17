@@ -90,11 +90,11 @@ namespace WeCare.Web.Pages.RealizedConsultations
 
             [Required]
             [Display(Name = "Nome do Objetivo")]
-            public string ObjectiveName { get; set; }
+            public string? ObjectiveName { get; set; }
 
             // ALTERAÇÃO: O campo agora é apenas para exibição, a validação foi removida.
             [Display(Name = "Especialidade")]
-            public string Specialty { get; set; }
+            public string? Specialty { get; set; }
 
             [Required]
             [SelectItems("TherapistLookup")]
@@ -109,7 +109,7 @@ namespace WeCare.Web.Pages.RealizedConsultations
             [Required]
             [Display(Name = "Hora da Primeira Consulta")]
             [DataType(DataType.Time)]
-            public string FirstConsultationTime { get; set; }
+            public string? FirstConsultationTime { get; set; }
         }
     }
 }

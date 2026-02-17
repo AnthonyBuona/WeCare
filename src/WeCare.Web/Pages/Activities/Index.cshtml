@@ -4,6 +4,9 @@
 @using Microsoft.Extensions.Localization
 @model IndexModel
 @inject IStringLocalizer<WeCareResource> L
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using WeCare.Permissions
 @section scripts
 {
     <abp-script src="/Pages/Activities/index.js" />
@@ -16,10 +19,13 @@
                 <abp-card-title>@L["Activities"]</abp-card-title>
             </abp-column>
             <abp-column size-md="_6" class="text-end">
-                <abp-button id="NewActivityButton"
-                            text="@L["NewActivity"].Value"
-                            icon="plus"
-                            button-type="Primary" />
+                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Activities.Create))
+                {
+                    <abp-button id="NewActivityButton"
+                                text="@L["NewActivity"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
             </abp-column>
         </abp-row>
     </abp-card-header>

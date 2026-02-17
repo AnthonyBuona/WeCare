@@ -367,7 +367,7 @@
                                             <div class="progress progress-xs w-50" style="height: 5px;">
                                                 <div class="progress-bar @(stat.AverageSuccessRate >= 80 ? "bg-success" : (stat.AverageSuccessRate >= 50 ? "bg-warning" : "bg-danger"))" 
                                                      role="progressbar" 
-                                                     style="width: @stat.AverageSuccessRate%;"></div>
+                                                     style="width: @stat.AverageSuccessRate.ToString(System.Globalization.CultureInfo.InvariantCulture)%;"></div>
                                             </div>
                                         </div>
                                     </td>

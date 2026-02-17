@@ -1,11 +1,21 @@
 @page
-@using WeCare.Web.Pages.Guests
 @using WeCare.Localization
-@using Microsoft.Extensions.Localization
+@using WeCare.Permissions
+@using WeCare.Web.Pages.Guests
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
 @model IndexModel
-@inject IStringLocalizer<WeCareResource> L
-@section scripts
-{
+@inject IHtmlLocalizer<WeCareResource> L
+@inject IAuthorizationService AuthorizationService
+@inject IPageLayout PageLayout
+@{
+    PageLayout.Content.Title = L["Guests"].Value;
+    PageLayout.Content.BreadCrumb.Add(L["Menu:Guests"].Value);
+    PageLayout.Content.MenuItemName = "WeCare.Guests";
+}
+
+@section scripts {
     <abp-script src="/Pages/Guests/index.js" />
 }
 
@@ -16,10 +26,13 @@
                 <abp-card-title>@L["Guests"]</abp-card-title>
             </abp-column>
             <abp-column size-md="_6" class="text-end">
-                <abp-button id="NewGuestButton"
-                            text="@L["NewGuest"].Value"
-                            icon="plus"
-                            button-type="Primary" />
+                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Guests.Create))
+                {
+                    <abp-button id="NewGuestButton"
+                                text="@L["NewGuest"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
             </abp-column>
         </abp-row>
     </abp-card-header>

@@ -4,10 +4,11 @@ using WeCare.Guests;
 
 namespace WeCare.Web.Pages.Guests
 {
-    public class IndexModel : WeCarePageModel
+    public class IndexModel : PageModel
     {
         public void OnGet()
         {
+            
         }
     }
 }

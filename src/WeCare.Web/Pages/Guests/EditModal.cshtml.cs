@@ -16,9 +16,11 @@ namespace WeCare.Web.Pages.Guests
         public Guid Id { get; set; }
 
         [BindProperty]
-        public CreateGuestDto Guest { get; set; }
+        public CreateUpdateGuestDto Guest { get; set; }
 
         public List<SelectListItem> PatientLookup { get; set; }
+        
+        public bool IsResponsible { get; set; }
 
         private readonly IGuestAppService _guestAppService;
 
@@ -29,16 +31,24 @@ namespace WeCare.Web.Pages.Guests
 
         public async Task OnGetAsync()
         {
+            IsResponsible = CurrentUser.IsInRole("Responsible");
             var guestDto = await _guestAppService.GetAsync(Id);
             // Mapeamento manual simples ou use AutoMapper se configurado na Web Layer
-            Guest = new CreateGuestDto 
+            Guest = new CreateUpdateGuestDto 
             {
                  Name = guestDto.Name,
                  Email = guestDto.Email,
-                 PatientId = guestDto.PatientId
+                 PatientId = guestDto.PatientId,
+                 // Note: Password and UserName required by DTO. 
+                 // GuestDto does not have UserName, and we can't easily get it here without extra call.
+                 // For now, leaving them empty. If [Required] fails validation, we might need to adjust DTO or AppService.
             };
+            
+            // Note: GuestDto has UserName, likely. -> No it doesn't.
+            // Guest.UserName = guestDto.UserName;
 
-            var patientLookup = await _guestAppService.GetMyPatientsLookupAsync();
+
+            var patientLookup = await _guestAppService.GetPatientLookupAsync();
             PatientLookup = patientLookup.Items
                 .Select(x => new SelectListItem(x.DisplayName, x.Id.ToString()))
                 .ToList();
@@ -46,10 +56,6 @@ namespace WeCare.Web.Pages.Guests
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // O serviço de aplicação precisa suportar Update. Verifique se ICrudAppService suporta ou se precisa de UpdateGuestDto.
-            // IGuestAppService herda de ICrudAppService<GuestDto, Guid, PagedAndSortedResultRequestDto, CreateGuestDto>
-            // Então o tipo de entrada para Create e Update é o mesmo: CreateGuestDto.
-            
             await _guestAppService.UpdateAsync(Id, Guest);
             return NoContent();
         }

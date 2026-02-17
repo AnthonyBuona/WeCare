@@ -7,6 +7,8 @@ using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Identity.Web.Navigation;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.TenantManagement.Web.Navigation;
+using Volo.Abp.MultiTenancy;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WeCare.Web.Menus;
 
@@ -20,7 +22,7 @@ public class WeCareMenuContributor : IMenuContributor
         }
     }
 
-    private static Task ConfigureMainMenuAsync(MenuConfigurationContext context)
+    private Task ConfigureMainMenuAsync(MenuConfigurationContext context)
     {
         var l = context.GetLocalizer<WeCareResource>();
 
@@ -33,6 +35,17 @@ public class WeCareMenuContributor : IMenuContributor
                 icon: "fa fa-home",
                 order: 1
             )
+        );
+        
+        // Scheduling (Calendar)
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.Scheduling,
+                l["Menu:Scheduling"],
+                url: "/Calendar",
+                icon: "fa fa-calendar-check-o",
+                order: 2
+            ).RequirePermissions(WeCarePermissions.Consultations.Default)
         );
 
         // Novo menu para Terapeutas
@@ -54,13 +67,46 @@ public class WeCareMenuContributor : IMenuContributor
         {
             administration.SetSubItemOrder(TenantManagementMenuNames.GroupName, 1);
         }
+
+        administration.AddItem(new ApplicationMenuItem(
+            "WeCare.Clinics",
+            l["Menu:Clinics"],
+            url: "/Clinics",
+            icon: "fa fa-hospital-o",
+            order: 2
+        ).RequirePermissions(WeCarePermissions.Clinics.Default));
+
+        // Configurações da Clínica (accessible to both host and tenant admins)
+        administration.AddItem(new ApplicationMenuItem(
+            "WeCare.Clinics.Settings",
+            "Configurações",
+            url: "/Clinics/Settings",
+            icon: "fa fa-cog",
+            order: 3
+        ).RequirePermissions(WeCarePermissions.Clinics.Settings));
+
+        // "Config Global" — only for host admin, remove for tenant admins
+        var currentTenant = context.ServiceProvider.GetRequiredService<ICurrentTenant>();
+        administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 4);
+        
+        if (currentTenant.Id != null)
+        {
+            // Tenant admin — remove Config Global (ABP settings)
+            var settingItem = administration.GetMenuItemOrNull(SettingManagementMenuNames.GroupName);
+            if (settingItem != null)
+            {
+                administration.Items.Remove(settingItem);
+            }
+        }
         else
         {
-            administration.TryRemoveMenuItem(TenantManagementMenuNames.GroupName);
+            // Host admin — rename to "Config Global"
+            var settingItem = administration.GetMenuItemOrNull(SettingManagementMenuNames.GroupName);
+            if (settingItem != null)
+            {
+                settingItem.DisplayName = "Config Global";
+            }
         }
-
-        administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 3);
-        administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 7);
 
         context.Menu.AddItem(
             new ApplicationMenuItem(
@@ -82,7 +128,7 @@ public class WeCareMenuContributor : IMenuContributor
                     "Pacientes.Responsaveis",
                     l["Menu:Patients.Responsibles"],
                     url: "/Responsibles"
-                ).RequirePermissions(WeCarePermissions.Patients.Default)
+                ).RequirePermissions(WeCarePermissions.Responsibles.Default)
             )
         );
 

@@ -1,0 +1,92 @@
+@page
+@using WeCare.Localization
+@using WeCare.Web.Menus
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Microsoft.AspNetCore.Mvc.Localization
+@using WeCare.Localization
+@inject IPageLayout PageLayout
+@inject IHtmlLocalizer<WeCareResource> L
+@model WeCare.Web.Pages.Calendar.IndexModel
+@using Microsoft.AspNetCore.Authorization
+@using WeCare.Permissions
+@inject IAuthorizationService AuthorizationService
+@{
+    PageLayout.Content.MenuItemName = WeCareMenus.Scheduling;
+    ViewBag.PageTitle = L["Menu:Scheduling"].Value;
+}
+
+@section styles {
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
+    <style>
+        .fc {
+            background: white;
+            padding: 20px;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .fc-toolbar-title {
+            font-family: var(--font-family-heading) !important;
+            font-weight: 700 !important;
+            color: #32325d !important;
+        }
+        .fc-button-primary {
+            background: var(--gradient-primary) !important;
+            border: none !important;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+            text-transform: capitalize !important;
+            padding: 8px 16px !important;
+            font-weight: 600 !important;
+        }
+        .fc-button-primary:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08) !important;
+            filter: brightness(1.1) !important;
+        }
+        .fc-event {
+            cursor: pointer;
+            border: none !important;
+            padding: 2px 5px !important;
+            border-radius: 4px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            transition: transform 0.2s ease !important;
+        }
+        .fc-event:hover {
+            transform: scale(1.02) !important;
+            z-index: 5 !important;
+        }
+        .fc-daygrid-day:hover {
+            background-color: #f8f9fe !important;
+            cursor: pointer;
+        }
+        .fc-theme-standard td, .fc-theme-standard th {
+            border-color: #f0f0f0 !important;
+        }
+    </style>
+}
+
+@section scripts {
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <abp-script src="/Pages/Calendar/index.js" />
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Menu:Scheduling"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Consultations.Create))
+                {
+                    <abp-button id="NewEventButton"
+                                text="@L["Novo Agendamento"].Value"
+                                icon="plus"
+                                button-type="Primary" />
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <div id='calendar'></div>
+    </abp-card-body>
+</abp-card>

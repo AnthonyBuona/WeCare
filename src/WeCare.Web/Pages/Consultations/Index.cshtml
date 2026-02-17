@@ -3,6 +3,9 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @using WeCare.Localization
 @inject IHtmlLocalizer<WeCareResource> L
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using WeCare.Permissions
 @section scripts {
     <abp-script src="/Pages/Consultations/index.js" />
 }
@@ -20,9 +23,12 @@
         </div>
     </div>
     <div class="col-md-6 col-12 text-md-end">
-        <button id="NewConsultationButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
-            <i class="fa fa-plus me-2"></i> @L["Novo Agendamento"]
-        </button>
+        @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Consultations.Create))
+        {
+            <button id="NewConsultationButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
+                <i class="fa fa-plus me-2"></i> @L["Novo Agendamento"]
+            </button>
+        }
     </div>
 </div>
 

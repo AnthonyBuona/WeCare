@@ -155,6 +155,20 @@ public class WeCareWebModule : AbpModule
             options.Conventions.AuthorizePage("/Books/Index", WeCarePermissions.Books.Default);
             options.Conventions.AuthorizePage("/Books/CreateModal", WeCarePermissions.Books.Create);
             options.Conventions.AuthorizePage("/Books/EditModal", WeCarePermissions.Books.Edit);
+            options.Conventions.AuthorizePage("/Books/EditModal", WeCarePermissions.Books.Edit);
+        });
+
+        ConfigureLayoutHooks();
+    }
+
+    private void ConfigureLayoutHooks()
+    {
+        Configure<Volo.Abp.Ui.LayoutHooks.AbpLayoutHookOptions>(options =>
+        {
+            options.Add(
+                Volo.Abp.Ui.LayoutHooks.LayoutHooks.Head.Last,
+                typeof(WeCare.Web.Themes.LeptonXLite.Components.ClinicBranding.ClinicBrandingViewComponent)
+            );
         });
     }
 

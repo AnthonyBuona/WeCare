@@ -1,0 +1,187 @@
+@page "/Clinics/Settings/{id:Guid?}"
+@model WeCare.Web.Pages.Clinics.SettingsModel
+@using WeCare.Web.Menus
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@inject IPageLayout PageLayout
+@{
+    ViewBag.PageTitle = "Configurações da Clínica";
+    PageLayout.Content.MenuItemName = WeCareMenus.Clinics;
+}
+
+@section scripts {
+    <script>
+        $(function () {
+            // Reset colors to default
+            $('#resetColorsBtn').on('click', function () {
+                $('#primaryColorInput').val('#5e72e4');
+                $('#secondaryColorInput').val('#2dce89');
+                // Also update the underlying hidden fields if ABP uses them
+                $('[name="ClinicSettings.PrimaryColor"]').val('#5e72e4');
+                $('[name="ClinicSettings.SecondaryColor"]').val('#2dce89');
+                abp.notify.info('Cores restauradas para o padrão. Salve para aplicar.');
+            });
+        });
+    </script>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">Configurações da Clínica</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <ul class="nav nav-tabs mb-4" id="settingsTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">Geral & Contato</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="appearance-tab" data-bs-toggle="tab" href="#appearance" role="tab" aria-controls="appearance" aria-selected="false">Aparência (White-Label)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="scheduling-tab" data-bs-toggle="tab" href="#scheduling" role="tab" aria-controls="scheduling" aria-selected="false">Agendamento</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="settingsTabContent">
+                <!-- General Tab -->
+                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="ClinicSettings.Address" class="form-label">Endereço (Rua)</label>
+                            <input asp-for="ClinicSettings.Address" class="form-control" placeholder="Ex: Rua das Flores" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.AddressNumber" class="form-label">Número</label>
+                            <input asp-for="ClinicSettings.AddressNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.Neighborhood" class="form-label">Bairro</label>
+                            <input asp-for="ClinicSettings.Neighborhood" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.City" class="form-label">Cidade</label>
+                            <input asp-for="ClinicSettings.City" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.State" class="form-label">Estado</label>
+                            <input asp-for="ClinicSettings.State" class="form-control" />
+                        </div>
+                         <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.ZipCode" class="form-label">CEP</label>
+                            <input asp-for="ClinicSettings.ZipCode" class="form-control" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.Phone" class="form-label">Telefone</label>
+                            <input asp-for="ClinicSettings.Phone" class="form-control" placeholder="(11) 99999-9999" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.Email" class="form-label">E-mail</label>
+                            <input asp-for="ClinicSettings.Email" type="email" class="form-control" placeholder="contato@clinica.com" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="ClinicSettings.WebsiteUrl" class="form-label">Website</label>
+                            <input asp-for="ClinicSettings.WebsiteUrl" class="form-control" placeholder="https://..." />
+                        </div>
+                         <div class="col-md-4 mb-3">
+                            <label asp-for="ClinicSettings.InstagramUrl" class="form-label">Instagram</label>
+                            <input asp-for="ClinicSettings.InstagramUrl" class="form-control" placeholder="URL do perfil" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ClinicSettings.FacebookUrl" class="form-label">Facebook</label>
+                            <input asp-for="ClinicSettings.FacebookUrl" class="form-control" placeholder="URL do perfil" />
+                        </div>
+                         <div class="col-md-4 mb-3">
+                            <label asp-for="ClinicSettings.LinkedInUrl" class="form-label">LinkedIn</label>
+                            <input asp-for="ClinicSettings.LinkedInUrl" class="form-control" placeholder="URL do perfil" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance Tab -->
+                <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
+                    <div class="mb-4">
+                        <label asp-for="ClinicSettings.LogoUrl" class="form-label">Logo URL</label>
+                        <input asp-for="ClinicSettings.LogoUrl" class="form-control" placeholder="https://..." />
+                        <div class="form-text">Cole a URL da sua logo ou use o gerenciador de arquivos (não implementado nesta demo).</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.PrimaryColor" class="form-label">Cor Primária</label>
+                            <input asp-for="ClinicSettings.PrimaryColor" id="primaryColorInput" type="color" class="form-control form-control-color" title="Escolha a cor primária" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClinicSettings.SecondaryColor" class="form-label">Cor Secundária</label>
+                            <input asp-for="ClinicSettings.SecondaryColor" id="secondaryColorInput" type="color" class="form-control form-control-color" title="Escolha a cor secundária" />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetColorsBtn">
+                            <i class="fa fa-undo me-1"></i> Restaurar Cores Padrão
+                        </button>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ClinicSettings.WelcomeMessage" class="form-label">Mensagem de Boas-vindas</label>
+                        <textarea asp-for="ClinicSettings.WelcomeMessage" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Scheduling Tab -->
+                <div class="tab-pane fade" id="scheduling" role="tabpanel" aria-labelledby="scheduling-tab">
+                    <div class="mb-4">
+                        <label asp-for="ClinicSettings.AppointmentDurationMinutes" class="form-label">Duração Padrão da Consulta (minutos)</label>
+                        <input asp-for="ClinicSettings.AppointmentDurationMinutes" type="number" class="form-control" style="max-width: 150px;" />
+                    </div>
+                    
+                    <h5>Grade de Horários</h5>
+                    <p class="text-muted small">Configure os horários de funcionamento padrão para cada dia da semana.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Abertura</th>
+                                    <th>Almoço Início</th>
+                                    <th>Almoço Fim</th>
+                                    <th>Fechamento</th>
+                                    <th>Fechado?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.ClinicSettings.OperatingHours.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" asp-for="ClinicSettings.OperatingHours[i].DayOfWeek" />
+                                            @Model.ClinicSettings.OperatingHours[i].DayOfWeek
+                                        </td>
+                                        <td><input type="time" asp-for="ClinicSettings.OperatingHours[i].StartTime" class="form-control form-control-sm" /></td>
+                                        <td><input type="time" asp-for="ClinicSettings.OperatingHours[i].BreakStart" class="form-control form-control-sm" /></td>
+                                        <td><input type="time" asp-for="ClinicSettings.OperatingHours[i].BreakEnd" class="form-control form-control-sm" /></td>
+                                        <td><input type="time" asp-for="ClinicSettings.OperatingHours[i].EndTime" class="form-control form-control-sm" /></td>
+                                        <td class="text-center">
+                                            <div class="form-check d-flex justify-content-center">
+                                                <input type="checkbox" asp-for="ClinicSettings.OperatingHours[i].IsClosed" class="form-check-input" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <a href="/Clinics" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+            </div>
+        </form>
+    </div>
+</div>

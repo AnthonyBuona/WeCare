@@ -2,10 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Brand Colors */
+    /* Brand Colors — these are the defaults, overridden by clinic branding */
     --primary-color: #5e72e4;
     --primary-dark: #324cdd;
-    --secondary-color: #8392ab;
+    --primary-rgb: 94, 114, 228;
+    --secondary-color: #2dce89;
     --success-color: #2dce89;
     --info-color: #11cdef;
     --warning-color: #fb6340;
@@ -15,10 +16,10 @@
     --bg-body: #f8f9fe;
     --bg-card: #ffffff;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(150deg, #5e72e4 0%, #825ee4 100%);
+    /* Gradients — use CSS variables so branding can override */
+    --gradient-primary: linear-gradient(150deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     --gradient-info: linear-gradient(150deg, #11cdef 0%, #1171ef 100%);
-    --gradient-success: linear-gradient(150deg, #2dce89 0%, #2dcecc 100%);
+    --gradient-success: linear-gradient(150deg, var(--secondary-color) 0%, #2dcecc 100%);
     --gradient-warning: linear-gradient(150deg, #fb6340 0%, #fbb140 100%);
     --gradient-danger: linear-gradient(150deg, #f5365c 0%, #f56036 100%);
 
@@ -59,15 +60,38 @@ h6 {
     border: 0;
     box-shadow: var(--shadow-sm);
     border-radius: 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.15s ease-in-out;
+}
+
+/* 
+   FIX: Removed transform from base .card:hover because it breaks Popper.js positioning 
+   (Actions menu detaching). We only apply it to cards that don't contain absolute menus.
+*/
+.stat-card:hover,
+.card-hover-effect:hover .card,
+.btn-primary:hover,
+.btn-premium:hover {
+    transform: translateY(-5px);
 }
 
 .card:hover {
-    transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
 }
 
-/* Utilities */
+/* Ensure dropdowns in tables are not clipped and stay on top */
+.table-responsive {
+    overflow: visible !important;
+}
+
+.dropdown-menu {
+    z-index: 1051 !important;
+    /* Above modals if needed */
+    box-shadow: var(--shadow-md);
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Utilities — using CSS variables for dynamic overrides */
 .bg-gradient-primary {
     background: var(--gradient-primary) !important;
 }

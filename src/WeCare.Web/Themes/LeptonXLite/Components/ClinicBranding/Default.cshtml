@@ -1,0 +1,43 @@
+@using WeCare.Clinics
+@model ClinicSettingsDto
+
+@if (Model != null)
+{
+    <style>
+        :root {
+            --bs-primary: @(Model.PrimaryColor ?? "#5e72e4");
+            --bs-success: @(Model.SecondaryColor ?? "#2dce89");
+            /* Override other theme specific variables if needed */
+        }
+        
+        /* Force button colors if theme doesn't use variables strictly */
+        .btn-primary {
+            background-color: @(Model.PrimaryColor ?? "#5e72e4") !important;
+            border-color: @(Model.PrimaryColor ?? "#5e72e4") !important;
+        }
+        
+        .text-primary {
+             color: @(Model.PrimaryColor ?? "#5e72e4") !important;
+        }
+
+        .bg-primary {
+             background-color: @(Model.PrimaryColor ?? "#5e72e4") !important;
+        }
+    </style>
+
+    @if (!string.IsNullOrEmpty(Model.LogoUrl))
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Try to find the logo image and replace src
+                var logoImg = document.querySelector(".navbar-brand img") || document.querySelector(".brand-logo img");
+                if (logoImg) {
+                    logoImg.src = "@Model.LogoUrl";
+                    // Adjust height/width if necessary to prevent layout shift looking bad
+                    logoImg.style.maxHeight = "40px"; 
+                    logoImg.style.width = "auto";
+                }
+            });
+        </script>
+    }
+}

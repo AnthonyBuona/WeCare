@@ -9,13 +9,84 @@
 @{
     Layout = null;
 }
-<abp-dynamic-form abp-model="Patient" asp-page="/Patients/CreateModal">
+<form asp-page="/Patients/CreateModal" id="CreatePatientForm">
     <abp-modal>
-        <abp-modal-header title="@L["Novo Paciente"].Value"></abp-modal-header>
+        <abp-modal-header title="@L["NewPatient"].Value"></abp-modal-header>
         <abp-modal-body>
-            <abp-form-content />
+            <ul class="nav nav-pills nav-justified mb-3" id="patientStepTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="step1-tab" data-bs-toggle="pill" data-bs-target="#step1" type="button" role="tab" aria-selected="true">
+                        <i class="fa fa-child me-1"></i> Patient
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="step2-tab" data-bs-toggle="pill" data-bs-target="#step2" type="button" role="tab" aria-selected="false">
+                        <i class="fa fa-user-shield me-1"></i> Responsible
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="patientStepContent">
+                <!-- Step 1: Patient Data -->
+                <div class="tab-pane fade show active" id="step1" role="tabpanel">
+                    <abp-input asp-for="Patient.Name" />
+                    <abp-input asp-for="Patient.BirthDate" />
+                    <abp-input asp-for="Patient.Address" />
+                    <abp-input asp-for="Patient.Diag" />
+                    
+                    <div class="text-end mt-3">
+                        <button type="button" class="btn btn-primary next-step">Next <i class="fa fa-arrow-right ms-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Responsible Data -->
+                <div class="tab-pane fade" id="step2" role="tabpanel">
+                    <abp-input asp-for="Patient.CPF" />
+                    <abp-input asp-for="Patient.NameResponsible" />
+                    <abp-input asp-for="Patient.EmailAddress" />
+                    <abp-input asp-for="Patient.PhoneNumber" />
+                    <hr />
+                    <h6>Login Details</h6>
+                    <abp-input asp-for="Patient.ResponsibleUserName" />
+                    <abp-input asp-for="Patient.ResponsiblePassword" />
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <button type="button" class="btn btn-secondary prev-step"><i class="fa fa-arrow-left me-1"></i> Back</button>
+                    </div>
+                </div>
+            </div>
         </abp-modal-body>
         <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
     </abp-modal>
-</abp-dynamic-form>
+</form>
+
+<script>
+    $(function () {
+        var $form = $('#CreatePatientForm');
+        var $modal = $form.closest('.modal');
+        var $saveButton = $modal.find('button[type="submit"]');
+
+        // Initially hide save button until last step
+        $saveButton.hide();
+
+        $('.next-step').click(function () {
+            $('#step2-tab').tab('show');
+            $saveButton.show();
+        });
+
+        $('.prev-step').click(function () {
+            $('#step1-tab').tab('show');
+            $saveButton.hide();
+        });
+
+        // Ensure clicking tabs directly also toggles save button
+        $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+            if (e.target.id === 'step2-tab') {
+                $saveButton.show();
+            } else {
+                $saveButton.hide();
+            }
+        });
+    });
+</script>
 
