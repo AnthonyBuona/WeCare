@@ -7,16 +7,27 @@
 @{
     Layout = null;
 }
-<abp-modal>
-    <abp-modal-header title="@L["NewTherapist"].Value"></abp-modal-header>
-    <abp-modal-body>
-        <abp-form asp-page="/Therapists/CreateModal">
+<form asp-page="/Therapists/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["NewTherapist"].Value"></abp-modal-header>
+        <abp-modal-body>
             <abp-input asp-for="Therapist.Name" />
             <abp-input asp-for="Therapist.Email" />
-            <abp-input asp-for="Therapist.UserName" />
+            <input type="hidden" asp-for="Therapist.UserName" />
             <abp-input asp-for="Therapist.Password" type="password" />
-            <abp-input asp-for="Therapist.Specialization" />
-        </abp-form>
-    </abp-modal-body>
-    <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
-</abp-modal>
+            <abp-select asp-for="Therapist.Specialization" asp-items="Model.SpecializationList" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>
+
+<script>
+    $(function () {
+        $('#Therapist_Name').on('input', function () {
+            var name = $(this).val();
+            // Remove spaces
+            var username = name.replace(/\s+/g, '');
+            $('#Therapist_UserName').val(username);
+        });
+    });
+</script>

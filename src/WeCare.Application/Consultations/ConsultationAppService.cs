@@ -4,19 +4,18 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using WeCare.Application.Contracts.Consultations;
-using WeCare.Application.Contracts.PerformedTrainings; // IMPORTANTE: Adicionar este using
-using WeCare.Permissions;
-using WeCare.PerformedTrainings; // IMPORTANTE: Adicionar este using
-using WeCare.Therapists;
-using WeCare.Objectives;
+using WeCare.Application.Contracts.PerformedTrainings;
+using WeCare.Clinics;
 using WeCare.Guests;
+using WeCare.PerformedTrainings;
+using WeCare.Permissions;
 using WeCare.Responsibles;
-using Volo.Abp;
-
+using WeCare.Therapists;
 
 namespace WeCare.Consultations
 {
@@ -30,22 +29,22 @@ namespace WeCare.Consultations
         IConsultationAppService
     {
         private readonly IRepository<Therapist, Guid> _therapistRepository;
-        private readonly IRepository<Objective, Guid> _objectiveRepository;
         private readonly IRepository<Responsible, Guid> _responsibleRepository;
         private readonly IRepository<Guest, Guid> _guestRepository;
+        private readonly IClinicAppService _clinicAppService;
 
         public ConsultationAppService(
             IRepository<Consultation, Guid> repository,
             IRepository<Therapist, Guid> therapistRepository,
-            IRepository<Objective, Guid> objectiveRepository,
             IRepository<Responsible, Guid> responsibleRepository,
-            IRepository<Guest, Guid> guestRepository)
+            IRepository<Guest, Guid> guestRepository,
+            IClinicAppService clinicAppService)
             : base(repository)
         {
             _therapistRepository = therapistRepository;
-            _objectiveRepository = objectiveRepository;
             _responsibleRepository = responsibleRepository;
             _guestRepository = guestRepository;
+            _clinicAppService = clinicAppService;
 
             GetPolicyName = WeCarePermissions.Consultations.Default;
             GetListPolicyName = WeCarePermissions.Consultations.Default;
@@ -54,31 +53,83 @@ namespace WeCare.Consultations
             DeletePolicyName = WeCarePermissions.Consultations.Delete;
         }
 
-        // NOVO MÉTODO CreateAsync AQUI!
         [Authorize(WeCarePermissions.Consultations.Create)]
         public override async Task<ConsultationDto> CreateAsync(CreateUpdateConsultationDto input)
         {
-            // 1. Mapeia os dados simples do DTO (MainTraining, Duration, etc.) para a entidade Consulta.
-            var consultation = ObjectMapper.Map<CreateUpdateConsultationDto, Consultation>(input);
+            // 1. Validação de conflitos de horário
+            await ValidateNoConflictAsync(input.PatientId, input.TherapistId, input.DateTime);
 
-            // 2. Garante que a coleção de treinos não seja nula.
+            // 2. Auto-preencher especialidade do terapeuta se não informada
+            if (string.IsNullOrWhiteSpace(input.Specialty))
+            {
+                var therapist = await _therapistRepository.GetAsync(input.TherapistId);
+                input.Specialty = therapist.Specialization ?? "Geral";
+            }
+
+            // 3. Mapeia os dados do DTO para a entidade Consulta.
+            var consultation = ObjectMapper.Map<CreateUpdateConsultationDto, Consultation>(input);
             consultation.PerformedTrainings = new List<PerformedTraining>();
 
-            // 3. Itera sobre cada DTO de treino que veio do frontend.
             foreach (var trainingDto in input.PerformedTrainings)
             {
-                // Mapeia o DTO de treino para a entidade PerformedTraining.
                 var training = ObjectMapper.Map<CreateUpdatePerformedTrainingDto, PerformedTraining>(trainingDto);
-                // Adiciona o treino na coleção da consulta.
                 consultation.PerformedTrainings.Add(training);
             }
 
             // 4. Insere a consulta no banco de dados.
-            // O Entity Framework salvará a consulta e todos os seus treinos associados de uma só vez.
             await Repository.InsertAsync(consultation, autoSave: true);
 
-            // 5. Retorna o DTO da consulta que acabou de ser criada.
             return ObjectMapper.Map<Consultation, ConsultationDto>(consultation);
+        }
+
+        /// <summary>
+        /// Valida se não existe conflito de horário para o paciente ou terapeuta.
+        /// </summary>
+        private async Task ValidateNoConflictAsync(Guid patientId, Guid therapistId, DateTime dateTime)
+        {
+            // Buscar duração do agendamento nas configurações da clínica (padrão 30min)
+            var durationMinutes = 30;
+            try
+            {
+                var settings = await _clinicAppService.GetCurrentClinicSettingsAsync();
+                if (settings?.AppointmentDurationMinutes > 0)
+                {
+                    durationMinutes = settings.AppointmentDurationMinutes;
+                }
+            }
+            catch
+            {
+                // Se não conseguir buscar as configurações, usa o padrão
+            }
+
+            var start = dateTime;
+            var end = dateTime.AddMinutes(durationMinutes);
+
+            var queryable = await Repository.GetQueryableAsync();
+
+            // Verifica conflito para o paciente
+            var patientConflict = queryable.Any(c =>
+                c.PatientId == patientId &&
+                c.DateTime < end &&
+                c.DateTime.AddMinutes(durationMinutes) > start);
+
+            if (patientConflict)
+            {
+                throw new UserFriendlyException(
+                    "Conflito de horário: o paciente já possui uma consulta agendada neste horário.");
+            }
+
+            // Verifica conflito para o terapeuta
+            var therapistConflict = queryable.Any(c =>
+                c.TherapistId == therapistId &&
+                c.DateTime < end &&
+                c.DateTime.AddMinutes(durationMinutes) > start);
+
+            if (therapistConflict)
+            {
+                throw new UserFriendlyException(
+                    "Conflito de horário: o terapeuta já possui uma consulta agendada neste horário.");
+            }
         }
 
         #region Métodos Originais Mantidos
@@ -156,68 +207,42 @@ namespace WeCare.Consultations
         }
         #endregion
 
-        #region Métodos de Objetivo (antigos)
-        public async Task<List<ObjectiveGroupDto>> GetGroupedByPatientAsync(Guid patientId)
+        #region Sessão em Tempo Real
+        [Authorize(WeCarePermissions.Consultations.Edit)]
+        public async Task<ConsultationDto> CompleteSessionAsync(Guid consultationId, CreateUpdateConsultationDto input)
         {
-            var queryable = (await Repository.WithDetailsAsync(x => x.Therapist))
-                .Where(x => x.PatientId == patientId)
-                .OrderByDescending(x => x.DateTime);
+            var queryable = await Repository.WithDetailsAsync(x => x.PerformedTrainings);
+            var consultation = await AsyncExecuter.FirstOrDefaultAsync(
+                queryable.Where(x => x.Id == consultationId));
 
-            var consultations = await AsyncExecuter.ToListAsync(queryable);
-
-            if (!consultations.Any())
+            if (consultation == null)
             {
-                return new List<ObjectiveGroupDto>();
+                throw new Volo.Abp.Domain.Entities.EntityNotFoundException(typeof(Consultation), consultationId);
             }
 
-            var grouped = consultations.GroupBy(c => c.Description);
-
-            var result = grouped.Select(group => new ObjectiveGroupDto
+            if (consultation.Status != ConsultationStatus.Agendada)
             {
-                ObjectiveName = group.Key,
-                Consultations = ObjectMapper.Map<List<Consultation>, List<ConsultationInGroupDto>>(group.ToList())
-            }).ToList();
+                throw new UserFriendlyException("Esta consulta já foi realizada.");
+            }
 
-            return result;
-        }
+            // Atualizar campos da sessão
+            consultation.Status = ConsultationStatus.Realizada;
+            consultation.ObjectiveId = input.ObjectiveId;
+            consultation.Description = input.Description;
+            consultation.MainTraining = input.MainTraining;
+            consultation.Duration = input.Duration;
 
-        [Authorize(WeCarePermissions.Consultations.Create)]
-        public async Task CreateObjectiveAsync(CreateUpdateObjectiveDto input)
-        {
-            var objective = new Objective
+            // Limpar treinos antigos e adicionar os novos
+            consultation.PerformedTrainings.Clear();
+            foreach (var trainingDto in input.PerformedTrainings)
             {
-                PatientId = input.PatientId,
-                TherapistId = input.TherapistId,
-                Name = input.Name,
-                StartDate = input.StartDate.Date,
-                Status = "Ativo" 
-            };
-            await _objectiveRepository.InsertAsync(objective);
-            var consultation = new Consultation
-            {
-                ObjectiveId = objective.Id, 
-                PatientId = input.PatientId,
-                TherapistId = input.TherapistId,
-                Description = "Consulta Inicial: " + input.Name,
-                DateTime = input.StartDate,
-                Specialty = input.TherapistId != Guid.Empty
-                    ? (await _therapistRepository.GetAsync(input.TherapistId)).Specialization
-                    : "Geral",
-            };
-            await Repository.InsertAsync(consultation);
-        }
+                var training = ObjectMapper.Map<CreateUpdatePerformedTrainingDto, PerformedTraining>(trainingDto);
+                consultation.PerformedTrainings.Add(training);
+            }
 
-        public async Task<ListResultDto<string>> GetObjectiveNamesForPatientAsync(Guid patientId)
-        {
-            var queryable = await Repository.GetQueryableAsync();
-            var query = queryable
-                .Where(c => c.PatientId == patientId)
-                .Select(c => c.Description)
-                .Distinct();
+            await Repository.UpdateAsync(consultation, autoSave: true);
 
-            var objectiveNames = await AsyncExecuter.ToListAsync(query);
-
-            return new ListResultDto<string>(objectiveNames);
+            return ObjectMapper.Map<Consultation, ConsultationDto>(consultation);
         }
         #endregion
     }

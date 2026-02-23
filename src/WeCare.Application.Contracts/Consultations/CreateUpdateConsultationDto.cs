@@ -20,12 +20,15 @@ namespace WeCare.Consultations
         public Guid TherapistId { get; set; }
 
         [Required]
+        [SelectItems("TratamentoLookup")]
+        [Display(Name = "Tratamento")]
+        public Guid TratamentoId { get; set; }
+
+        [Required]
         [Display(Name = "Data e Hora")]
         [DynamicFormIgnore]
         public DateTime DateTime { get; set; }
 
-
-        [Required]
         [Display(Name = "Especialidade")]
         public string Specialty { get; set; }
 
@@ -36,7 +39,17 @@ namespace WeCare.Consultations
 
         public string MainTraining { get; set; }
         public string Duration { get; set; }
-        public List<CreateUpdatePerformedTrainingDto> PerformedTrainings { get; set; } = new();
 
+        /// <summary>
+        /// Objetivo principal (opcional). Apenas para consultas realizadas.
+        /// </summary>
+        public Guid? ObjectiveId { get; set; }
+
+        /// <summary>
+        /// Status da consulta. Padrão: Agendada.
+        /// </summary>
+        public ConsultationStatus Status { get; set; } = ConsultationStatus.Agendada;
+
+        public List<CreateUpdatePerformedTrainingDto> PerformedTrainings { get; set; } = new();
     }
 }

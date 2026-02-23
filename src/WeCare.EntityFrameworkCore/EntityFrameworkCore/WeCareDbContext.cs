@@ -160,6 +160,7 @@ public class WeCareDbContext :
 
             b.HasOne(x => x.Patient).WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(x => x.Therapist).WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Tratamento).WithMany().HasForeignKey(x => x.TratamentoId).OnDelete(DeleteBehavior.Restrict);
         });
         builder.Entity<Training>(b =>
         {

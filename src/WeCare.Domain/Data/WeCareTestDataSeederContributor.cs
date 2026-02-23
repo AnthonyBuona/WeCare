@@ -68,7 +68,8 @@ namespace WeCare.Data
                     Email = "admin@wecare.com.br",
                     Address = "Sede WeCare",
                     Status = ClinicStatus.Active,
-                    TenantId = null // Host
+                    TenantId = null, // Host
+                    Specializations = "Fonoaudiologia,Terapia Ocupacional,Psicologia Infantil,Psicopedagogia,Musicoterapia"
                 };
                 await _clinicRepository.InsertAsync(weCareClinic, autoSave: true);
             }

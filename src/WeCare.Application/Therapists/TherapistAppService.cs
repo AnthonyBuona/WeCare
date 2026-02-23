@@ -29,17 +29,20 @@ namespace WeCare.Therapists
         private readonly IdentityUserManager _userManager;
         private readonly IIdentityRoleRepository _roleRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
+        private readonly IRepository<Tratamentos.Tratamento, Guid> _tratamentoRepository;
 
         public TherapistAppService(
             IRepository<Therapist, Guid> repository,
             IdentityUserManager userManager,
             IIdentityRoleRepository roleRepository,
-            IUnitOfWorkManager unitOfWorkManager) // Adicionamos o IUnitOfWorkManager
+            IUnitOfWorkManager unitOfWorkManager,
+            IRepository<Tratamentos.Tratamento, Guid> tratamentoRepository)
             : base(repository)
         {
             _userManager = userManager;
             _roleRepository = roleRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            _tratamentoRepository = tratamentoRepository;
 
             // Permissões padrão do CrudAppService
             GetPolicyName = WeCarePermissions.Therapists.Default;
@@ -76,21 +79,22 @@ namespace WeCare.Therapists
             const string therapistRole = "Therapist";
             (await _userManager.AddToRoleAsync(user, therapistRole)).CheckErrors();
 
-            // 3. Salvar as mudanças para disparar o evento.
-            // O EventHandler será executado dentro desta unidade de trabalho.
+            // 3. Salvar as mudanças no Identity (Usuário e Role)
             if (_unitOfWorkManager.Current != null)
             {
                 await _unitOfWorkManager.Current.SaveChangesAsync();
             }
 
-            // 4. Buscar a entidade Therapist que foi criada pelo EventHandler.
-            var newTherapist = await Repository.FirstOrDefaultAsync(t => t.UserId == user.Id);
-            if (newTherapist == null)
+            // 4. Criar explicitamente a entidade Therapist (Evitando race conditions de EventHandlers)
+            var newTherapist = new Therapist
             {
-                // Fallback: This should ideally catch the race condition if EventHandler hasn't fired yet
-                // But since we called SaveChangesAsync, it should be there.
-                throw new UserFriendlyException("Falha ao criar terapeuta. O usuário foi criado, mas o registro de terapeuta não.");
-            }
+                UserId = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Specialization = input.Specialization
+            };
+
+            await Repository.InsertAsync(newTherapist, autoSave: true);
 
             // 5. Mapear e retornar o DTO.
             return ObjectMapper.Map<Therapist, TherapistDto>(newTherapist);
@@ -100,6 +104,22 @@ namespace WeCare.Therapists
         public async Task<ListResultDto<LookupDto<Guid>>> GetTherapistLookupAsync()
         {
             var therapists = await Repository.GetListAsync();
+            return new ListResultDto<LookupDto<Guid>>(
+                ObjectMapper.Map<List<Therapist>, List<LookupDto<Guid>>>(therapists)
+            );
+        }
+
+        public async Task<ListResultDto<LookupDto<Guid>>> GetTherapistsByPatientAsync(Guid patientId)
+        {
+            var tratamentos = await _tratamentoRepository.GetListAsync(t => t.PatientId == patientId);
+            var therapistIds = tratamentos.Select(t => t.TherapistId).Distinct().ToList();
+
+            if (!therapistIds.Any())
+            {
+                return new ListResultDto<LookupDto<Guid>>();
+            }
+
+            var therapists = await Repository.GetListAsync(t => therapistIds.Contains(t.Id));
             return new ListResultDto<LookupDto<Guid>>(
                 ObjectMapper.Map<List<Therapist>, List<LookupDto<Guid>>>(therapists)
             );

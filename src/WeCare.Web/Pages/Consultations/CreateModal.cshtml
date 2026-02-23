@@ -7,17 +7,122 @@
 @{
     Layout = null;
 }
-<abp-dynamic-form abp-model="Consultation" asp-page="/Consultations/CreateModal">
+<form method="post" asp-page="/Consultations/CreateModal">
     <abp-modal>
         <abp-modal-header title="@L["Agendar Consulta"].Value"></abp-modal-header>
         <abp-modal-body>
-            <abp-form-content except="DateTime" />
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_PatientId">Paciente <span class="text-danger">*</span></label>
+                <select asp-for="Consultation.PatientId" asp-items="Model.PatientLookup"
+                        class="form-select" id="Consultation_PatientId">
+                    <option value="">-- Selecione o Paciente --</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_TherapistId">Terapeuta <span class="text-danger">*</span></label>
+                <select asp-for="Consultation.TherapistId" class="form-select" id="Consultation_TherapistId">
+                    <option value="">-- Selecione o Paciente primeiro --</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_TratamentoId">Tratamento <span class="text-danger">*</span></label>
+                <select asp-for="Consultation.TratamentoId" class="form-select" id="Consultation_TratamentoId">
+                    <option value="">-- Selecione o Paciente primeiro --</option>
+                </select>
+            </div>
+
+            <!-- Specialty hidden, auto-filled from therapist -->
+            <input type="hidden" asp-for="Consultation.Specialty" id="Consultation_Specialty" />
+
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_Description">Descrição <span class="text-danger">*</span></label>
+                <textarea asp-for="Consultation.Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_MainTraining">Treino Principal</label>
+                <input asp-for="Consultation.MainTraining" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="Consultation_Duration">Duração</label>
+                <input asp-for="Consultation.Duration" class="form-control" />
+            </div>
 
             <abp-input asp-for="ConsultationDate" />
-
             <abp-input asp-for="ConsultationTime" />
-
         </abp-modal-body>
         <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
     </abp-modal>
-</abp-dynamic-form>
+</form>
+
+<script>
+    $(function () {
+        var $patientSelect = $('#Consultation_PatientId');
+        var $therapistSelect = $('#Consultation_TherapistId');
+        var $tratamentoSelect = $('#Consultation_TratamentoId');
+        var $specialtyInput = $('#Consultation_Specialty');
+
+        var therapistDataCache = {};
+
+        $patientSelect.on('change', function () {
+            var patientId = $(this).val();
+            $therapistSelect.empty();
+            $tratamentoSelect.empty();
+            $specialtyInput.val('');
+            therapistDataCache = {};
+
+            if (!patientId) {
+                $therapistSelect.append('<option value="">-- Selecione o Paciente primeiro --</option>');
+                $tratamentoSelect.append('<option value="">-- Selecione o Paciente primeiro --</option>');
+                return;
+            }
+
+            $therapistSelect.append('<option value="">Carregando...</option>');
+            $tratamentoSelect.append('<option value="">Carregando...</option>');
+
+            weCare.therapists.therapist.getTherapistsByPatient(patientId).done(function (result) {
+                $therapistSelect.empty();
+
+                if (result.items.length === 0) {
+                    $therapistSelect.append('<option value="">Nenhum terapeuta vinculado</option>');
+                } else {
+                    $therapistSelect.append('<option value="">-- Selecione o Terapeuta --</option>');
+                    result.items.forEach(function (item) {
+                        $therapistSelect.append('<option value="' + item.id + '">' + item.displayName + '</option>');
+                    });
+
+                    weCare.therapists.therapist.getList({ maxResultCount: 1000 }).done(function (allResult) {
+                        allResult.items.forEach(function (t) {
+                            therapistDataCache[t.id] = t;
+                        });
+                    });
+                }
+            });
+
+            weCare.tratamentos.tratamento.getListByPatient(patientId, { maxResultCount: 100 }).done(function (result) {
+                $tratamentoSelect.empty();
+                
+                if (result.items.length === 0) {
+                    $tratamentoSelect.append('<option value="">Nenhum tratamento vinculado</option>');
+                } else {
+                    $tratamentoSelect.append('<option value="">-- Selecione o Tratamento --</option>');
+                    result.items.forEach(function (item) {
+                        $tratamentoSelect.append('<option value="' + item.id + '">' + item.tipo + ' (' + item.therapistName + ')</option>');
+                    });
+                }
+            });
+        });
+
+        $therapistSelect.on('change', function () {
+            var therapistId = $(this).val();
+            if (therapistId && therapistDataCache[therapistId]) {
+                $specialtyInput.val(therapistDataCache[therapistId].specialization || '');
+            } else {
+                $specialtyInput.val('');
+            }
+        });
+    });
+</script>

@@ -1,5 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System.Linq;
 using WeCare.Therapists;
 
 namespace WeCare.Web.Pages.Therapists
@@ -9,17 +13,32 @@ namespace WeCare.Web.Pages.Therapists
         [BindProperty]
         public CreateUpdateTherapistDto Therapist { get; set; }
 
-        private readonly ITherapistAppService _therapistAppService;
+        public List<SelectListItem> SpecializationList { get; set; } = new();
 
-        public CreateModalModel(ITherapistAppService therapistAppService)
+        private readonly ITherapistAppService _therapistAppService;
+        private readonly WeCare.Clinics.IClinicAppService _clinicAppService;
+
+        public CreateModalModel(
+            ITherapistAppService therapistAppService,
+            WeCare.Clinics.IClinicAppService clinicAppService)
         {
             _therapistAppService = therapistAppService;
+            _clinicAppService = clinicAppService;
             Therapist = new CreateUpdateTherapistDto();
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            // Nothing to do
+            var settings = await _clinicAppService.GetCurrentClinicSettingsAsync();
+            if (settings?.Specializations != null)
+            {
+                SpecializationList = settings.Specializations
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => new SelectListItem(s, s))
+                    .ToList();
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()

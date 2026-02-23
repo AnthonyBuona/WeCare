@@ -61,6 +61,13 @@
         .fc-theme-standard td, .fc-theme-standard th {
             border-color: #f0f0f0 !important;
         }
+        .fc-timegrid-slot {
+            height: 3em !important;
+        }
+        .fc-timegrid-slot-label {
+            font-size: 0.85rem !important;
+            color: #525f7f !important;
+        }
     </style>
 }
 
@@ -90,3 +97,98 @@
         <div id='calendar'></div>
     </abp-card-body>
 </abp-card>
+
+<!-- Consultation Details Modal -->
+<div class="modal fade" id="consultationDetailsModal" tabindex="-1" aria-labelledby="consultationDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%); color: white; border: none; padding: 1.5rem;">
+                <h5 class="modal-title" id="consultationDetailsModalLabel">
+                    <i class="fa fa-calendar-check me-2"></i>Detalhes do Agendamento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 45px; height: 45px; background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%); color: white; font-size: 1.2rem;">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Paciente</small>
+                            <strong id="detailPatientName" class="fs-6">-</strong>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 45px; height: 45px; background: linear-gradient(135deg, #2dce89 0%, #2dceab 100%); color: white; font-size: 1.2rem;">
+                            <i class="fa fa-user-md"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Terapeuta</small>
+                            <strong id="detailTherapistName" class="fs-6">-</strong>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-calendar text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Data</small>
+                                <strong id="detailDate">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-clock text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Hora</small>
+                                <strong id="detailTime">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-hourglass-half text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Duração</small>
+                                <strong id="detailDuration">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-dumbbell text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Treino Principal</small>
+                                <strong id="detailMainTraining">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="detailDescriptionSection" class="mb-2" style="display: none;">
+                    <div class="d-flex align-items-start">
+                        <i class="fa fa-align-left text-primary me-2 mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Descrição</small>
+                            <p id="detailDescription" class="mb-0" style="white-space: pre-wrap;">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border: none; padding: 1rem 1.5rem;">
+                <a id="startSessionBtn" href="#" class="btn text-white me-auto" style="display:none; background: linear-gradient(135deg, #2dce89 0%, #28b675 100%); border: none; box-shadow: 0 4px 12px rgba(45, 206, 137, 0.3); font-weight: 600;">
+                    <i class="fa fa-play me-1"></i>Iniciar Sessão
+                </a>
+                <span id="detailStatusBadge" class="badge me-2" style="display:none;"></span>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>

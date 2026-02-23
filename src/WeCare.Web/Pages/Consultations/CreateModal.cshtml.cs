@@ -7,6 +7,8 @@ using WeCare.Consultations;
 using WeCare.Patients;
 using WeCare.Therapists;
 using WeCare.Application.Contracts.Consultations;
+using WeCare.Tratamentos;
+using System.Linq;
 
 namespace WeCare.Web.Pages.Consultations
 {
@@ -14,8 +16,6 @@ namespace WeCare.Web.Pages.Consultations
     {
         [BindProperty]
         public CreateUpdateConsultationDto Consultation { get; set; }
-
-        // --- INÕCIO DA ALTERA«√O ---
 
         [BindProperty]
         [Required]
@@ -29,55 +29,57 @@ namespace WeCare.Web.Pages.Consultations
         [DataType(DataType.Time)]
         public string ConsultationTime { get; set; }
 
-        // --- FIM DA ALTERA«√O ---
-
         public SelectList PatientLookup { get; set; }
         public SelectList TherapistLookup { get; set; }
+        public SelectList TratamentoLookup { get; set; }
 
         private readonly IConsultationAppService _consultationAppService;
         private readonly IPatientAppService _patientAppService;
         private readonly ITherapistAppService _therapistAppService;
+        private readonly ITratamentoAppService _tratamentoAppService;
 
         public CreateModalModel(
             IConsultationAppService consultationAppService,
             IPatientAppService patientAppService,
-            ITherapistAppService therapistAppService)
+            ITherapistAppService therapistAppService,
+            ITratamentoAppService tratamentoAppService)
         {
             _consultationAppService = consultationAppService;
             _patientAppService = patientAppService;
             _therapistAppService = therapistAppService;
+            _tratamentoAppService = tratamentoAppService;
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(DateTime? consultationDate)
         {
             Consultation = new CreateUpdateConsultationDto();
 
-            // --- INÕCIO DA ALTERA«√O ---
             var now = DateTime.Now;
-            ConsultationDate = now.Date; // Define a data de hoje
-            ConsultationTime = now.ToString("HH:mm"); // Define a hora e minuto atuais
-            // --- FIM DA ALTERA«√O ---
+            ConsultationDate = consultationDate.HasValue ? consultationDate.Value.Date : now.Date; 
+            ConsultationTime = now.ToString("HH:mm"); 
 
             var patientLookupResult = await _patientAppService.GetPatientLookupAsync();
             PatientLookup = new SelectList(patientLookupResult.Items, "Id", "DisplayName");
 
             var therapistLookupResult = await _therapistAppService.GetTherapistLookupAsync();
             TherapistLookup = new SelectList(therapistLookupResult.Items, "Id", "DisplayName");
+
+            var tratamentoResult = await _tratamentoAppService.GetListAsync(new Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto { MaxResultCount = 1000 });
+            var tratamentos = tratamentoResult.Items.Select(x => new { Id = x.Id, DisplayName = x.Tipo + " (" + x.PatientName + ")" });
+            TratamentoLookup = new SelectList(tratamentos, "Id", "DisplayName");
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // --- INÕCIO DA ALTERA«√O: Combina data e hora antes de salvar ---
             if (TimeSpan.TryParse(ConsultationTime, out var timeOfDay))
             {
                 Consultation.DateTime = ConsultationDate.Add(timeOfDay);
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Formato de hora inv·lido.");
+                ModelState.AddModelError(string.Empty, "Formato de hora inv√°lido.");
                 return Page();
             }
-            // --- FIM DA ALTERA«√O ---
 
             await _consultationAppService.CreateAsync(Consultation);
             return NoContent();

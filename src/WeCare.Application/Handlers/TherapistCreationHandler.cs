@@ -32,7 +32,8 @@ namespace WeCare.Therapists
         // Método chamado quando um usuário é CRIADO
         public async Task HandleEventAsync(EntityCreatedEventData<IdentityUser> eventData)
         {
-            await CreateTherapistIfNeededAsync(eventData.Entity);
+            // Desativado para evitar duplicação com o TherapistAppService que agora cria explicitamente
+            // await CreateTherapistIfNeededAsync(eventData.Entity);
         }
 
         // Método chamado quando um usuário é ATUALIZADO
@@ -46,7 +47,7 @@ namespace WeCare.Therapists
         /// </summary>
         private async Task CreateTherapistIfNeededAsync(IdentityUser user)
         {
-            const string therapistRoleName = "Terapeuta";
+            const string therapistRoleName = "Therapist";
 
             // 1. Verifica se o usuário tem a role "Terapeuta"
             var roles = await _userRepository.GetRolesAsync(user.Id);

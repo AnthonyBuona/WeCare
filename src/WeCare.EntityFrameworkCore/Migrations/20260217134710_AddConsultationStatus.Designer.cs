@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 using WeCare.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using WeCare.EntityFrameworkCore;
 namespace WeCare.Migrations
 {
     [DbContext(typeof(WeCareDbContext))]
-    partial class WeCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260217134710_AddConsultationStatus")]
+    partial class AddConsultationStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2201,9 +2204,6 @@ namespace WeCare.Migrations
                     b.Property<Guid>("TherapistId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TratamentoId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ObjectiveId");
@@ -2211,8 +2211,6 @@ namespace WeCare.Migrations
                     b.HasIndex("PatientId");
 
                     b.HasIndex("TherapistId");
-
-                    b.HasIndex("TratamentoId");
 
                     b.ToTable("AppConsultations", (string)null);
                 });
@@ -2917,17 +2915,9 @@ namespace WeCare.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WeCare.Tratamentos.Tratamento", "Tratamento")
-                        .WithMany()
-                        .HasForeignKey("TratamentoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Patient");
 
                     b.Navigation("Therapist");
-
-                    b.Navigation("Tratamento");
                 });
 
             modelBuilder.Entity("WeCare.Guests.Guest", b =>

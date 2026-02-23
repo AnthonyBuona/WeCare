@@ -1,3 +1,4 @@
+﻿#pragma warning disable CS8618
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,7 +29,7 @@ namespace WeCare.Clinics
         public string? Email { get; set; }
 
         [MaxLength(500)]
-        public string? Specializations { get; set; } // Lista separada por vírgulas
+        public string? Specializations { get; set; } // Lista separada por vÃ­rgulas
 
         public ClinicStatus Status { get; set; }
 
@@ -87,3 +88,4 @@ namespace WeCare.Clinics
 
 
 }
+

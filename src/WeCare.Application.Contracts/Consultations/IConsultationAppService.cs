@@ -13,6 +13,6 @@ namespace WeCare.Application.Contracts.Consultations
         PagedAndSortedResultRequestDto,
         CreateUpdateConsultationDto>
     {
-
+        Task<ConsultationDto> CompleteSessionAsync(Guid consultationId, CreateUpdateConsultationDto input);
     }
 }

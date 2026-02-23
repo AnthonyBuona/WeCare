@@ -116,6 +116,7 @@ namespace WeCare.Clinics
 
             // Scheduling
             clinic.AppointmentDurationMinutes = input.AppointmentDurationMinutes;
+            clinic.Specializations = input.Specializations;
 
             // Update Operating Hours (Full Replace Strategy)
             clinic.OperatingHours.Clear();

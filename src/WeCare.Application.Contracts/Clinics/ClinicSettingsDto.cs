@@ -61,5 +61,7 @@ namespace WeCare.Clinics
         public int AppointmentDurationMinutes { get; set; }
 
         public List<ClinicOperatingHourDto> OperatingHours { get; set; } = new();
+
+        public string? Specializations { get; set; }
     }
 }

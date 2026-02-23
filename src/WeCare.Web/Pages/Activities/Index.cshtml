@@ -12,24 +12,32 @@
     <abp-script src="/Pages/Activities/index.js" />
 }
 
-<abp-card>
-    <abp-card-header>
-        <abp-row>
-            <abp-column size-md="_6">
-                <abp-card-title>@L["Activities"]</abp-card-title>
-            </abp-column>
-            <abp-column size-md="_6" class="text-end">
-                @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Activities.Create))
-                {
-                    <abp-button id="NewActivityButton"
-                                text="@L["NewActivity"].Value"
-                                icon="plus"
-                                button-type="Primary" />
-                }
-            </abp-column>
-        </abp-row>
-    </abp-card-header>
-    <abp-card-body>
-        <abp-table striped-rows="true" id="ActivitiesTable"></abp-table>
-    </abp-card-body>
-</abp-card>
+<div class="row mb-4 align-items-center justify-content-between">
+    <div class="col-md-6 col-12 mb-3 mb-md-0">
+        <div class="d-flex align-items-center">
+            <div class="icon-shape bg-gradient-warning text-white rounded-circle shadow me-3">
+                <i class="fa fa-tasks"></i>
+            </div>
+            <div>
+                <h2 class="mb-0 text-dark fw-bold">@L["Activities"]</h2>
+                <p class="text-muted mb-0">Biblioteca de exercícios e atividades</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12 text-md-end">
+        @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Activities.Create))
+        {
+            <button id="NewActivityButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
+                <i class="fa fa-plus me-2"></i> @L["NewActivity"].Value
+            </button>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <abp-table id="ActivitiesTable" class="table align-items-center table-flush table-hover mb-0" />
+        </div>
+    </div>
+</div>

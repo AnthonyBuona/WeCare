@@ -21,5 +21,6 @@ namespace WeCare.Therapists
             CreateUpdateTherapistDto>,
         ITherapistLookupAppService
     {
+        Task<ListResultDto<LookupDto<Guid>>> GetTherapistsByPatientAsync(Guid patientId);
     }
 }

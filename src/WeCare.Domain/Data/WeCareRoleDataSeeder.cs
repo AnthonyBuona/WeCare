@@ -38,6 +38,36 @@ namespace WeCare.Data
                 WeCarePermissions.Therapists.Edit,
                 WeCarePermissions.Therapists.Delete,
 
+                WeCarePermissions.Consultations.Default,
+                WeCarePermissions.Consultations.Create,
+                WeCarePermissions.Consultations.Edit,
+                WeCarePermissions.Consultations.Delete,
+
+                WeCarePermissions.Objectives.Default,
+                WeCarePermissions.Objectives.Create,
+                WeCarePermissions.Objectives.Edit,
+                WeCarePermissions.Objectives.Delete,
+                
+                WeCarePermissions.Trainings.Default,
+                WeCarePermissions.Trainings.Create,
+                WeCarePermissions.Trainings.Edit,
+                WeCarePermissions.Trainings.Delete,
+
+                WeCarePermissions.Tratamentos.Default,
+                WeCarePermissions.Tratamentos.Create,
+                WeCarePermissions.Tratamentos.Edit,
+                WeCarePermissions.Tratamentos.Delete,
+
+                WeCarePermissions.Activities.Default,
+                WeCarePermissions.Activities.Create,
+                WeCarePermissions.Activities.Edit,
+                WeCarePermissions.Activities.Delete,
+                
+                WeCarePermissions.Guests.Default,
+                WeCarePermissions.Guests.Create,
+                WeCarePermissions.Guests.Edit,
+                WeCarePermissions.Guests.Delete,
+
                 WeCarePermissions.Books.Default // Exemplo legado
             }, context.TenantId);
 
@@ -63,7 +93,12 @@ namespace WeCare.Data
                 WeCarePermissions.Trainings.Edit,
                 WeCarePermissions.Trainings.Delete,
 
-                WeCarePermissions.Tratamentos.Default
+                WeCarePermissions.Tratamentos.Default,
+                WeCarePermissions.Tratamentos.Create,
+                WeCarePermissions.Tratamentos.Edit,
+                WeCarePermissions.Tratamentos.Delete,
+
+                WeCarePermissions.Activities.Default // Adicionado acesso a Atividades
             }, context.TenantId);
 
             // 3. Responsible (Responsável)

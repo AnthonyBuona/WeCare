@@ -71,6 +71,10 @@
                             <input asp-for="ClinicSettings.ZipCode" class="form-control" />
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label asp-for="ClinicSettings.Specializations" class="form-label">Especialidades (separadas por vírgula)</label>
+                        <textarea asp-for="ClinicSettings.Specializations" class="form-control" rows="2" placeholder="Ex: Fonoaudiologia, Psicologia, Terapia Ocupacional"></textarea>
+                    </div>
                     <hr />
                     <div class="row">
                         <div class="col-md-6 mb-3">

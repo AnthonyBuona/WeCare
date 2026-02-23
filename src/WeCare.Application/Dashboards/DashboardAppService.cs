@@ -154,9 +154,9 @@ namespace WeCare.Dashboards
             foreach (var consult in consultations.Take(20))
             {
                 var objName = "Geral / Sem Objetivo";
-                if (consult.ObjectiveId != Guid.Empty && objectiveNames.ContainsKey(consult.ObjectiveId))
+                if (consult.ObjectiveId.HasValue && consult.ObjectiveId.Value != Guid.Empty && objectiveNames.ContainsKey(consult.ObjectiveId.Value))
                 {
-                    objName = objectiveNames[consult.ObjectiveId];
+                    objName = objectiveNames[consult.ObjectiveId.Value];
                 }
 
                 var detail = new ConsultationDetailDto
