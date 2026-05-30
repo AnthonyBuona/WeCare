@@ -1,0 +1,104 @@
+@page
+@using WeCare.Web.Pages.PeriodicReports
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using WeCare.PeriodicReports
+@model EditModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+
+<form id="EditPeriodicReportForm" method="post" action="/PeriodicReports/EditModal">
+    <abp-modal>
+        <abp-modal-header title="Editar Relatório Periódico"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="Id" />
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <abp-select asp-for="PeriodicReport.PatientId" asp-items="Model.PatientList" label="Paciente" required id="EditPatientId" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <abp-select asp-for="PeriodicReport.TherapistId" asp-items="Model.TherapistList" label="Terapeuta" required id="EditTherapistId" />
+                </div>
+            </div>
+
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <abp-input asp-for="PeriodicReport.StartDate" type="date" label="Data de Início" required id="EditStartDate" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <abp-input asp-for="PeriodicReport.EndDate" type="date" label="Data de Término" required id="EditEndDate" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button type="button" id="EditAutoDraftButton" class="btn text-white w-100 fw-bold rounded-3" style="background: linear-gradient(135deg, hsl(168, 76%, 42%) 0%, hsl(262, 70%, 68%) 100%); border: none; padding: 7px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <i class="fa fa-magic me-1"></i> Assistente IA Draft
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <abp-input asp-for="PeriodicReport.Title" label="Título do Relatório" required id="EditTitle" />
+            </div>
+
+            <hr />
+
+            <div class="mb-3">
+                <abp-input asp-for="PeriodicReport.ResumoClinico" rows="4" label="Resumo Clínico (Análise Qualitativa)" id="EditResumoClinico" />
+            </div>
+
+            <div class="mb-3">
+                <abp-input asp-for="PeriodicReport.ObjetivosStatus" rows="3" label="Objetivos & Metas (Array JSON)" id="EditObjetivosStatus" />
+            </div>
+
+            <div class="mb-3">
+                <abp-input asp-for="PeriodicReport.EngajamentoCasa" rows="3" label="Engajamento da Família em Casa" id="EditEngajamentoCasa" />
+            </div>
+
+            <div class="mb-3">
+                <abp-input asp-for="PeriodicReport.ProximosPassos" rows="3" label="Próximos Passos & Planejamento" id="EditProximosPassos" />
+            </div>
+
+            <input type="hidden" asp-for="PeriodicReport.Status" id="EditStatus" />
+
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>
+
+<script>
+    $(function () {
+        $('#EditAutoDraftButton').click(function (e) {
+            e.preventDefault();
+            var patientId = $('#EditPatientId').val();
+            var start = $('#EditStartDate').val();
+            var end = $('#EditEndDate').val();
+
+            if (!patientId) {
+                abp.message.warn('Selecione o paciente primeiro.');
+                return;
+            }
+            if (!start || !end) {
+                abp.message.warn('Selecione as datas de início e término.');
+                return;
+            }
+
+            abp.ui.setBusy('#EditPeriodicReportForm');
+            weCare.periodicReports.periodicReport
+                .getDraftReport(patientId, start, end)
+                .then(function (draft) {
+                    $('#EditTitle').val(draft.title);
+                    $('#EditResumoClinico').val(draft.resumoClinico);
+                    $('#EditObjetivosStatus').val(draft.objetivosStatus);
+                    if (draft.therapistId) {
+                        $('#EditTherapistId').val(draft.therapistId);
+                    }
+                    abp.notify.success('Histórico do paciente analisado e rascunho pré-populado com sucesso!');
+                })
+                .always(function () {
+                    abp.ui.clearBusy('#EditPeriodicReportForm');
+                });
+        });
+    });
+</script>

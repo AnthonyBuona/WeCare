@@ -10,4 +10,5 @@ public class WeCareMenus
     public const string Clinics = "WeCare.Clinics";
     public const string ClinicsSettings = "WeCare.Clinics.Settings";
     public const string Attendances = "WeCare.Attendances";
+    public const string PeriodicReports = "WeCare.PeriodicReports";
 }

@@ -193,6 +193,16 @@ public class WeCareMenuContributor : IMenuContributor
             ).RequirePermissions(WeCarePermissions.Attendances.Default)
         );
 
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.PeriodicReports,
+                l["Menu:PeriodicReports"],
+                url: "/PeriodicReports",
+                icon: "fa fa-file-text-o",
+                order: 5
+            ).RequirePermissions(WeCarePermissions.PeriodicReports.Default)
+        );
+
         return Task.CompletedTask;
     }
 }

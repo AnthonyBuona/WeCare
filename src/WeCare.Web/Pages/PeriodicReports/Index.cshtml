@@ -1,0 +1,163 @@
+@page
+@using WeCare.Web.Pages.PeriodicReports
+@using WeCare.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using WeCare.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<WeCareResource> L
+@inject IAuthorizationService AuthorizationService
+@inject IPageLayout PageLayout
+@model IndexModel
+@{
+    ViewBag.Title = L["Menu:PeriodicReports"].Value;
+    PageLayout.Content.Title = L["Menu:PeriodicReports"].Value;
+    PageLayout.Content.BreadCrumb.Add(L["Menu:PeriodicReports"].Value);
+    PageLayout.Content.MenuItemName = "PeriodicReports";
+}
+
+@section styles {
+    <style>
+        :root {
+            --color-mint-teal-light: hsl(168, 76%, 90%);
+            --color-mint-teal-base: hsl(168, 76%, 42%);
+            --color-mint-teal-dark: hsl(168, 76%, 20%);
+            --color-lavender-light: hsl(262, 70%, 95%);
+            --color-lavender-base: hsl(262, 70%, 68%);
+            --color-lavender-dark: hsl(262, 70%, 30%);
+            --gradient-welcoming: linear-gradient(135deg, var(--color-mint-teal-light) 0%, var(--color-lavender-light) 100%);
+            --gradient-welcoming-interactive: linear-gradient(135deg, var(--color-mint-teal-base) 0%, var(--color-lavender-base) 100%);
+        }
+
+        .welcoming-banner {
+            background: var(--gradient-welcoming);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-interactive {
+            background: var(--gradient-welcoming-interactive);
+            border: none;
+            color: white !important;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(45, 206, 137, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 206, 137, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            overflow: hidden;
+        }
+
+        .status-badge-0 {
+            background-color: #ffeeb3 !important;
+            color: #856404 !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-badge-1 {
+            background-color: #bbf7d0 !important;
+            color: #15803d !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-badge-2 {
+            background-color: #e0f2fe !important;
+            color: #0369a1 !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
+}
+
+@section scripts {
+    <abp-script src="/Pages/PeriodicReports/index.js" />
+}
+
+<div class="welcoming-banner">
+    <div class="row align-items-center">
+        <div class="col-md-8 col-12">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; font-size: 1.5rem; color: var(--color-mint-teal-base);">
+                    <i class="fa fa-file-text-o"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0 text-dark fw-bold" style="color: var(--color-lavender-dark) !important;">@L["Menu:PeriodicReports"]</h2>
+                    <p class="text-muted mb-0">Rastreabilidade, transparência e segurança jurídica para o acompanhamento clínico periódico infantil.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12 text-md-end mt-3 mt-md-0">
+            @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.PeriodicReports.Create))
+            {
+                <button id="NewPeriodicReportButton" class="btn btn-interactive">
+                    <i class="fa fa-plus me-2"></i> Novo Relatório
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="glass-card card border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <abp-table striped-rows="true" id="PeriodicReportsTable" class="table align-items-center table-flush table-hover mb-0" />
+        </div>
+    </div>
+</div>
+
+<!-- Parent Signature Modal -->
+<div class="modal fade" id="parentSignatureModal" tabindex="-1" aria-labelledby="parentSignatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden;">
+            <div class="modal-header" style="background: var(--gradient-welcoming-interactive); color: white; border: none; padding: 1.5rem;">
+                <h5 class="modal-title" id="parentSignatureModalLabel">
+                    <i class="fa fa-pencil-square-o me-2"></i>Assinatura Digital - Ciente Formal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; background: rgba(255,255,255,0.9);">
+                <form id="ParentSignatureForm">
+                    <input type="hidden" id="SignatureReportId" />
+                    <div class="alert alert-info text-dark rounded-3" style="font-size: 0.9rem;">
+                        <i class="fa fa-info-circle me-2"></i>Ao assinar digitalmente, o responsável declara ciência formal das evoluções clínicas descritas pelo terapeuta para fins de comprovação médica/jurídica.
+                    </div>
+                    <div class="mb-3">
+                        <label for="SignatureCpf" class="form-label fw-bold">CPF do Responsável Legal</label>
+                        <input type="text" class="form-control" id="SignatureCpf" placeholder="Ex: 123.456.789-01" required maxlength="14" />
+                        <div class="invalid-feedback">O CPF é obrigatório.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="SignatureIp" class="form-label fw-bold">Endereço IP de Registro</label>
+                        <input type="text" class="form-control" id="SignatureIp" readonly value="192.168.1.50" />
+                        <small class="text-muted">Capturado automaticamente para fins de auditoria de segurança.</small>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-interactive">Assinar e Validar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

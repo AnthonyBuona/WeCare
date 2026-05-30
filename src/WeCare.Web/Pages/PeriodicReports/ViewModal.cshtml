@@ -1,0 +1,168 @@
+@page
+@using WeCare.Web.Pages.PeriodicReports
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using WeCare.PeriodicReports
+@model ViewModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+
+<abp-modal>
+    <abp-modal-header title="Detalhes do Relatório Clínico Evolutivo"></abp-modal-header>
+    <abp-modal-body style="background-color: #f8f9fe; max-height: 80vh; overflow-y: auto;">
+        <div class="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
+            <div class="card-header border-0 bg-white pt-3 pb-3">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h4 class="mb-0 fw-bold text-primary">@Model.PeriodicReport.Title</h4>
+                        <small class="text-muted">Período: @Model.PeriodicReport.StartDate.ToString("dd/MM/yyyy") até @Model.PeriodicReport.EndDate.ToString("dd/MM/yyyy")</small>
+                    </div>
+                    <div class="col-4 text-end">
+                        @{
+                            var badgeClass = "bg-warning text-dark";
+                            var statusText = "Rascunho";
+                            if (Model.PeriodicReport.Status == PeriodicReportStatus.Published)
+                            {
+                                badgeClass = "bg-info text-white";
+                                statusText = "Publicado / Aguardando Ciente";
+                            }
+                            else if (Model.PeriodicReport.Status == PeriodicReportStatus.SignedByResponsible)
+                            {
+                                badgeClass = "bg-success text-white";
+                                statusText = "Assinado e Validado";
+                            }
+                        }
+                        <span class="badge @badgeClass rounded-pill px-3 py-2 fw-bold">@statusText</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body bg-white border-top">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Paciente</small>
+                        <strong class="fs-6 text-dark"><i class="fa fa-user me-2 text-primary"></i>@Model.PeriodicReport.PatientName</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Terapeuta Responsável</small>
+                        <strong class="fs-6 text-dark"><i class="fa fa-user-md me-2 text-success"></i>@Model.PeriodicReport.TherapistName</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5 class="fw-bold text-dark mb-2"><i class="fa fa-stethoscope me-2 text-primary"></i>Resumo Clínico da Evolução</h5>
+            <div class="bg-white p-3 rounded-3 shadow-sm border" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #32325d;">
+                @Model.PeriodicReport.ResumoClinico
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5 class="fw-bold text-dark mb-2"><i class="fa fa-bullseye me-2 text-danger"></i>Metas & Objetivos Mapeados</h5>
+            <div class="bg-white p-3 rounded-3 shadow-sm border">
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless align-middle mb-0">
+                        <thead>
+                            <tr class="text-muted" style="font-size: 0.85rem; border-bottom: 1px solid #f0f0f0;">
+                                <th>Objetivo</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @try
+                            {
+                                var json = Model.PeriodicReport.ObjetivosStatus;
+                                if (!string.IsNullOrWhiteSpace(json) && json.StartsWith("["))
+                                {
+                                    // Parse simples manual para evitar dependências de serializadores customizados no Razor
+                                    var items = json.Trim('[', ']').Split("},{", StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (var item in items)
+                                    {
+                                        var cleanItem = item.Trim('{', '}');
+                                        var parts = cleanItem.Split(',');
+                                        var objPart = parts.FirstOrDefault(p => p.Contains("\"Objective\""))?.Split(':')?.LastOrDefault()?.Trim('"', ' ');
+                                        var statusPart = parts.FirstOrDefault(p => p.Contains("\"Status\""))?.Split(':')?.LastOrDefault()?.Trim('"', ' ');
+
+                                        if (!string.IsNullOrEmpty(objPart))
+                                        {
+                                            <tr>
+                                                <td><strong class="text-dark">@objPart</strong></td>
+                                                <td class="text-end">
+                                                    <span class="badge bg-light text-primary border rounded-pill px-2 py-1">@statusPart</span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-muted text-center py-2">Nenhum objetivo registrado no período.</td>
+                                    </tr>
+                                }
+                            }
+                            catch
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-muted text-center py-2">Erro ao parsear dados estruturados de objetivos.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h5 class="fw-bold text-dark mb-2"><i class="fa fa-home me-2 text-warning"></i>Acompanhamento em Casa</h5>
+                <div class="bg-white p-3 rounded-3 shadow-sm border" style="white-space: pre-wrap; font-size: 0.9rem; min-height: 100px; color: #525f7f;">
+                    @(string.IsNullOrWhiteSpace(Model.PeriodicReport.EngajamentoCasa) ? "Nenhuma anotação familiar cadastrada." : Model.PeriodicReport.EngajamentoCasa)
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h5 class="fw-bold text-dark mb-2"><i class="fa fa-arrow-right me-2 text-info"></i>Próximos Passos Clínicos</h5>
+                <div class="bg-white p-3 rounded-3 shadow-sm border" style="white-space: pre-wrap; font-size: 0.9rem; min-height: 100px; color: #525f7f;">
+                    @(string.IsNullOrWhiteSpace(Model.PeriodicReport.ProximosPassos) ? "Nenhum planejamento especial cadastrado." : Model.PeriodicReport.ProximosPassos)
+                </div>
+            </div>
+        </div>
+
+        @if (Model.PeriodicReport.Status == PeriodicReportStatus.SignedByResponsible)
+        {
+            <div class="mt-4 p-3 rounded-3 border-0 shadow" style="border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.4) !important; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px) saturate(180%); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: linear-gradient(135deg, hsl(168, 76%, 42%) 0%, hsl(262, 70%, 68%) 100%); color: white; font-size: 1.25rem;">
+                        <i class="fa fa-shield"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark" style="color: hsl(262, 70%, 30%) !important;">Auditoria Digital - Ciente Formal Validado</h6>
+                        <small class="text-success fw-bold"><i class="fa fa-check-circle me-1"></i>Selo de Autenticidade Registrado</small>
+                    </div>
+                </div>
+                <div class="row pt-2 text-dark" style="font-size: 0.85rem;">
+                    <div class="col-sm-6 mb-2">
+                        <span class="text-muted d-block">Responsável Signatário (CPF)</span>
+                        <strong>@Model.PeriodicReport.ResponsibleSignatureCPF</strong>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <span class="text-muted d-block">Data da Assinatura</span>
+                        <strong>@(Model.PeriodicReport.ResponsibleSignatureDate?.ToString("g") ?? "-")</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Endereço IP Registrado</span>
+                        <strong>@Model.PeriodicReport.ResponsibleSignatureIP</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Hash Criptográfico SHA-256</span>
+                        <code class="text-primary text-break" style="font-size: 0.8rem; font-weight: bold;"><i class="fa fa-key me-1"></i>@Model.PeriodicReport.ParentSignatureHash</code>
+                    </div>
+                </div>
+            </div>
+        }
+    </abp-modal-body>
+    <abp-modal-footer buttons="@(AbpModalButtons.Close)"></abp-modal-footer>
+</abp-modal>
