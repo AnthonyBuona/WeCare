@@ -124,6 +124,11 @@
     "Enum:AttendanceStatus.0": "Presente",
     "Enum:AttendanceStatus.1": "Ausente",
     "Enum:AttendanceStatus.2": "Cancelado",
-    "AttendanceDeletionConfirmationMessage": "Tem certeza que deseja remover o registro de frequência?"
+    "AttendanceDeletionConfirmationMessage": "Tem certeza que deseja remover o registro de frequência?",
+    "Menu:PeriodicReports": "Relatórios Periódicos",
+    "Permission:PeriodicReports": "Relatórios Evolutivos Periódicos",
+    "Permission:PeriodicReports.Create": "Criar Relatórios Periódicos",
+    "Permission:PeriodicReports.Edit": "Editar Relatórios Periódicos",
+    "Permission:PeriodicReports.Delete": "Excluir Relatórios Periódicos"
   }
 }

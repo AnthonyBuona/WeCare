@@ -101,5 +101,13 @@ public static class WeCarePermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class PeriodicReports
+    {
+        public const string Default = GroupName + ".PeriodicReports";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
 }
 

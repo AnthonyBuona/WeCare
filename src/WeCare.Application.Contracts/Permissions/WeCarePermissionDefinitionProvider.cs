@@ -101,6 +101,11 @@ namespace WeCare.Permissions
             attendancesPermission.AddChild(WeCarePermissions.Attendances.Create, L("Permission:Attendances.Create"));
             attendancesPermission.AddChild(WeCarePermissions.Attendances.Edit, L("Permission:Attendances.Edit"));
             attendancesPermission.AddChild(WeCarePermissions.Attendances.Delete, L("Permission:Attendances.Delete"));
+
+            var periodicReportsPermission = myGroup.AddPermission(WeCarePermissions.PeriodicReports.Default, L("Permission:PeriodicReports"));
+            periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Create, L("Permission:PeriodicReports.Create"));
+            periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Edit, L("Permission:PeriodicReports.Edit"));
+            periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Delete, L("Permission:PeriodicReports.Delete"));
         }
 
 

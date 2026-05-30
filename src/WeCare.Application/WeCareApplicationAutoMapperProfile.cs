@@ -16,6 +16,7 @@ using WeCare.Objectives;
 using WeCare.Clinics;
 using WeCare.Guests;
 using WeCare.Attendances;
+using WeCare.PeriodicReports;
 
 namespace WeCare
 {
@@ -91,6 +92,10 @@ namespace WeCare
             CreateMap<Attendance, AttendanceDto>();
             CreateMap<CreateUpdateAttendanceDto, Attendance>();
             CreateMap<AttendanceDto, CreateUpdateAttendanceDto>();
+
+            CreateMap<PeriodicReport, PeriodicReportDto>();
+            CreateMap<CreateUpdatePeriodicReportDto, PeriodicReport>();
+            CreateMap<PeriodicReportDto, CreateUpdatePeriodicReportDto>();
         }
     }
 }
