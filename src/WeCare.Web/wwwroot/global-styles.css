@@ -440,3 +440,269 @@ header.lpx-topbar {
     border-bottom: 1px solid rgba(140, 127, 205, 0.06) !important;
     padding: 1.5rem 1.5rem !important;
 }
+
+/* =====================================================
+   5. 📄 DATATABLES PAGINATION — Eliminar badge rosa ABP
+   ===================================================== */
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button.current:hover {
+    background: var(--gradient-primary) !important;
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(77, 163, 145, 0.3) !important;
+}
+
+.dataTables_paginate .paginate_button:not(.current):not(.disabled):hover {
+    background: rgba(77, 163, 145, 0.1) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    border-radius: 8px !important;
+}
+
+.dataTables_paginate .paginate_button {
+    border-radius: 8px !important;
+    margin: 0 2px !important;
+    color: var(--primary-color) !important;
+}
+
+/* DataTables info & length selector */
+.dataTables_info,
+.dataTables_length label {
+    color: #6c7a9c !important;
+    font-size: 0.875rem !important;
+}
+
+.dataTables_length select {
+    border-color: rgba(140, 127, 205, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 4px 28px 4px 10px !important;
+    color: #3b4256 !important;
+}
+
+.dataTables_length select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(77, 163, 145, 0.15) !important;
+}
+
+/* =====================================================
+   6. 🔐 LOGIN PAGE — Estilizar botão de toggle de senha
+   ===================================================== */
+
+/* Botão de "mostrar senha" — eliminar roxo ABP */
+.abp-password-toggle,
+.input-group-text,
+button[abp-toggle-password] {
+    background: var(--gradient-primary) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+    border-radius: 0 8px 8px 0 !important;
+}
+
+.abp-password-toggle:hover,
+.input-group-text:hover,
+button[abp-toggle-password]:hover {
+    filter: brightness(1.1) !important;
+}
+
+/* Botão Login na página de login */
+.account-container .btn-primary,
+.lpx-login .btn-primary,
+.login-form .btn-primary,
+form[action*="Login"] .btn-primary,
+.btn[type="submit"]:not(.abp-confirm-no) {
+    background: var(--gradient-primary) !important;
+    border-color: transparent !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    padding: 12px 28px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Links coloridos na página de login (Register, Forgot Password) */
+.account-container a,
+.lpx-login a,
+.login-form a {
+    color: var(--primary-color) !important;
+}
+
+.account-container a:hover {
+    color: var(--primary-dark) !important;
+}
+
+/* Switch tenant button */
+.lpx-tenant-switch,
+.lpx-tenant-switch-button,
+.tenant-switch-box .btn,
+.tenant-switch-box button {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    border-radius: 8px !important;
+}
+
+.lpx-tenant-switch:hover,
+.lpx-tenant-switch-button:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* =====================================================
+   7. 📋 FORMULÁRIOS — Foco com cor do projeto
+   ===================================================== */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(77, 163, 145, 0.15) !important;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px !important;
+    border-color: rgba(140, 127, 205, 0.25) !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    color: #3b4256 !important;
+}
+
+/* =====================================================
+   8. 📱 SIDEBAR RESPONSIVO — Evitar overlay quando collapsed
+   ===================================================== */
+
+/* Quando a sidebar está collapsed (mobile) — não mostrar margin do lado */
+body.lpx-sidebar-collapsed aside.lpx-sidebar,
+body.lpx-sidebar-collapsed .lpx-sidebar {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    width: 60px !important;
+}
+
+/* Em mobile/tablet, remover margin para sidebar não flutuar sobre conteúdo */
+@media (max-width: 992px) {
+    aside.lpx-sidebar,
+    .lpx-sidebar {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        height: 100vh !important;
+    }
+    
+    .lpx-content-container {
+        padding-left: 0 !important;
+    }
+}
+
+/* =====================================================
+   9. 🎨 BADGES — Eliminar rosa em badges de status
+   ===================================================== */
+.badge.bg-primary,
+.badge-primary {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+}
+
+/* ABP success/info badges */
+.badge.bg-success,
+.badge-success {
+    background-color: #4da391 !important;
+    color: white !important;
+}
+
+.badge.bg-info,
+.badge-info {
+    background-color: #8c7fcd !important;
+    color: white !important;
+}
+
+/* =====================================================
+   10. 🔔 ALERTAS — Cor de destaque do projeto
+   ===================================================== */
+.alert-info {
+    background-color: rgba(77, 163, 145, 0.08) !important;
+    border-color: rgba(77, 163, 145, 0.25) !important;
+    color: var(--primary-dark) !important;
+}
+
+.alert-success {
+    background-color: rgba(77, 163, 145, 0.1) !important;
+    border-color: rgba(77, 163, 145, 0.3) !important;
+    color: #2a6359 !important;
+}
+
+/* =====================================================
+   11. ✅ MODALS — Header e CTA com paleta do projeto
+   ===================================================== */
+.modal-header {
+    border-bottom: 1px solid rgba(140, 127, 205, 0.1) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(140, 127, 205, 0.1) !important;
+}
+
+.modal-content {
+    border: none !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =====================================================
+   12. 🎯 LINK COLORS — Cor global do projeto
+   ===================================================== */
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--primary-color);
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--primary-dark);
+}
+
+/* =====================================================
+   13. 📦 BOTÃO ACTIONS — Padronizar cor teal no dropdown-toggle
+   ===================================================== */
+.btn-action,
+.dt-button,
+.dropdown-toggle.btn-primary {
+    background: var(--gradient-primary) !important;
+    border-color: transparent !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(77, 163, 145, 0.08) !important;
+    color: var(--primary-color) !important;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+}
+
+/* =====================================================
+   14. 🌀 SPINNER / LOADING — Cor do projeto
+   ===================================================== */
+.spinner-border,
+.spinner-grow {
+    color: var(--primary-color) !important;
+}
+
+/* =====================================================
+   15. 🏷️ ABP TOASTER / NOTIFICATIONS 
+   ===================================================== */
+.abp-toast-container .toast-success {
+    background-color: var(--primary-color) !important;
+}
+
+.abp-toast-container .toast-info {
+    background-color: #8c7fcd !important;
+}
+
+/* =====================================================
+   FIM DO DESIGN SYSTEM WECARE — Versão 2.0
+   Paleta: Mint Teal #4da391 | Lavender #8c7fcd | Peach #f7a47b
+   ===================================================== */
