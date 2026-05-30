@@ -1,10 +1,11 @@
-﻿@page
+@page
 @model WeCare.Web.Pages.IndexModel
 @using WeCare.Web.Menus
 @using Volo.Abp.AspNetCore.Mvc.UI.Layout
 @using Microsoft.AspNetCore.Mvc.Localization
 @using WeCare.Localization
 @using Volo.Abp.Users
+@using WeCare.PeriodicReports
 @inject IPageLayout PageLayout
 @inject IHtmlLocalizer<WeCareResource> L
 @inject ICurrentUser CurrentUser
@@ -15,286 +16,558 @@
 
 @section styles {
     <abp-style src="/Pages/Index.css" />
+    <style>
+        :root {
+            --color-mint-teal-light: hsl(168, 76%, 90%);
+            --color-mint-teal-base: hsl(168, 76%, 42%);
+            --color-mint-teal-dark: hsl(168, 76%, 20%);
+            --color-lavender-light: hsl(262, 70%, 95%);
+            --color-lavender-base: hsl(262, 70%, 68%);
+            --color-lavender-dark: hsl(262, 70%, 30%);
+            --gradient-welcoming: linear-gradient(135deg, var(--color-mint-teal-light) 0%, var(--color-lavender-light) 100%);
+            --gradient-welcoming-interactive: linear-gradient(135deg, var(--color-mint-teal-base) 0%, var(--color-lavender-base) 100%);
+        }
+
+        .welcoming-banner {
+            background: var(--gradient-welcoming);
+            border-radius: 20px;
+            padding: 2.2rem;
+            margin-bottom: 2.2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-interactive {
+            background: var(--gradient-welcoming-interactive);
+            border: none;
+            color: white !important;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(45, 206, 137, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 206, 137, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            overflow: hidden;
+        }
+
+        .status-badge-0 {
+            background-color: #ffeeb3 !important;
+            color: #856404 !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-badge-1 {
+            background-color: #bbf7d0 !important;
+            color: #15803d !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-badge-2 {
+            background-color: #e0f2fe !important;
+            color: #0369a1 !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
 }
 
-<div class="row align-items-center mb-5">
-    <div class="col-lg-7">
-        <h1 class="display-3 text-primary mb-2">@L["Welcome"], <span class="fw-bold">@(CurrentUser.Name ?? CurrentUser.UserName ?? "WeCare")</span></h1>
-        @if (!string.IsNullOrEmpty(Model.ClinicInfo?.WelcomeMessage))
+@section scripts {
+    <abp-script src="/Pages/Index.js" />
+}
+
+@if (Model.IsResponsible)
+{
+    <!-- PORTAL DO RESPONSÁVEL (A UI DO CARLOS) -->
+    <div class="welcoming-banner shadow-sm mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-12">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px; font-size: 1.8rem; color: #4da391; background: #fff;">
+                        🌸
+                    </div>
+                    <div>
+                        <h2 class="mb-0 text-dark fw-bold" style="color: hsl(262, 70%, 30%) !important;">Olá, @(Model.ParentProfile?.NameResponsible ?? "Responsável")!</h2>
+                        <p class="text-muted mb-0">Bem-vindo ao Portal da Família do WeCare. Acompanhe abaixo o desenvolvimento clínico de seus filhos em tempo real.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-12 text-lg-end mt-3 mt-lg-0">
+                <span class="badge bg-white text-primary border rounded-pill px-3 py-2 shadow-sm fw-bold">
+                    <i class="fa fa-heart me-1 text-danger"></i> Espaço Terapêutico Acolhedor
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meus Dependentes -->
+    <h4 class="fw-bold text-dark mb-3"><i class="fa fa-users me-2 text-primary"></i>Dependentes Assistidos</h4>
+    <div class="row mb-4">
+        @foreach (var patient in Model.MyPatients)
         {
-            <p class="lead text-muted mb-4">@Model.ClinicInfo.WelcomeMessage</p>
-        }
-        else
-        {
-            <p class="lead text-muted mb-4">@L["LongWelcomeMessage"]</p>
-        }
-        
-        @if (!CurrentUser.IsAuthenticated)
-        {
-            <a href="/Account/Login" class="btn btn-premium btn-lg px-4 me-3">
-                <i class="fa fa-sign-in me-2"></i> @L["Login"]
-            </a>
-        }
-        else 
-        {
-            <div class="d-flex gap-3">
-                <a href="/Patients" class="btn btn-premium px-4">
-                    <i class="fa fa-users me-2"></i> Meus Pacientes
-                </a>
-                <a href="/Calendar" class="btn btn-outline-primary px-4 bg-white">
-                    <i class="fa fa-calendar me-2"></i> Agenda
-                </a>
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3" style="background: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.5);">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle text-white d-flex align-items-center justify-content-center me-3 font-weight-bold" style="width: 50px; height: 50px; font-size: 1.25rem; background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%);">
+                            @patient.Name.Substring(0, 1)
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">@patient.Name</h5>
+                            <small class="text-muted d-block"><i class="fa fa-birthday-cake me-1"></i> Nascimento: @patient.BirthDate.ToString("dd/MM/yyyy")</small>
+                            @if (!string.IsNullOrEmpty(patient.Diag))
+                            {
+                                <span class="badge bg-light text-primary border rounded-pill mt-1" style="font-size: 0.8rem;">CID: @patient.Diag</span>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>
-    <div class="col-lg-5 d-none d-lg-block text-center position-relative">
-        <div class="blob-shape bg-gradient-success opacity-10 position-absolute w-100 h-100 rounded-circle" style="filter: blur(80px); transform: translate(20px, -20px);"></div>
-        @if (!string.IsNullOrEmpty(Model.ClinicInfo?.LogoUrl))
-        {
-            <img src="@Model.ClinicInfo.LogoUrl" alt="Logo da Clínica" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
-        }
-        else
-        {
-            <img src="/images/logo/leptonxlite/logo-light.png" alt="WeCare Hero" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
-        }
-    </div>
-</div>
 
-@if (CurrentUser.IsAuthenticated && Model.Stats != null)
-{
-    <div>
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="mb-0 text-dark fw-bold">Visão Geral</h4>
-            <span class="text-muted text-sm"><i class="fa fa-clock-o me-1"></i> Atualizado hoje</span>
-        </div>
-
-        <div class="row">
-            <!-- Admin Stats -->
-            @if (CurrentUser.IsInRole("admin"))
+    <div class="row">
+        <!-- Feed Transacional Diário -->
+        <div class="col-lg-7 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="fa fa-calendar-check-o me-2 text-primary"></i>Feed Transacional Diário</h4>
+                <span class="text-muted text-sm">Atualizações diárias</span>
+            </div>
+            
+            @if (Model.RecentConsultations.Any())
             {
-                <div class="col-md-4 mb-4">
-                    <div class="card bg-gradient-primary border-0 h-100 position-relative overflow-hidden">
-                        <div class="card-body position-relative z-1 text-white">
-                            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var consultation in Model.RecentConsultations)
+                    {
+                        var patientName = Model.MyPatients.FirstOrDefault(p => p.Id == consultation.PatientId)?.Name ?? "Paciente";
+                        <div class="card border-0 shadow-sm rounded-4 p-3" style="background: rgba(255,255,255,0.75); border-left: 5px solid #4da391 !important;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <h6 class="text-uppercase text-white-50 ls-1 mb-1">Pacientes Totais</h6>
-                                    <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalPatients</h2>
+                                    <span class="badge bg-light text-success border rounded-pill me-2">Consulta Realizada</span>
+                                    <small class="text-muted"><i class="fa fa-clock-o me-1"></i>@consultation.DateTime.ToString("dd/MM/yyyy HH:mm")</small>
                                 </div>
-                                <div class="icon-shape bg-white text-primary rounded-circle shadow">
-                                    <i class="fa fa-users fa-lg"></i>
-                                </div>
+                                <small class="text-muted">Acompanhado por: <strong>Terapeuta</strong></small>
                             </div>
-                            <p class="mt-3 mb-0 text-white-50 text-sm">
-                                <span class="text-white fw-bold"><i class="fa fa-arrow-up"></i> 3.48%</span> desde o último mês
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-4">
-                    <div class="card bg-gradient-success border-0 h-100 position-relative overflow-hidden">
-                        <div class="card-body position-relative z-1 text-white">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="text-uppercase text-white-50 ls-1 mb-1">Terapeutas</h6>
-                                    <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalTherapists</h2>
-                                </div>
-                                <div class="icon-shape bg-white text-success rounded-circle shadow">
-                                    <i class="fa fa-user-md fa-lg"></i>
-                                </div>
+                            
+                            <h6 class="fw-bold text-dark mb-1">@patientName - Evolução na Sessão:</h6>
+                            <p class="text-muted mb-3" style="font-size: 0.9rem; line-height: 1.5;">@consultation.Description</p>
+                            
+                            <div class="p-3 rounded-3" style="background: hsl(35, 100%, 96%); border: 1px dashed #f7a47b;">
+                                <h6 class="fw-bold text-warning mb-1" style="color: #df8b62 !important;"><i class="fa fa-lightbulb-o me-1"></i>💡 Orientações Práticas para Casa (Home Guidance)</h6>
+                                <p class="mb-0 text-dark" style="font-size: 0.88rem; line-height: 1.4;">
+                                    Para maximizar a evolução do(a) @patientName, pratique exercícios motores leves ou o encaixe de blocos por 10 minutos hoje. Incentive o contato visual durante a atividade!
+                                </p>
                             </div>
-                            <p class="mt-3 mb-0 text-white-50 text-sm">
-                                <span class="text-white fw-bold"><i class="fa fa-check"></i> Ativos</span> na plataforma
-                            </p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-4">
-                    <div class="card bg-gradient-info border-0 h-100 position-relative overflow-hidden">
-                        <div class="card-body position-relative z-1 text-white">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="text-uppercase text-white-50 ls-1 mb-1">Clínicas</h6>
-                                    <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalClinics</h2>
-                                </div>
-                                <div class="icon-shape bg-white text-info rounded-circle shadow">
-                                    <i class="fa fa-hospital-o fa-lg"></i>
-                                </div>
-                            </div>
-                            <p class="mt-3 mb-0 text-white-50 text-sm">
-                                <span class="text-white fw-bold">Parceiras</span> registradas
-                            </p>
-                        </div>
-                    </div>
+                    }
                 </div>
             }
-
-            <!-- Quick Access Grid -->
-            <div class="col-12 mt-4">
-                <h4 class="mb-4 text-dark fw-bold">Acesso Rápido</h4>
-                <div class="row">
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <a href="/Patients" class="text-decoration-none card-hover-effect">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body text-center p-4">
-                                    <div class="icon-shape icon-lg bg-gradient-primary text-white rounded-circle shadow mb-3 mx-auto">
-                                        <i class="fa fa-users"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-dark">Pacientes</h5>
-                                    <p class="text-muted text-sm mb-0">Gerencie perfis e históricos</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <a href="/Objectives" class="text-decoration-none card-hover-effect">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body text-center p-4">
-                                    <div class="icon-shape icon-lg bg-gradient-success text-white rounded-circle shadow mb-3 mx-auto">
-                                        <i class="fa fa-bullseye"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-dark">Objetivos</h5>
-                                    <p class="text-muted text-sm mb-0">Defina metas e planos</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <a href="/Activities" class="text-decoration-none card-hover-effect">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body text-center p-4">
-                                    <div class="icon-shape icon-lg bg-gradient-warning text-white rounded-circle shadow mb-3 mx-auto">
-                                        <i class="fa fa-tasks"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-dark">Atividades</h5>
-                                    <p class="text-muted text-sm mb-0">Biblioteca de exercícios</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                     <div class="col-xl-3 col-md-6 mb-4">
-                        <a href="/Account/Manage" class="text-decoration-none card-hover-effect">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body text-center p-4">
-                                    <div class="icon-shape icon-lg bg-secondary text-white rounded-circle shadow mb-3 mx-auto">
-                                        <i class="fa fa-cog"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-dark">Configurações</h5>
-                                    <p class="text-muted text-sm mb-0">Ajuste seu perfil</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+            else
+            {
+                <div class="card border-0 shadow-sm text-center p-4 rounded-4" style="background: rgba(255,255,255,0.6);">
+                    <div class="fs-1 text-muted mb-2">📅</div>
+                    <h6 class="fw-bold text-dark mb-1">Nenhuma sessão registrada recentemente</h6>
+                    <p class="text-muted text-sm mb-0">Novas orientações e dicas terapêuticas aparecerão aqui assim que as sessões forem realizadas.</p>
                 </div>
+            }
+        </div>
+        
+        <!-- Devolutivas Periódicas -->
+        <div class="col-lg-5 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="fa fa-file-text-o me-2 text-primary"></i>Devolutivas Periódicas</h4>
+                <span class="text-muted text-sm">Segurança & Ciente</span>
             </div>
+            
+            @if (Model.MyReports.Any())
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var report in Model.MyReports)
+                    {
+                        var patientName = Model.MyPatients.FirstOrDefault(p => p.Id == report.PatientId)?.Name ?? "Paciente";
+                        <div class="card border-0 shadow-sm rounded-4 p-3" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.5);">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong class="text-dark d-block">@report.Title</strong>
+                                    <small class="text-muted">Período: @report.StartDate.ToString("dd/MM/yyyy") - @report.EndDate.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                @{
+                                    var badgeClass = report.Status == PeriodicReportStatus.SignedByResponsible ? "bg-success text-white" : "bg-warning text-dark";
+                                    var statusText = report.Status == PeriodicReportStatus.SignedByResponsible ? "Assinado" : "Pendente Ciente";
+                                }
+                                <span class="badge @badgeClass rounded-pill fw-bold" style="font-size: 0.8rem;">@statusText</span>
+                            </div>
+                           
+                           <p class="text-muted text-sm mb-3">
+                               Este relatório evolutivo compila os avanços terapêuticos obtidos no período para <strong>@patientName</strong>.
+                           </p>
+                           
+                           <div class="d-flex gap-2">
+                               <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 ViewReportDetailsButton" data-id="@report.Id">
+                                   <i class="fa fa-search me-1"></i> Visualizar Detalhes
+                               </button>
+                               @if (report.Status == PeriodicReportStatus.Published)
+                               {
+                                   <button type="button" class="btn btn-sm btn-interactive rounded-pill px-3 OpenSignatureModalButton" data-id="@report.Id">
+                                       <i class="fa fa-pencil me-1"></i> Dar Ciente Legal
+                                   </button>
+                               }
+                               else if (report.Status == PeriodicReportStatus.SignedByResponsible)
+                               {
+                                   <button type="button" class="btn btn-sm btn-success rounded-pill px-3 DownloadPdfButton" data-id="@report.Id">
+                                       <i class="fa fa-download me-1"></i> Baixar PDF
+                                   </button>
+                               }
+                           </div>
+                       </div>
+                   }
+               </div>
+           }
+           else
+           {
+               <div class="card border-0 shadow-sm text-center p-4 rounded-4" style="background: rgba(255,255,255,0.6);">
+                   <div class="fs-1 text-muted mb-2">📝</div>
+                   <h6 class="fw-bold text-dark mb-1">Nenhum relatório periódico emitido</h6>
+                   <p class="text-muted text-sm mb-0">Seus relatórios e evoluções mensais ou bimestrais estarão listados aqui assim que publicados pelos terapeutas.</p>
+               </div>
+           }
+       </div>
+   </div>
+}
+else
+{
+    <!-- VISÃO GERAL CLÍNICA (EXISTING CODE FOR THERAPIST/ADMIN) -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-7">
+            <h1 class="display-3 text-primary mb-2">@L["Welcome"], <span class="fw-bold">@(CurrentUser.Name ?? CurrentUser.UserName ?? "WeCare")</span></h1>
+            @if (!string.IsNullOrEmpty(Model.ClinicInfo?.WelcomeMessage))
+            {
+                <p class="lead text-muted mb-4">@Model.ClinicInfo.WelcomeMessage</p>
+            }
+            else
+            {
+                <p class="lead text-muted mb-4">@L["LongWelcomeMessage"]</p>
+            }
+            
+            @if (!CurrentUser.IsAuthenticated)
+            {
+                <a href="/Account/Login" class="btn btn-premium btn-lg px-4 me-3">
+                    <i class="fa fa-sign-in me-2"></i> @L["Login"]
+                </a>
+            }
+            else 
+            {
+                <div class="d-flex gap-3">
+                    <a href="/Patients" class="btn btn-premium px-4">
+                        <i class="fa fa-users me-2"></i> Meus Pacientes
+                    </a>
+                    <a href="/Calendar" class="btn btn-outline-primary px-4 bg-white">
+                        <i class="fa fa-calendar me-2"></i> Agenda
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="col-lg-5 d-none d-lg-block text-center position-relative">
+            <div class="blob-shape bg-gradient-success opacity-10 position-absolute w-100 h-100 rounded-circle" style="filter: blur(80px); transform: translate(20px, -20px);"></div>
+            @if (!string.IsNullOrEmpty(Model.ClinicInfo?.LogoUrl))
+            {
+                <img src="@Model.ClinicInfo.LogoUrl" alt="Logo da Clínica" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
+            }
+            else
+            {
+                <img src="/images/logo/leptonxlite/logo-light.png" alt="WeCare Hero" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
+            }
         </div>
     </div>
 
-    @if (Model.ClinicInfo != null && HasContactInfo(Model.ClinicInfo))
+    @if (CurrentUser.IsAuthenticated && Model.Stats != null)
     {
-        <div class="mt-5">
-            <h4 class="mb-4 text-dark fw-bold"><i class="fa fa-building me-2"></i>Informações da Clínica</h4>
+        <div>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h4 class="mb-0 text-dark fw-bold">Visão Geral</h4>
+                <span class="text-muted text-sm"><i class="fa fa-clock-o me-1"></i> Atualizado hoje</span>
+            </div>
+
             <div class="row">
-                @if (HasAddress(Model.ClinicInfo))
+                <!-- Admin Stats -->
+                @if (CurrentUser.IsInRole("admin"))
                 {
                     <div class="col-md-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-map-marker me-2 text-primary"></i>Endereço</h6>
-                                <p class="mb-0">
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Address))
-                                    {
-                                        @Model.ClinicInfo.Address
-                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.AddressNumber))
-                                        {
-                                            <text>, @Model.ClinicInfo.AddressNumber</text>
-                                        }
-                                        <br />
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Neighborhood))
-                                    {
-                                        @Model.ClinicInfo.Neighborhood<br />
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.City))
-                                    {
-                                        @Model.ClinicInfo.City
-                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.State))
-                                        {
-                                            <text> - @Model.ClinicInfo.State</text>
-                                        }
-                                        <br />
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.ZipCode))
-                                    {
-                                        <text>CEP: @Model.ClinicInfo.ZipCode</text>
-                                    }
+                        <div class="card bg-gradient-primary border-0 h-100 position-relative overflow-hidden">
+                            <div class="card-body position-relative z-1 text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Pacientes Totais</h6>
+                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalPatients</h2>
+                                    </div>
+                                    <div class="icon-shape bg-white text-primary rounded-circle shadow">
+                                        <i class="fa fa-users fa-lg"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-3 mb-0 text-white-50 text-sm">
+                                    <span class="text-white fw-bold"><i class="fa fa-arrow-up"></i> 3.48%</span> desde o último mês
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-gradient-success border-0 h-100 position-relative overflow-hidden">
+                            <div class="card-body position-relative z-1 text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Terapeutas</h6>
+                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalTherapists</h2>
+                                    </div>
+                                    <div class="icon-shape bg-white text-success rounded-circle shadow">
+                                        <i class="fa fa-user-md fa-lg"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-3 mb-0 text-white-50 text-sm">
+                                    <span class="text-white fw-bold"><i class="fa fa-check"></i> Ativos</span> na plataforma
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-gradient-info border-0 h-100 position-relative overflow-hidden">
+                            <div class="card-body position-relative z-1 text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Clínicas</h6>
+                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalClinics</h2>
+                                    </div>
+                                    <div class="icon-shape bg-white text-info rounded-circle shadow">
+                                        <i class="fa fa-hospital-o fa-lg"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-3 mb-0 text-white-50 text-sm">
+                                    <span class="text-white fw-bold">Parceiras</span> registradas
                                 </p>
                             </div>
                         </div>
                     </div>
                 }
 
-                @if (HasContactDetails(Model.ClinicInfo))
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-phone me-2 text-primary"></i>Contato</h6>
-                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.Phone))
-                                {
-                                    <p class="mb-2"><i class="fa fa-phone me-2 text-muted"></i> @Model.ClinicInfo.Phone</p>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.Email))
-                                {
-                                    <p class="mb-2"><i class="fa fa-envelope me-2 text-muted"></i> <a href="mailto:@Model.ClinicInfo.Email">@Model.ClinicInfo.Email</a></p>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.ClinicInfo.WebsiteUrl))
-                                {
-                                    <p class="mb-0"><i class="fa fa-globe me-2 text-muted"></i> <a href="@Model.ClinicInfo.WebsiteUrl" target="_blank">@Model.ClinicInfo.WebsiteUrl</a></p>
-                                }
-                            </div>
+                <!-- Quick Access Grid -->
+                <div class="col-12 mt-4">
+                    <h4 class="mb-4 text-dark fw-bold">Acesso Rápido</h4>
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a href="/Patients" class="text-decoration-none card-hover-effect">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center p-4">
+                                        <div class="icon-shape icon-lg bg-gradient-primary text-white rounded-circle shadow mb-3 mx-auto">
+                                            <i class="fa fa-users"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark">Pacientes</h5>
+                                        <p class="text-muted text-sm mb-0">Gerencie perfis e históricos</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a href="/Objectives" class="text-decoration-none card-hover-effect">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center p-4">
+                                        <div class="icon-shape icon-lg bg-gradient-success text-white rounded-circle shadow mb-3 mx-auto">
+                                            <i class="fa fa-bullseye"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark">Objetivos</h5>
+                                        <p class="text-muted text-sm mb-0">Defina metas e planos</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a href="/Activities" class="text-decoration-none card-hover-effect">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center p-4">
+                                        <div class="icon-shape icon-lg bg-gradient-warning text-white rounded-circle shadow mb-3 mx-auto">
+                                            <i class="fa fa-tasks"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark">Atividades</h5>
+                                        <p class="text-muted text-sm mb-0">Biblioteca de exercícios</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                         <div class="col-xl-3 col-md-6 mb-4">
+                            <a href="/Account/Manage" class="text-decoration-none card-hover-effect">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center p-4">
+                                        <div class="icon-shape icon-lg bg-secondary text-white rounded-circle shadow mb-3 mx-auto">
+                                            <i class="fa fa-cog"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark">Configurações</h5>
+                                        <p class="text-muted text-sm mb-0">Ajuste seu perfil</p>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                }
+                </div>
+            </div>
+        </div>
 
-                @if (HasSocialLinks(Model.ClinicInfo))
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-share-alt me-2 text-primary"></i>Redes Sociais</h6>
-                                <div class="d-flex gap-3 flex-wrap">
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.InstagramUrl))
+        @if (Model.ClinicInfo != null && HasContactInfo(Model.ClinicInfo))
+        {
+            <div class="mt-5">
+                <h4 class="mb-4 text-dark fw-bold"><i class="fa fa-building me-2"></i>Informações da Clínica</h4>
+                <div class="row">
+                    @if (HasAddress(Model.ClinicInfo))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-map-marker me-2 text-primary"></i>Endereço</h6>
+                                    <p class="mb-0">
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.Address))
+                                        {
+                                            @Model.ClinicInfo.Address
+                                            @if (!string.IsNullOrEmpty(Model.ClinicInfo.AddressNumber))
+                                            {
+                                                <text>, @Model.ClinicInfo.AddressNumber</text>
+                                            }
+                                            <br />
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.Neighborhood))
+                                        {
+                                            @Model.ClinicInfo.Neighborhood<br />
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.City))
+                                        {
+                                            @Model.ClinicInfo.City
+                                            @if (!string.IsNullOrEmpty(Model.ClinicInfo.State))
+                                            {
+                                                <text> - @Model.ClinicInfo.State</text>
+                                            }
+                                            <br />
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.ZipCode))
+                                        {
+                                            <text>CEP: @Model.ClinicInfo.ZipCode</text>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (HasContactDetails(Model.ClinicInfo))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-phone me-2 text-primary"></i>Contato</h6>
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Phone))
                                     {
-                                        <a href="@Model.ClinicInfo.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-instagram me-1"></i> Instagram
-                                        </a>
+                                        <p class="mb-2"><i class="fa fa-phone me-2 text-muted"></i> @Model.ClinicInfo.Phone</p>
                                     }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.FacebookUrl))
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Email))
                                     {
-                                        <a href="@Model.ClinicInfo.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-facebook me-1"></i> Facebook
-                                        </a>
+                                        <p class="mb-2"><i class="fa fa-envelope me-2 text-muted"></i> <a href="mailto:@Model.ClinicInfo.Email">@Model.ClinicInfo.Email</a></p>
                                     }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.LinkedInUrl))
+                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.WebsiteUrl))
                                     {
-                                        <a href="@Model.ClinicInfo.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-linkedin me-1"></i> LinkedIn
-                                        </a>
+                                        <p class="mb-0"><i class="fa fa-globe me-2 text-muted"></i> <a href="@Model.ClinicInfo.WebsiteUrl" target="_blank">@Model.ClinicInfo.WebsiteUrl</a></p>
                                     }
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+
+                    @if (HasSocialLinks(Model.ClinicInfo))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-share-alt me-2 text-primary"></i>Redes Sociais</h6>
+                                    <div class="d-flex gap-3 flex-wrap">
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.InstagramUrl))
+                                        {
+                                            <a href="@Model.ClinicInfo.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-instagram me-1"></i> Instagram
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.FacebookUrl))
+                                        {
+                                            <a href="@Model.ClinicInfo.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-facebook me-1"></i> Facebook
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.LinkedInUrl))
+                                        {
+                                            <a href="@Model.ClinicInfo.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-linkedin me-1"></i> LinkedIn
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
+        }
     }
 }
+
+<!-- Common Parent Signature Modal (For Dashboard clickwrap signature) -->
+<div class="modal fade" id="parentSignatureModal" tabindex="-1" aria-labelledby="parentSignatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden;">
+            <div class="modal-header" style="background: var(--gradient-welcoming-interactive); color: white; border: none; padding: 1.5rem;">
+                <h5 class="modal-title" id="parentSignatureModalLabel">
+                    <i class="fa fa-pencil-square-o me-2"></i>Assinatura Digital - Ciente Formal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; background: rgba(255,255,255,0.95);">
+                <form id="ParentSignatureForm">
+                    <input type="hidden" id="SignatureReportId" />
+                    <div class="alert alert-info text-dark rounded-3 animate-fade-in" style="font-size: 0.9rem; background: hsl(168, 76%, 95%); border: 1px solid var(--color-mint-teal-light);">
+                        <i class="fa fa-info-circle me-2 text-primary"></i>Ao assinar digitalmente, o responsável declara ciência formal das evoluções clínicas descritas pelo terapeuta para fins de comprovação médica/jurídica.
+                    </div>
+                    <div class="mb-3">
+                        <label for="SignatureCpf" class="form-label fw-bold text-dark">CPF do Responsável Legal</label>
+                        <input type="text" class="form-control" id="SignatureCpf" placeholder="Ex: 123.456.789-01" required maxlength="14" />
+                        <div class="invalid-feedback">O CPF é obrigatório.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="SignatureIp" class="form-label fw-bold text-dark">Endereço IP de Registro</label>
+                        <input type="text" class="form-control" id="SignatureIp" readonly value="@Model.ClientIp" />
+                        <small class="text-muted">Capturado automaticamente para fins de auditoria de segurança.</small>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-interactive">Assinar e Validar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @functions {
     bool HasContactInfo(WeCare.Clinics.ClinicSettingsDto c) =>

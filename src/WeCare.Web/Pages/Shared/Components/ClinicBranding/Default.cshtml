@@ -3,8 +3,8 @@
 
 @if (Model != null)
 {
-    var primary = Model.PrimaryColor ?? "#5e72e4";
-    var secondary = Model.SecondaryColor ?? "#2dce89";
+    var primary = Model.PrimaryColor ?? "#4da391"; // Soothing Mint/Teal
+    var secondary = Model.SecondaryColor ?? "#8c7fcd"; // Soft Lavender
     var primaryDark = AdjustBrightness(primary, -30);
 
     <style>
@@ -19,8 +19,8 @@
             --primary-dark: @primaryDark !important;
             --primary-rgb: @(ConvertHexToRgb(primary)) !important;
             --secondary-color: @secondary !important;
-            --gradient-primary: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
-            --gradient-success: linear-gradient(150deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
+            --gradient-primary: linear-gradient(135deg, @primary 0%, #8c7fcd 100%) !important;
+            --gradient-success: linear-gradient(135deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
 
             /* Bootstrap core */
             --bs-primary: @primary !important;

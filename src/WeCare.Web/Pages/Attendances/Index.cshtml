@@ -20,29 +20,31 @@
     <abp-script src="/Pages/Attendances/index.js" />
 }
 
-<div class="row mb-4 align-items-center justify-content-between">
-    <div class="col-md-6 col-12 mb-3 mb-md-0">
-        <div class="d-flex align-items-center">
-            <div class="icon-shape bg-gradient-primary text-white rounded-circle shadow me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.25rem;">
-                <i class="fa fa-check-square-o"></i>
-            </div>
-            <div>
-                <h2 class="mb-0 text-dark fw-bold">@L["Menu:Attendances"]</h2>
-                <p class="text-muted mb-0">Gerencie e acompanhe a frequência das sessões</p>
+<div class="welcoming-banner">
+    <div class="row align-items-center">
+        <div class="col-md-8 col-12">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; font-size: 1.5rem; color: var(--color-mint-teal-base);">
+                    <i class="fa fa-check-square-o"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0 text-dark fw-bold" style="color: var(--color-lavender-dark) !important;">@L["Menu:Attendances"]</h2>
+                    <p class="text-muted mb-0">Rastreabilidade e controle de frequência das sessões terapêuticas infantis.</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6 col-12 text-md-end">
-        @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Attendances.Create))
-        {
-            <button id="NewAttendanceButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
-                <i class="fa fa-plus me-2"></i> @L["NewAttendance"].Value
-            </button>
-        }
+        <div class="col-md-4 col-12 text-md-end mt-3 mt-md-0">
+            @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Attendances.Create))
+            {
+                <button id="NewAttendanceButton" class="btn btn-interactive">
+                    <i class="fa fa-plus me-2"></i> Registrar Frequência
+                </button>
+            }
+        </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+<div class="glass-card card border-0">
     <div class="card-body p-0">
         <div class="table-responsive">
             <abp-table striped-rows="true" id="AttendancesTable" class="table align-items-center table-flush table-hover mb-0" />

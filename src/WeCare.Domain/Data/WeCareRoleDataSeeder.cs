@@ -68,7 +68,12 @@ namespace WeCare.Data
                 WeCarePermissions.Guests.Edit,
                 WeCarePermissions.Guests.Delete,
 
-                WeCarePermissions.Books.Default // Exemplo legado
+                WeCarePermissions.Books.Default, // Exemplo legado
+
+                WeCarePermissions.PeriodicReports.Default,
+                WeCarePermissions.PeriodicReports.Create,
+                WeCarePermissions.PeriodicReports.Edit,
+                WeCarePermissions.PeriodicReports.Delete
             }, context.TenantId);
 
             // 2. Therapist (Terapeuta)
@@ -98,7 +103,11 @@ namespace WeCare.Data
                 WeCarePermissions.Tratamentos.Edit,
                 WeCarePermissions.Tratamentos.Delete,
 
-                WeCarePermissions.Activities.Default // Adicionado acesso a Atividades
+                WeCarePermissions.Activities.Default, // Adicionado acesso a Atividades
+
+                WeCarePermissions.PeriodicReports.Default,
+                WeCarePermissions.PeriodicReports.Create,
+                WeCarePermissions.PeriodicReports.Edit
             }, context.TenantId);
 
             // 3. Responsible (Responsável)
@@ -110,6 +119,7 @@ namespace WeCare.Data
                  WeCarePermissions.Activities.Default,
                  WeCarePermissions.Objectives.Default,
                  WeCarePermissions.Guests.Default,
+                 WeCarePermissions.PeriodicReports.Default
             }, context.TenantId);
             
             // 4. Guest (Convidado)
