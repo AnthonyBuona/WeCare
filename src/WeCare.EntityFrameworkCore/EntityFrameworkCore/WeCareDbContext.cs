@@ -246,12 +246,16 @@ public class WeCareDbContext :
         {
             b.ToTable(WeCareConsts.DbTablePrefix + "PeriodicReports", WeCareConsts.DbSchema);
             b.ConfigureByConvention();
+            b.Property(x => x.Title).IsRequired().HasMaxLength(256);
+            b.Property(x => x.StartDate).IsRequired();
+            b.Property(x => x.EndDate).IsRequired();
             b.Property(x => x.ResumoClinico).HasMaxLength(2000);
             b.Property(x => x.ObjetivosStatus).HasMaxLength(2000);
             b.Property(x => x.EngajamentoCasa).HasMaxLength(2000);
             b.Property(x => x.ProximosPassos).HasMaxLength(2000);
             b.Property(x => x.ResponsibleSignatureIP).HasMaxLength(50);
             b.Property(x => x.ResponsibleSignatureCPF).HasMaxLength(15);
+            b.Property(x => x.ParentSignatureHash).HasMaxLength(256);
             
             b.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<Therapist>().WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);

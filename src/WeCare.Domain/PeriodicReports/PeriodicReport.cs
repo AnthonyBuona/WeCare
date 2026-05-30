@@ -13,6 +13,12 @@ namespace WeCare.PeriodicReports
 
         public Guid TherapistId { get; set; }
 
+        public string Title { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
+
         public string ResumoClinico { get; set; }
 
         public string ObjetivosStatus { get; set; }
@@ -28,6 +34,8 @@ namespace WeCare.PeriodicReports
         public string? ResponsibleSignatureIP { get; set; }
 
         public string? ResponsibleSignatureCPF { get; set; }
+
+        public string? ParentSignatureHash { get; set; }
 
         protected PeriodicReport()
         {
@@ -53,12 +61,18 @@ namespace WeCare.PeriodicReports
             ProximosPassos = proximosPassos;
             Status = status;
             TenantId = tenantId;
+            Title = "Relatório Evolutivo";
+            StartDate = DateTime.Now.AddMonths(-1);
+            EndDate = DateTime.Now;
         }
 
         public PeriodicReport(
             Guid id,
             Guid patientId,
             Guid therapistId,
+            string title,
+            DateTime startDate,
+            DateTime endDate,
             string resumoClinico,
             string objetivosStatus,
             string engajamentoCasa,
@@ -67,11 +81,15 @@ namespace WeCare.PeriodicReports
             DateTime? responsibleSignatureDate = null,
             string? responsibleSignatureIP = null,
             string? responsibleSignatureCPF = null,
+            string? parentSignatureHash = null,
             Guid? tenantId = null)
             : base(id)
         {
             PatientId = patientId;
             TherapistId = therapistId;
+            Title = title;
+            StartDate = startDate;
+            EndDate = endDate;
             ResumoClinico = resumoClinico;
             ObjetivosStatus = objetivosStatus;
             EngajamentoCasa = engajamentoCasa;
@@ -80,6 +98,7 @@ namespace WeCare.PeriodicReports
             ResponsibleSignatureDate = responsibleSignatureDate;
             ResponsibleSignatureIP = responsibleSignatureIP;
             ResponsibleSignatureCPF = responsibleSignatureCPF;
+            ParentSignatureHash = parentSignatureHash;
             TenantId = tenantId;
         }
     }
