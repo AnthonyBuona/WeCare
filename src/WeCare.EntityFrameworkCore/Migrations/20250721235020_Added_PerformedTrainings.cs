@@ -26,7 +26,7 @@ namespace WeCare.Migrations
                 defaultValue: "");
 
             migrationBuilder.CreateTable(
-                name: "PerformedTraining",
+                name: "AppPerformedTrainings",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -45,9 +45,9 @@ namespace WeCare.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PerformedTraining", x => x.Id);
+                    table.PrimaryKey("PK_AppPerformedTrainings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PerformedTraining_AppConsultations_ConsultationId",
+                        name: "FK_AppPerformedTrainings_AppConsultations_ConsultationId",
                         column: x => x.ConsultationId,
                         principalTable: "AppConsultations",
                         principalColumn: "Id",
@@ -55,8 +55,8 @@ namespace WeCare.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_PerformedTraining_ConsultationId",
-                table: "PerformedTraining",
+                name: "IX_AppPerformedTrainings_ConsultationId",
+                table: "AppPerformedTrainings",
                 column: "ConsultationId");
         }
 

@@ -1,0 +1,14 @@
+{
+  "name": "wecare-visual-tests",
+  "version": "1.0.0",
+  "description": "Visual and Functional E2E testing for WeCare",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "playwright": "^1.49.0"
+  }
+}

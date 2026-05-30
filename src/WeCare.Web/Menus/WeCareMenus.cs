@@ -1,4 +1,4 @@
-﻿namespace WeCare.Web.Menus;
+namespace WeCare.Web.Menus;
 
 public class WeCareMenus
 {
@@ -9,4 +9,5 @@ public class WeCareMenus
     public const string Scheduling = "Agendamento";
     public const string Clinics = "WeCare.Clinics";
     public const string ClinicsSettings = "WeCare.Clinics.Settings";
+    public const string Attendances = "WeCare.Attendances";
 }

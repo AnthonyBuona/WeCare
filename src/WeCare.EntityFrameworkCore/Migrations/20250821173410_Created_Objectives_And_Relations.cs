@@ -12,21 +12,12 @@ namespace WeCare.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_PerformedTraining_AppConsultations_ConsultationId",
-                table: "PerformedTraining");
+                name: "FK_AppPerformedTrainings_AppConsultations_ConsultationId",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_PerformedTraining",
-                table: "PerformedTraining");
-
-            migrationBuilder.RenameTable(
-                name: "PerformedTraining",
-                newName: "PerformedTrainings");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_PerformedTraining_ConsultationId",
-                table: "PerformedTrainings",
-                newName: "IX_PerformedTrainings_ConsultationId");
+                name: "PK_AppPerformedTrainings",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "ObjectiveId",
@@ -36,8 +27,8 @@ namespace WeCare.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_PerformedTrainings",
-                table: "PerformedTrainings",
+                name: "PK_AppPerformedTrainings",
+                table: "AppPerformedTrainings",
                 column: "Id");
 
             migrationBuilder.CreateTable(
@@ -60,7 +51,7 @@ namespace WeCare.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Objectives",
+                name: "AppObjectives",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -79,7 +70,7 @@ namespace WeCare.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Objectives", x => x.Id);
+                    table.PrimaryKey("PK_AppObjectives", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -115,8 +106,8 @@ namespace WeCare.Migrations
                 column: "TrainingId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PerformedTrainings_AppConsultations_ConsultationId",
-                table: "PerformedTrainings",
+                name: "FK_AppPerformedTrainings_AppConsultations_ConsultationId",
+                table: "AppPerformedTrainings",
                 column: "ConsultationId",
                 principalTable: "AppConsultations",
                 principalColumn: "Id",
@@ -127,34 +118,26 @@ namespace WeCare.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_PerformedTrainings_AppConsultations_ConsultationId",
-                table: "PerformedTrainings");
+                name: "FK_AppPerformedTrainings_AppConsultations_ConsultationId",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropTable(
                 name: "AppActivities");
 
             migrationBuilder.DropTable(
-                name: "Objectives");
+                name: "AppObjectives");
 
             migrationBuilder.DropTable(
                 name: "AppTrainings");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_PerformedTrainings",
-                table: "PerformedTrainings");
+                name: "PK_AppPerformedTrainings",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropColumn(
                 name: "ObjectiveId",
                 table: "AppConsultations");
 
-            migrationBuilder.RenameTable(
-                name: "PerformedTrainings",
-                newName: "PerformedTraining");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_PerformedTrainings_ConsultationId",
-                table: "PerformedTraining",
-                newName: "IX_PerformedTraining_ConsultationId");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_PerformedTraining",

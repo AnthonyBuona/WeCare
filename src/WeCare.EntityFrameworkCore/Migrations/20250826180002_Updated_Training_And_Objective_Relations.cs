@@ -13,11 +13,11 @@ namespace WeCare.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "Activity",
-                table: "PerformedTrainings");
+                table: "AppPerformedTrainings");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TrainingId",
-                table: "PerformedTrainings",
+                table: "AppPerformedTrainings",
                 type: "uniqueidentifier",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
@@ -49,8 +49,8 @@ namespace WeCare.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.CreateIndex(
-                name: "IX_PerformedTrainings_TrainingId",
-                table: "PerformedTrainings",
+                name: "IX_AppPerformedTrainings_TrainingId",
+                table: "AppPerformedTrainings",
                 column: "TrainingId");
 
             migrationBuilder.CreateIndex(
@@ -64,24 +64,24 @@ namespace WeCare.Migrations
                 column: "ObjectiveId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations",
                 column: "ObjectiveId",
-                principalTable: "Objectives",
+                principalTable: "AppObjectives",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AppTrainings_Objectives_ObjectiveId",
+                name: "FK_AppTrainings_AppObjectives_ObjectiveId",
                 table: "AppTrainings",
                 column: "ObjectiveId",
-                principalTable: "Objectives",
+                principalTable: "AppObjectives",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PerformedTrainings_AppTrainings_TrainingId",
-                table: "PerformedTrainings",
+                name: "FK_AppPerformedTrainings_AppTrainings_TrainingId",
+                table: "AppPerformedTrainings",
                 column: "TrainingId",
                 principalTable: "AppTrainings",
                 principalColumn: "Id",
@@ -92,20 +92,20 @@ namespace WeCare.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_AppTrainings_Objectives_ObjectiveId",
+                name: "FK_AppTrainings_AppObjectives_ObjectiveId",
                 table: "AppTrainings");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_PerformedTrainings_AppTrainings_TrainingId",
-                table: "PerformedTrainings");
+                name: "FK_AppPerformedTrainings_AppTrainings_TrainingId",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropIndex(
-                name: "IX_PerformedTrainings_TrainingId",
-                table: "PerformedTrainings");
+                name: "IX_AppPerformedTrainings_TrainingId",
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropIndex(
                 name: "IX_AppTrainings_ObjectiveId",
@@ -117,7 +117,7 @@ namespace WeCare.Migrations
 
             migrationBuilder.DropColumn(
                 name: "TrainingId",
-                table: "PerformedTrainings");
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropColumn(
                 name: "DeleterId",
@@ -137,7 +137,7 @@ namespace WeCare.Migrations
 
             migrationBuilder.AddColumn<string>(
                 name: "Activity",
-                table: "PerformedTrainings",
+                table: "AppPerformedTrainings",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");

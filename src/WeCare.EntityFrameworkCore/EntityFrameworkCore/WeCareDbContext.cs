@@ -26,6 +26,8 @@ using WeCare.Trainings;
 using WeCare.Objectives;
 using WeCare.Clinics;
 using WeCare.Guests;
+using WeCare.Attendances;
+using WeCare.PeriodicReports;
 
 namespace WeCare.EntityFrameworkCore;
 
@@ -51,6 +53,8 @@ public class WeCareDbContext :
     public DbSet<Clinic> Clinics { get; set; }
     public DbSet<ClinicOperatingHour> ClinicOperatingHours { get; set; }
     public DbSet<Guest> Guests { get; set; }
+    public DbSet<Attendance> Attendances { get; set; }
+    public DbSet<PeriodicReport> PeriodicReports { get; set; }
 
 
     #region Entities from the modules
@@ -177,6 +181,19 @@ public class WeCareDbContext :
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
         });
 
+        builder.Entity<Objective>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Objectives", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Name).IsRequired();
+        });
+
+        builder.Entity<PerformedTraining>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "PerformedTrainings", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
         builder.Entity<Clinic>(b =>
         {
             b.ToTable(WeCareConsts.DbTablePrefix + "Clinics", WeCareConsts.DbSchema);
@@ -212,5 +229,33 @@ public class WeCareDbContext :
              .HasForeignKey(x => x.PatientId)
              .OnDelete(DeleteBehavior.Cascade);
         });
+
+        builder.Entity<Attendance>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "Attendances", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Notes).HasMaxLength(500);
+
+            b.HasOne<Patient>()
+             .WithMany()
+             .HasForeignKey(x => x.PatientId)
+             .IsRequired();
+        });
+
+        builder.Entity<PeriodicReport>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "PeriodicReports", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.ResumoClinico).HasMaxLength(2000);
+            b.Property(x => x.ObjetivosStatus).HasMaxLength(2000);
+            b.Property(x => x.EngajamentoCasa).HasMaxLength(2000);
+            b.Property(x => x.ProximosPassos).HasMaxLength(2000);
+            b.Property(x => x.ResponsibleSignatureIP).HasMaxLength(50);
+            b.Property(x => x.ResponsibleSignatureCPF).HasMaxLength(15);
+            
+            b.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<Therapist>().WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }
+

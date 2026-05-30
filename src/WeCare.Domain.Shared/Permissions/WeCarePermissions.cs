@@ -93,4 +93,13 @@ public static class WeCarePermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class Attendances
+    {
+        public const string Default = GroupName + ".Attendances";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
 }
+

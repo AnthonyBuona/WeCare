@@ -36,6 +36,17 @@
     "Menu:Scheduling": "Scheduling",
     "Novo Agendamento": "New Appointment",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
-    "Welcome": "Welcome"
+    "Welcome": "Welcome",
+    "Menu:Attendances": "Attendances",
+    "NewAttendance": "New Attendance",
+    "EditAttendance": "Edit Attendance",
+    "Patient": "Patient",
+    "SessionDate": "Session Date",
+    "Status": "Status",
+    "Notes": "Notes",
+    "Enum:AttendanceStatus.0": "Present",
+    "Enum:AttendanceStatus.1": "Absent",
+    "Enum:AttendanceStatus.2": "Cancelled",
+    "AttendanceDeletionConfirmationMessage": "Are you sure you want to remove the attendance record?"
   }
 }

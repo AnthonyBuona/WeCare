@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
+using WeCare.Tratamentos;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 using WeCare.Patients;
@@ -13,7 +15,13 @@ using WeCare.Consultations;
 using WeCare.Trainings;
 using WeCare.PerformedTrainings;
 using WeCare.Clinics;
+using WeCare.Attendances;
 using WeCare.Domain.Shared.PerformedTrainings;
+using Volo.Abp.Identity;
+using Volo.Abp.TenantManagement;
+using Volo.Abp.MultiTenancy;
+using Microsoft.AspNetCore.Identity;
+using WeCare.PeriodicReports;
 
 namespace WeCare.Data
 {
@@ -27,7 +35,14 @@ namespace WeCare.Data
         private readonly IRepository<Training, Guid> _trainingRepository;
         private readonly IRepository<PerformedTraining, Guid> _performedTrainingRepository;
         private readonly IRepository<Clinic, Guid> _clinicRepository;
+        private readonly IRepository<Tratamento, Guid> _tratamentoRepository;
+        private readonly IRepository<Attendance, Guid> _attendanceRepository;
+        private readonly IRepository<PeriodicReport, Guid> _periodicReportRepository;
         private readonly IGuidGenerator _guidGenerator;
+        private readonly IdentityUserManager _userManager;
+        private readonly ITenantRepository _tenantRepository;
+        private readonly ITenantManager _tenantManager;
+        private readonly ICurrentTenant _currentTenant;
 
         public WeCareTestDataSeederContributor(
             IRepository<Responsible, Guid> responsibleRepository,
@@ -38,7 +53,14 @@ namespace WeCare.Data
             IRepository<Training, Guid> trainingRepository,
             IRepository<PerformedTraining, Guid> performedTrainingRepository,
             IRepository<Clinic, Guid> clinicRepository,
-            IGuidGenerator guidGenerator)
+            IRepository<Tratamento, Guid> tratamentoRepository,
+            IRepository<Attendance, Guid> attendanceRepository,
+            IRepository<PeriodicReport, Guid> periodicReportRepository,
+            IGuidGenerator guidGenerator,
+            IdentityUserManager userManager,
+            ITenantRepository tenantRepository,
+            ITenantManager tenantManager,
+            ICurrentTenant currentTenant)
         {
             _responsibleRepository = responsibleRepository;
             _patientRepository = patientRepository;
@@ -48,304 +70,183 @@ namespace WeCare.Data
             _trainingRepository = trainingRepository;
             _performedTrainingRepository = performedTrainingRepository;
             _clinicRepository = clinicRepository;
+            _tratamentoRepository = tratamentoRepository;
+            _attendanceRepository = attendanceRepository;
+            _periodicReportRepository = periodicReportRepository;
             _guidGenerator = guidGenerator;
+            _userManager = userManager;
+            _tenantRepository = tenantRepository;
+            _tenantManager = tenantManager;
+            _currentTenant = currentTenant;
         }
 
         public async Task SeedAsync(DataSeedContext context)
         {
-            // Verificar se já existem dados
-            if (await _patientRepository.GetCountAsync() > 0)
+            if (context.TenantId == null)
             {
-                // return; // Já existem dados, não semear novamente
+                await SeedHostDataAsync();
             }
-
-            // 0. Criar Clínica WeCare (Host)
-            if (await _clinicRepository.CountAsync(x => x.Name == "WeCare") == 0)
+            else
             {
-                var weCareClinic = new Clinic
+                using (_currentTenant.Change(context.TenantId))
                 {
-                    Name = "WeCare",
-                    Email = "admin@wecare.com.br",
-                    Address = "Sede WeCare",
-                    Status = ClinicStatus.Active,
-                    TenantId = null, // Host
-                    Specializations = "Fonoaudiologia,Terapia Ocupacional,Psicologia Infantil,Psicopedagogia,Musicoterapia"
-                };
-                await _clinicRepository.InsertAsync(weCareClinic, autoSave: true);
+                    await SeedTenantDataAsync(context.TenantId.Value);
+                }
+            }
+        }
+
+        private async Task SeedHostDataAsync()
+        {
+            // 1. Criar Tenant se não existir
+            if (await _tenantRepository.FindByNameAsync("ClinicaBemViver") == null)
+            {
+                var tenant = await _tenantManager.CreateAsync("ClinicaBemViver");
+                await _tenantRepository.InsertAsync(tenant, autoSave: true);
             }
 
-            // 1. Criar Responsáveis
-            var responsible1 = new Responsible
+            // 2. Criar Equipe Técnica no Host (Painel Admin)
+            await CreateUserAsync("suporte@wecare.com", "1q2w3E*", "admin");
+        }
+
+        private async Task SeedTenantDataAsync(Guid tenantId)
+        {
+            if (await _patientRepository.GetCountAsync() > 0) return;
+
+            // Buscar usuários criados no host ou criar novos para o tenant se necessário
+            // Para simplificar, vamos criar usuários locais no tenant
+            var therapistUser = await CreateUserAsync($"terapeuta@{tenantId.ToString().Substring(0, 8)}.com", "1q2w3E*", "Therapist");
+            var responsibleUser = await CreateUserAsync($"responsavel@{tenantId.ToString().Substring(0, 8)}.com", "1q2w3E*", "Responsible");
+
+            // 1. Responsável
+            var responsible = await _responsibleRepository.InsertAsync(new Responsible
             {
                 CPF = "12345678901",
-                NameResponsible = "Maria Silva Santos",
-                EmailAddress = "maria.santos@email.com",
-                PhoneNumber = "(11) 98765-4321"
-            };
+                NameResponsible = "Maria Responsável",
+                EmailAddress = responsibleUser.Email,
+                UserId = responsibleUser.Id
+            }, autoSave: true);
 
-            var responsible2 = new Responsible
+            // 2. Terapeuta
+            var therapist = await _therapistRepository.InsertAsync(new Therapist
             {
-                CPF = "98765432100",
-                NameResponsible = "João Pedro Oliveira",
-                EmailAddress = "joao.oliveira@email.com",
-                PhoneNumber = "(11) 97654-3210"
-            };
-
-            var responsible3 = new Responsible
-            {
-                CPF = "45678912300",
-                NameResponsible = "Ana Carolina Costa",
-                EmailAddress = "ana.costa@email.com",
-                PhoneNumber = "(21) 99876-5432"
-            };
-
-            responsible1 = await _responsibleRepository.InsertAsync(responsible1, autoSave: true);
-            responsible2 = await _responsibleRepository.InsertAsync(responsible2, autoSave: true);
-            responsible3 = await _responsibleRepository.InsertAsync(responsible3, autoSave: true);
-
-            // 2. Criar Pacientes
-            var patient1 = new Patient
-            {
-                Name = "Lucas Silva Santos",
-                BirthDate = new DateTime(2015, 3, 15),
-                Address = "Rua das Flores, 123 - São Paulo, SP",
-                Diag = "TEA - Transtorno do Espectro Autista",
-                PrincipalResponsibleId = responsible1.Id
-            };
-
-            var patient2 = new Patient
-            {
-                Name = "Gabriela Oliveira",
-                BirthDate = new DateTime(2016, 7, 22),
-                Address = "Av. Paulista, 456 - São Paulo, SP",
-                Diag = "TDAH - Transtorno de Déficit de Atenção",
-                PrincipalResponsibleId = responsible2.Id
-            };
-
-            var patient3 = new Patient
-            {
-                Name = "Pedro Costa",
-                BirthDate = new DateTime(2014, 11, 8),
-                Address = "Rua Copacabana, 789 - Rio de Janeiro, RJ",
-                Diag = "Atraso no Desenvolvimento",
-                PrincipalResponsibleId = responsible3.Id
-            };
-
-            var patient4 = new Patient
-            {
-                Name = "Sofia Santos",
-                BirthDate = new DateTime(2017, 5, 30),
-                Address = "Rua das Flores, 123 - São Paulo, SP",
-                Diag = "TEA Leve",
-                PrincipalResponsibleId = responsible1.Id
-            };
-
-            patient1 = await _patientRepository.InsertAsync(patient1, autoSave: true);
-            patient2 = await _patientRepository.InsertAsync(patient2, autoSave: true);
-            patient3 = await _patientRepository.InsertAsync(patient3, autoSave: true);
-            patient4 = await _patientRepository.InsertAsync(patient4, autoSave: true);
-
-            // 3. Criar Terapeutas (usando um GUID fixo para UserId - você pode ajustar conforme necessário)
-            var therapist1 = new Therapist
-            {
-                Name = "Dra. Camila Rodrigues",
-                Email = "camila.rodrigues@wecare.com",
-                UserId = Guid.NewGuid(), // Aqui você precisaria usar o ID de um usuário real
+                Name = "Dra. Camila Terapeuta",
+                Email = therapistUser.Email,
+                UserId = therapistUser.Id,
                 Specialization = "Terapia Ocupacional"
-            };
+            }, autoSave: true);
 
-            var therapist2 = new Therapist
+            // 3. Paciente
+            var patient = await _patientRepository.InsertAsync(new Patient
             {
-                Name = "Dr. Rafael Mendes",
-                Email = "rafael.mendes@wecare.com",
-                UserId = Guid.NewGuid(),
-                Specialization = "Fonoaudiologia"
-            };
+                Name = "Lucas Paciente",
+                BirthDate = DateTime.Now.AddYears(-8),
+                PrincipalResponsibleId = responsible.Id
+            }, autoSave: true);
 
-            var therapist3 = new Therapist
+            // 4. Tratamento
+            var tratamento = await _tratamentoRepository.InsertAsync(new Tratamento
             {
-                Name = "Dra. Patricia Lima",
-                Email = "patricia.lima@wecare.com",
-                UserId = Guid.NewGuid(),
-                Specialization = "Psicologia Infantil"
-            };
+                PatientId = patient.Id,
+                TherapistId = therapist.Id,
+                Tipo = "Psicopedagogia"
+            }, autoSave: true);
 
-            therapist1 = await _therapistRepository.InsertAsync(therapist1, autoSave: true);
-            therapist2 = await _therapistRepository.InsertAsync(therapist2, autoSave: true);
-            therapist3 = await _therapistRepository.InsertAsync(therapist3, autoSave: true);
-
-            // 4. Criar Objetivos
-            var objective1 = new Objective
+            // 5. Objetivo
+            var objective = await _objectiveRepository.InsertAsync(new Objective
             {
-                PatientId = patient1.Id,
-                TherapistId = therapist1.Id,
-                Name = "Melhorar coordenação motora fina",
-                Status = "Ativo",
-                StartDate = DateTime.Now.AddMonths(-3)
-            };
-
-            var objective2 = new Objective
-            {
-                PatientId = patient1.Id,
-                TherapistId = therapist2.Id,
-                Name = "Desenvolver comunicação verbal",
-                Status = "Ativo",
-                StartDate = DateTime.Now.AddMonths(-2)
-            };
-
-            var objective3 = new Objective
-            {
-                PatientId = patient2.Id,
-                TherapistId = therapist3.Id,
-                Name = "Aumentar tempo de concentração",
+                PatientId = patient.Id,
+                TherapistId = therapist.Id,
+                Name = "Desenvolvimento Motor",
                 Status = "Ativo",
                 StartDate = DateTime.Now.AddMonths(-1)
-            };
+            }, autoSave: true);
 
-            var objective4 = new Objective
+            // 5. Treinamento
+            var training = await _trainingRepository.InsertAsync(new Training
             {
-                PatientId = patient3.Id,
-                TherapistId = therapist1.Id,
-                Name = "Fortalecer habilidades sociais",
-                Status = "Concluído",
-                StartDate = DateTime.Now.AddMonths(-6),
-                EndDate = DateTime.Now.AddMonths(-1)
-            };
+                Name = "Coordenação Fina",
+                Description = "Exercícios para fortalecer a coordenação motora fina.",
+                ObjectiveId = objective.Id
+            }, autoSave: true);
 
-            objective1 = await _objectiveRepository.InsertAsync(objective1, autoSave: true);
-            objective2 = await _objectiveRepository.InsertAsync(objective2, autoSave: true);
-            objective3 = await _objectiveRepository.InsertAsync(objective3, autoSave: true);
-            objective4 = await _objectiveRepository.InsertAsync(objective4, autoSave: true);
-
-            // 5. Criar Atividades (Trainings)
-            var training1 = new Training
+            // 7. Consulta
+            var consultation = await _consultationRepository.InsertAsync(new Consultation
             {
-                Name = "Encaixe de formas geométricas",
-                Description = "Atividade para trabalhar coordenação motora e reconhecimento de formas",
-                ObjectiveId = objective1.Id
-            };
-
-            var training2 = new Training
-            {
-                Name = "Pintura com os dedos",
-                Description = "Estimular sensibilidade tátil e coordenação",
-                ObjectiveId = objective1.Id
-            };
-
-            var training3 = new Training
-            {
-                Name = "Repetição de sons",
-                Description = "Exercícios de fonética básica",
-                ObjectiveId = objective2.Id
-            };
-
-            var training4 = new Training
-            {
-                Name = "Jogos de memória - 5 minutos",
-                Description = "Atividade focada em manter atenção por períodos curtos",
-                ObjectiveId = objective3.Id
-            };
-
-            training1 = await _trainingRepository.InsertAsync(training1, autoSave: true);
-            training2 = await _trainingRepository.InsertAsync(training2, autoSave: true);
-            training3 = await _trainingRepository.InsertAsync(training3, autoSave: true);
-            training4 = await _trainingRepository.InsertAsync(training4, autoSave: true);
-
-            // 6. Criar Consultas
-            var consultation1 = new Consultation
-            {
-                PatientId = patient1.Id,
-                TherapistId = therapist1.Id,
-                ObjectiveId = objective1.Id,
-                DateTime = DateTime.Now.AddDays(-7),
-                Description = "Sessão focada em coordenação motora. Lucas mostrou progresso significativo.",
-                Specialty = "Terapia Ocupacional",
-                MainTraining = "Encaixe de formas",
-                Duration = "45 minutos"
-            };
-
-            var consultation2 = new Consultation
-            {
-                PatientId = patient1.Id,
-                TherapistId = therapist2.Id,
-                ObjectiveId = objective2.Id,
-                DateTime = DateTime.Now.AddDays(-5),
-                Description = "Trabalho de fonemas. Boa participação do paciente.",
-                Specialty = "Fonoaudiologia",
-                MainTraining = "Repetição de sons",
-                Duration = "40 minutos"
-            };
-
-            var consultation3 = new Consultation
-            {
-                PatientId = patient2.Id,
-                TherapistId = therapist3.Id,
-                ObjectiveId = objective3.Id,
-                DateTime = DateTime.Now.AddDays(-3),
-                Description = "Gabriela conseguiu manter foco por 7 minutos. Excelente evolução!",
-                Specialty = "Psicologia Infantil",
-                MainTraining = "Jogos de memória",
-                Duration = "50 minutos"
-            };
-
-            var consultation4 = new Consultation
-            {
-                PatientId = patient1.Id,
-                TherapistId = therapist1.Id,
-                ObjectiveId = objective1.Id,
+                PatientId = patient.Id,
+                TherapistId = therapist.Id,
+                ObjectiveId = objective.Id,
+                TratamentoId = tratamento.Id,
                 DateTime = DateTime.Now.AddDays(-1),
-                Description = "Continuação do trabalho com coordenação. Introduzido novo material.",
+                Description = "Sessão inicial produtiva.",
+                Duration = "50 min",
+                Status = ConsultationStatus.Realizada,
                 Specialty = "Terapia Ocupacional",
-                MainTraining = "Pintura com dedos",
-                Duration = "45 minutos"
-            };
+                MainTraining = "Coordenação Fina"
+            }, autoSave: true);
 
-            consultation1 = await _consultationRepository.InsertAsync(consultation1, autoSave: true);
-            consultation2 = await _consultationRepository.InsertAsync(consultation2, autoSave: true);
-            consultation3 = await _consultationRepository.InsertAsync(consultation3, autoSave: true);
-            consultation4 = await _consultationRepository.InsertAsync(consultation4, autoSave: true);
+            // 8. Attendances for Lucas Paciente
+            await _attendanceRepository.InsertAsync(new Attendance(
+                _guidGenerator.Create(),
+                patient.Id,
+                DateTime.Now.AddDays(-2),
+                AttendanceStatus.Present,
+                "Present and engaged",
+                tenantId
+            ), autoSave: true);
 
-            // 7. Criar Treinamentos Realizados (PerformedTrainings)
-            var performedTraining1 = new PerformedTraining
+            await _attendanceRepository.InsertAsync(new Attendance(
+                _guidGenerator.Create(),
+                patient.Id,
+                DateTime.Now.AddDays(-5),
+                AttendanceStatus.Absent,
+                "Absent without justification",
+                tenantId
+            ), autoSave: true);
+
+            await _attendanceRepository.InsertAsync(new Attendance(
+                _guidGenerator.Create(),
+                patient.Id,
+                DateTime.Now.AddDays(-9),
+                AttendanceStatus.Present,
+                "Present and very collaborative",
+                tenantId
+            ), autoSave: true);
+
+            if (await _periodicReportRepository.GetCountAsync() == 0)
             {
-                TrainingId = training1.Id,
-                ConsultationId = consultation1.Id,
-                HelpNeeded = HelpNeededType.I, // Independente
-                TotalAttempts = 10,
-                SuccessfulAttempts = 8
-            };
+                await _periodicReportRepository.InsertAsync(new PeriodicReport(
+                    _guidGenerator.Create(),
+                    patient.Id,
+                    therapist.Id,
+                    "Lucas demonstrou excelente evolução motora fina durante o último bimestre. Sua participação nas dinâmicas de coordenação motora foi exemplar.",
+                    "[{\"Objective\":\"Coordenação Fina\",\"Status\":\"Em Progresso\"}]",
+                    "A família de Lucas tem sido muito solícita, aplicando os treinos de coordenação em casa conforme orientado.",
+                    "Focar em habilidades de escrita e pinça fina nas próximas sessões.",
+                    PeriodicReportStatus.Draft,
+                    tenantId
+                ), autoSave: true);
+            }
+        }
 
-            var performedTraining2 = new PerformedTraining
+
+        private async Task<Volo.Abp.Identity.IdentityUser> CreateUserAsync(string email, string password, string role)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
             {
-                TrainingId = training3.Id,
-                ConsultationId = consultation2.Id,
-                HelpNeeded = HelpNeededType.SV, // Suporte Verbal
-                TotalAttempts = 15,
-                SuccessfulAttempts = 12
-            };
+                user = new Volo.Abp.Identity.IdentityUser(_guidGenerator.Create(), email, email, _currentTenant.Id);
+                CheckErrors(await _userManager.CreateAsync(user, password));
+                CheckErrors(await _userManager.AddToRoleAsync(user, role));
+            }
+            return user;
+        }
 
-            var performedTraining3 = new PerformedTraining
+        private void CheckErrors(Microsoft.AspNetCore.Identity.IdentityResult result)
+        {
+            if (!result.Succeeded)
             {
-                TrainingId = training4.Id,
-                ConsultationId = consultation3.Id,
-                HelpNeeded = HelpNeededType.SG, // Suporte Gestual
-                TotalAttempts = 5,
-                SuccessfulAttempts = 4
-            };
-
-            var performedTraining4 = new PerformedTraining
-            {
-                TrainingId = training2.Id,
-                ConsultationId = consultation4.Id,
-                HelpNeeded = HelpNeededType.SP, // Suporte Posicional
-                TotalAttempts = 8,
-                SuccessfulAttempts = 7
-            };
-
-            await _performedTrainingRepository.InsertAsync(performedTraining1, autoSave: true);
-            await _performedTrainingRepository.InsertAsync(performedTraining2, autoSave: true);
-            await _performedTrainingRepository.InsertAsync(performedTraining3, autoSave: true);
-            await _performedTrainingRepository.InsertAsync(performedTraining4, autoSave: true);
+                throw new Exception("Identity error: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
         }
     }
 }

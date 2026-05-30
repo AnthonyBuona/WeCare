@@ -12,7 +12,7 @@ namespace WeCare.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations");
 
             migrationBuilder.AlterColumn<Guid>(
@@ -31,10 +31,10 @@ namespace WeCare.Migrations
                 defaultValue: 0);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations",
                 column: "ObjectiveId",
-                principalTable: "Objectives",
+                principalTable: "AppObjectives",
                 principalColumn: "Id");
         }
 
@@ -42,7 +42,7 @@ namespace WeCare.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations");
 
             migrationBuilder.DropColumn(
@@ -60,10 +60,10 @@ namespace WeCare.Migrations
                 oldNullable: true);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AppConsultations_Objectives_ObjectiveId",
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
                 table: "AppConsultations",
                 column: "ObjectiveId",
-                principalTable: "Objectives",
+                principalTable: "AppObjectives",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }

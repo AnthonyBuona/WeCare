@@ -113,6 +113,17 @@
     "StartDate": "Data de Início",
     "EndDate": "Data de Término",
     "TratamentoDeletionConfirmationMessage": "Tem certeza que deseja apagar o tratamento '{0}'?",
-    "ObjectiveDeletionConfirmationMessage": "Tem certeza que deseja apagar o objetivo '{0}'?"
+    "ObjectiveDeletionConfirmationMessage": "Tem certeza que deseja apagar o objetivo '{0}'?",
+    "Menu:Attendances": "Frequência",
+    "NewAttendance": "Registrar Frequência",
+    "EditAttendance": "Editar Frequência",
+    "Patient": "Paciente",
+    "SessionDate": "Data da Sessão",
+    "Status": "Frequência",
+    "Notes": "Observações",
+    "Enum:AttendanceStatus.0": "Presente",
+    "Enum:AttendanceStatus.1": "Ausente",
+    "Enum:AttendanceStatus.2": "Cancelado",
+    "AttendanceDeletionConfirmationMessage": "Tem certeza que deseja remover o registro de frequência?"
   }
 }

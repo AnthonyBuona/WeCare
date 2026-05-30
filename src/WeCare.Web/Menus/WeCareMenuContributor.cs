@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using WeCare.Localization;
 using WeCare.Permissions;
 using WeCare.MultiTenancy;
@@ -181,6 +181,16 @@ public class WeCareMenuContributor : IMenuContributor
                 url: "/Activities",
                 icon: "fa fa-tasks"
             ).RequirePermissions(WeCarePermissions.Activities.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.Attendances,
+                l["Menu:Attendances"],
+                url: "/Attendances",
+                icon: "fa fa-check-square-o",
+                order: 4
+            ).RequirePermissions(WeCarePermissions.Attendances.Default)
         );
 
         return Task.CompletedTask;

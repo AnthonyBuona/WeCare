@@ -22,7 +22,7 @@ class Program
 #endif
                 .Enrich.FromLogContext()
             .WriteTo.Async(c => c.File("Logs/logs.txt"))
-            .WriteTo.Async(c => c.Console())
+            .WriteTo.Console()
             .CreateLogger();
 
         await CreateHostBuilder(args).RunConsoleAsync();

@@ -15,6 +15,7 @@ using WeCare.Trainings;
 using WeCare.Objectives;
 using WeCare.Clinics;
 using WeCare.Guests;
+using WeCare.Attendances;
 
 namespace WeCare
 {
@@ -86,6 +87,10 @@ namespace WeCare
             CreateMap<Guest, GuestDto>()
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.Name));
             CreateMap<CreateUpdateGuestDto, Guest>();
+
+            CreateMap<Attendance, AttendanceDto>();
+            CreateMap<CreateUpdateAttendanceDto, Attendance>();
+            CreateMap<AttendanceDto, CreateUpdateAttendanceDto>();
         }
     }
 }

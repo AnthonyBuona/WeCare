@@ -97,7 +97,10 @@ namespace WeCare.Permissions
             activitiesPermission.AddChild(WeCarePermissions.Activities.Edit, L("Permission:Activities.Edit"));
             activitiesPermission.AddChild(WeCarePermissions.Activities.Delete, L("Permission:Activities.Delete"));
 
-
+            var attendancesPermission = myGroup.AddPermission(WeCarePermissions.Attendances.Default, L("Permission:Attendances"));
+            attendancesPermission.AddChild(WeCarePermissions.Attendances.Create, L("Permission:Attendances.Create"));
+            attendancesPermission.AddChild(WeCarePermissions.Attendances.Edit, L("Permission:Attendances.Edit"));
+            attendancesPermission.AddChild(WeCarePermissions.Attendances.Delete, L("Permission:Attendances.Delete"));
         }
 
 

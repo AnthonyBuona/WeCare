@@ -13,7 +13,7 @@ namespace WeCare.Migrations
         {
             migrationBuilder.AlterColumn<int>(
                 name: "HelpNeeded",
-                table: "PerformedTrainings",
+                table: "AppPerformedTrainings",
                 type: "int",
                 nullable: false,
                 oldClrType: typeof(string),
@@ -21,13 +21,13 @@ namespace WeCare.Migrations
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TenantId",
-                table: "PerformedTrainings",
+                table: "AppPerformedTrainings",
                 type: "uniqueidentifier",
                 nullable: true);
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TenantId",
-                table: "Objectives",
+                table: "AppObjectives",
                 type: "uniqueidentifier",
                 nullable: true);
 
@@ -92,11 +92,11 @@ namespace WeCare.Migrations
 
             migrationBuilder.DropColumn(
                 name: "TenantId",
-                table: "PerformedTrainings");
+                table: "AppPerformedTrainings");
 
             migrationBuilder.DropColumn(
                 name: "TenantId",
-                table: "Objectives");
+                table: "AppObjectives");
 
             migrationBuilder.DropColumn(
                 name: "TenantId",
@@ -116,7 +116,7 @@ namespace WeCare.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "HelpNeeded",
-                table: "PerformedTrainings",
+                table: "AppPerformedTrainings",
                 type: "nvarchar(max)",
                 nullable: false,
                 oldClrType: typeof(int),

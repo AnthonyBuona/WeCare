@@ -11,8 +11,6 @@ namespace WeCare.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DELETE FROM AppPerformedTrainings;");
-            migrationBuilder.Sql("DELETE FROM AppConsultations;");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TratamentoId",

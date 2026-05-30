@@ -1,0 +1,23 @@
+@page
+@using WeCare.Web.Pages.Attendances
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using WeCare.Attendances
+@model CreateModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<abp-dynamic-form abp-model="Attendance" asp-page="/Attendances/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["NewAttendance"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-select asp-for="Attendance.PatientId" asp-items="Model.PatientList" label="@L["Patient"].Value" />
+            <abp-input asp-for="Attendance.SessionDate" type="date" label="@L["SessionDate"].Value" />
+            <abp-select asp-for="Attendance.Status" asp-items="Html.GetEnumSelectList<AttendanceStatus>()" label="@L["Status"].Value" />
+            <abp-input asp-for="Attendance.Notes" rows="4" label="@L["Notes"].Value" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</abp-dynamic-form>

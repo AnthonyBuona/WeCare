@@ -2,31 +2,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Brand Colors — these are the defaults, overridden by clinic branding */
-    --primary-color: #5e72e4;
-    --primary-dark: #324cdd;
-    --primary-rgb: 94, 114, 228;
-    --secondary-color: #2dce89;
-    --success-color: #2dce89;
-    --info-color: #11cdef;
-    --warning-color: #fb6340;
-    --danger-color: #f5365c;
+    /* Brand Colors — Welcoming & Warm Pastel Palette */
+    --primary-color: #4da391; /* Soothing Mint/Teal */
+    --primary-dark: #377d6e;
+    --primary-rgb: 77, 163, 145;
+    --secondary-color: #f7a47b; /* Calming Peach/Coral */
+    --success-color: #4da391;
+    --info-color: #8c7fcd; /* Soft Lavender */
+    --warning-color: #f7a47b;
+    --danger-color: #e55a6d; /* Soft Warm Red */
 
-    /* Backgrounds */
-    --bg-body: #f8f9fe;
-    --bg-card: #ffffff;
+    /* Welcoming Backgrounds & Glassmorphism */
+    --bg-body: #f4f8f6; /* Calm, clean background */
+    --bg-card: rgba(255, 255, 255, 0.85); /* Translúcido */
+    --card-border: rgba(255, 255, 255, 0.6);
 
-    /* Gradients — use CSS variables so branding can override */
-    --gradient-primary: linear-gradient(150deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    --gradient-info: linear-gradient(150deg, #11cdef 0%, #1171ef 100%);
-    --gradient-success: linear-gradient(150deg, var(--secondary-color) 0%, #2dcecc 100%);
-    --gradient-warning: linear-gradient(150deg, #fb6340 0%, #fbb140 100%);
-    --gradient-danger: linear-gradient(150deg, #f5365c 0%, #f56036 100%);
+    /* Gradients — Warm and elegant transitions */
+    --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, #8c7fcd 100%);
+    --gradient-info: linear-gradient(135deg, #8c7fcd 0%, #7669ba 100%);
+    --gradient-success: linear-gradient(135deg, var(--primary-color) 0%, #3e8a79 100%);
+    --gradient-warning: linear-gradient(135deg, #f7a47b 0%, #df8b62 100%);
+    --gradient-danger: linear-gradient(135deg, #e55a6d 0%, #cc4a5b 100%);
 
-    /* Shadows */
-    --shadow-sm: 0 0 2rem 0 rgba(136, 152, 170, .15);
-    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    --shadow-hover: 0 1rem 3rem rgba(0, 0, 0, .175);
+    /* Shadows — Soft depth */
+    --shadow-sm: 0 8px 32px 0 rgba(77, 163, 145, 0.08);
+    --shadow-md: 0 12px 40px 0 rgba(140, 127, 205, 0.12) !important;
+    --shadow-hover: 0 16px 48px 0 rgba(77, 163, 145, 0.18);
 
     /* Typography */
     --font-family-sans: 'Inter', sans-serif;
@@ -55,12 +56,19 @@ h6 {
     color: #32325d;
 }
 
-/* Card Styling */
+/* Card Styling - Warm Welcoming Cards */
 .card {
-    border: 0;
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--card-border) !important;
     box-shadow: var(--shadow-sm);
-    border-radius: 1rem;
-    transition: all 0.15s ease-in-out;
+    border-radius: 1.25rem !important; /* 20px */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism card for statistics/highlights (No nested absolute dropdowns) */
+.glass-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 /* 
@@ -71,7 +79,7 @@ h6 {
 .card-hover-effect:hover .card,
 .btn-primary:hover,
 .btn-premium:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
 }
 
 .card:hover {
@@ -185,4 +193,57 @@ h6 {
 /* Letter Spacing */
 .ls-1 {
     letter-spacing: 1px;
+}
+
+/* ==========================================
+   ABP & LeptonX Pink Overrides (Mint/Lavender)
+   ========================================== */
+:root {
+    /* LeptonX theme overrides to eliminate default pink/purple branding */
+    --lpx-brand: var(--primary-color) !important;
+    --lpx-primary: var(--primary-color) !important;
+    --lpx-selected: var(--primary-color) !important;
+    --lpx-accent: var(--primary-color) !important;
+    --lpx-active: var(--primary-color) !important;
+    --lpx-btn-bg-primary: var(--primary-color) !important;
+}
+
+/* Override standard Bootstrap checkbox, radio, active state pink accents */
+.form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(77, 163, 145, 0.25) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+.nav-pills .nav-link.active, 
+.nav-pills .show > .nav-link {
+    background: var(--gradient-primary) !important;
+}
+
+.page-link {
+    color: var(--primary-color) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* ABP UI Select, MultiTenancy Header & LeptonX custom elements */
+.lpx-brand-color, 
+.lpx-primary-color {
+    color: var(--primary-color) !important;
 }

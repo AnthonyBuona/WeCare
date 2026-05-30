@@ -135,8 +135,8 @@ namespace WeCare.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Objectives_PatientId",
-                table: "Objectives",
+                name: "IX_AppObjectives_PatientId",
+                table: "AppObjectives",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -145,8 +145,8 @@ namespace WeCare.Migrations
                 column: "ClinicId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Objectives_AppPatients_PatientId",
-                table: "Objectives",
+                name: "FK_AppObjectives_AppPatients_PatientId",
+                table: "AppObjectives",
                 column: "PatientId",
                 principalTable: "AppPatients",
                 principalColumn: "Id",
@@ -157,15 +157,31 @@ namespace WeCare.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Objectives_AppPatients_PatientId",
-                table: "Objectives");
+                name: "FK_AppObjectives_AppPatients_PatientId",
+                table: "AppObjectives");
 
             migrationBuilder.DropTable(
                 name: "AppClinicOperatingHours");
 
             migrationBuilder.DropIndex(
-                name: "IX_Objectives_PatientId",
-                table: "Objectives");
+                name: "IX_AppObjectives_PatientId",
+                table: "AppObjectives");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_AppActivities_AppObjectives_ObjectiveId",
+                table: "AppActivities");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_AppConsultations_AppObjectives_ObjectiveId",
+                table: "AppConsultations");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_AppObjectives",
+                table: "AppObjectives");
+
+            migrationBuilder.RenameTable(
+                name: "AppObjectives",
+                newName: "AppObjectives");
 
             migrationBuilder.DropColumn(
                 name: "AddressNumber",
