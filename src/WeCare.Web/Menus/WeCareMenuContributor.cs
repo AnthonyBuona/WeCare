@@ -26,39 +26,169 @@ public class WeCareMenuContributor : IMenuContributor
     {
         var l = context.GetLocalizer<WeCareResource>();
 
-        // Home
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.Home,
-                l["Menu:Home"],
-                "~/",
-                icon: "fa fa-home",
-                order: 1
-            )
-        );
-        
-        // Scheduling (Calendar)
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.Scheduling,
-                l["Menu:Scheduling"],
-                url: "/Calendar",
-                icon: "fa fa-calendar-check-o",
-                order: 2
-            ).RequirePermissions(WeCarePermissions.Consultations.Default)
+        // ----------------------------------------------------
+        // Category 1: Painel Principal (Dashboard & Scheduling)
+        // ----------------------------------------------------
+        var mainPanel = new ApplicationMenuItem(
+            "WeCare.MainPanel",
+            l["Menu:MainPanel"],
+            icon: "fa fa-dashboard",
+            order: 1
         );
 
-        // Novo menu para Terapeutas
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Therapists",
-                l["Menu:Therapists"],
-                url: "/Therapists",
-                icon: "fa fa-user-md"
-            ).RequirePermissions(WeCarePermissions.Therapists.Default)
-        );
+        mainPanel.AddItem(new ApplicationMenuItem(
+            WeCareMenus.Home,
+            l["Menu:Home"],
+            url: "~/",
+            icon: "fa fa-home"
+        ));
 
-        // Administration
+        mainPanel.AddItem(new ApplicationMenuItem(
+            WeCareMenus.Scheduling,
+            l["Menu:Scheduling"],
+            url: "/Calendar",
+            icon: "fa fa-calendar-check-o"
+        ).RequirePermissions(WeCarePermissions.Consultations.Default));
+
+        context.Menu.AddItem(mainPanel);
+
+        // ----------------------------------------------------
+        // Category 2: Acompanhamento Clínico (Clinical Care)
+        // ----------------------------------------------------
+        var clinicalCare = new ApplicationMenuItem(
+            "WeCare.ClinicalCare",
+            l["Menu:ClinicalCare"],
+            icon: "fa fa-heartbeat",
+            order: 2
+        ).RequirePermissions(WeCarePermissions.Patients.Default); // broad default check
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            WeCareMenus.Attendances,
+            l["Menu:Attendances"],
+            url: "/Attendances",
+            icon: "fa fa-check-square-o"
+        ).RequirePermissions(WeCarePermissions.Attendances.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            "Objectives",
+            l["Menu:Objectives"],
+            url: "/Objectives",
+            icon: "fa fa-bullseye"
+        ).RequirePermissions(WeCarePermissions.Objectives.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            "Tratamento.Consultas",
+            l["Consultas"],
+            url: "/Consultas",
+            icon: "fa fa-stethoscope"
+        ).RequirePermissions(WeCarePermissions.Consultations.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            "Tratamento.Tratamentos",
+            l["Menu:Tratamentos"],
+            url: "/Tratamentos",
+            icon: "fa fa-calendar"
+        ).RequirePermissions(WeCarePermissions.Tratamentos.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            WeCareMenus.PeriodicReports,
+            l["Menu:PeriodicReports"],
+            url: "/PeriodicReports",
+            icon: "fa fa-file-text-o"
+        ).RequirePermissions(WeCarePermissions.PeriodicReports.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            "WeCare.CrossTenantAccess.Timeline",
+            "Prontuário Compartilhado (Terapeuta)",
+            url: "/CrossTenantAccess/Timeline",
+            icon: "fa fa-share-alt"
+        ).RequirePermissions(WeCarePermissions.CrossTenantAccess.Default));
+
+        clinicalCare.AddItem(new ApplicationMenuItem(
+            WeCareMenus.Gamification,
+            l["Menu:Gamification"],
+            url: "/Gamification",
+            icon: "fa fa-gamepad"
+        ).RequirePermissions(WeCarePermissions.Gamification.Default));
+
+        context.Menu.AddItem(clinicalCare);
+
+        // ----------------------------------------------------
+        // Category 3: Cadastros & Equipe (Directories & Staff)
+        // ----------------------------------------------------
+        var directories = new ApplicationMenuItem(
+            "WeCare.Directories",
+            l["Menu:Directories"],
+            icon: "fa fa-folder-open",
+            order: 3
+        ).RequirePermissions(WeCarePermissions.Patients.Default);
+
+        directories.AddItem(new ApplicationMenuItem(
+            "Pacientes.Patients",
+            l["Menu:Patients"],
+            url: "/Patients",
+            icon: "fa fa-user"
+        ).RequirePermissions(WeCarePermissions.Patients.Default));
+
+        directories.AddItem(new ApplicationMenuItem(
+            "Pacientes.Responsaveis",
+            l["Menu:Patients.Responsibles"],
+            url: "/Responsibles",
+            icon: "fa fa-users"
+        ).RequirePermissions(WeCarePermissions.Responsibles.Default));
+
+        directories.AddItem(new ApplicationMenuItem(
+            "Therapists",
+            l["Menu:Therapists"],
+            url: "/Therapists",
+            icon: "fa fa-user-md"
+        ).RequirePermissions(WeCarePermissions.Therapists.Default));
+
+        directories.AddItem(new ApplicationMenuItem(
+            "Guests",
+            l["Menu:Guests"],
+            url: "/Guests",
+            icon: "fa fa-handshake-o"
+        ).RequirePermissions(WeCarePermissions.Guests.Default));
+
+        directories.AddItem(new ApplicationMenuItem(
+            "Activities",
+            l["Menu:Activities"],
+            url: "/Activities",
+            icon: "fa fa-tasks"
+        ).RequirePermissions(WeCarePermissions.Activities.Default));
+
+        context.Menu.AddItem(directories);
+
+        // ----------------------------------------------------
+        // Category 4: Faturamento & Utilidades (Billing & Utilities)
+        // ----------------------------------------------------
+        var billingAndRPG = new ApplicationMenuItem(
+            "WeCare.BillingAndRPG",
+            l["Menu:BillingAndRPG"],
+            icon: "fa fa-credit-card",
+            order: 4
+        ).RequirePermissions(WeCarePermissions.Billing.Default); // default faturamento check
+
+        billingAndRPG.AddItem(new ApplicationMenuItem(
+            WeCareMenus.Billing,
+            l["Menu:Billing"],
+            url: "/Billing",
+            icon: "fa fa-file-excel-o"
+        ).RequirePermissions(WeCarePermissions.Billing.Default));
+
+        billingAndRPG.AddItem(new ApplicationMenuItem(
+            "WeCare.CrossTenantAccess.Consent",
+            "Meu Consentimento (Responsável)",
+            url: "/CrossTenantAccess",
+            icon: "fa fa-key"
+        ).RequirePermissions(WeCarePermissions.CrossTenantAccess.Default));
+
+        context.Menu.AddItem(billingAndRPG);
+
+        // ----------------------------------------------------
+        // Category 5: Administration (ABP default Identity & Clinic management)
+        // ----------------------------------------------------
         var administration = context.Menu.GetAdministration();
         administration.Order = 6;
         administration.SetSubItemOrder(IdentityMenuNames.GroupName, 1);
@@ -76,7 +206,6 @@ public class WeCareMenuContributor : IMenuContributor
             order: 2
         ).RequirePermissions(WeCarePermissions.Clinics.Default));
 
-        // Configurações da Clínica (accessible to both host and tenant admins)
         administration.AddItem(new ApplicationMenuItem(
             "WeCare.Clinics.Settings",
             l["Settings"],
@@ -85,13 +214,11 @@ public class WeCareMenuContributor : IMenuContributor
             order: 3
         ).RequirePermissions(WeCarePermissions.Clinics.Settings));
 
-        // "Config Global" — only for host admin, remove for tenant admins
         var currentTenant = context.ServiceProvider.GetRequiredService<ICurrentTenant>();
         administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 4);
         
         if (currentTenant.Id != null)
         {
-            // Tenant admin — remove Config Global (ABP settings)
             var settingItem = administration.GetMenuItemOrNull(SettingManagementMenuNames.GroupName);
             if (settingItem != null)
             {
@@ -100,151 +227,12 @@ public class WeCareMenuContributor : IMenuContributor
         }
         else
         {
-            // Host admin — rename to "Config Global"
             var settingItem = administration.GetMenuItemOrNull(SettingManagementMenuNames.GroupName);
             if (settingItem != null)
             {
                 settingItem.DisplayName = "Config Global";
             }
         }
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Pacientes",
-                l["Menu:Patients"],
-                icon: "fa fa-user"
-            ).RequirePermissions(WeCarePermissions.Patients.Default)
-            // Novo subitem: lista de pacientes
-            .AddItem(
-                new ApplicationMenuItem(
-                    "Pacientes.Patients",
-                    l["Menu:Patients"],  // mesmo rótulo “Patients”
-                    url: "/Patients"
-                ).RequirePermissions(WeCarePermissions.Patients.Default)
-            )
-            // Subitem existente: responsáveis
-            .AddItem(
-                new ApplicationMenuItem(
-                    "Pacientes.Responsaveis",
-                    l["Menu:Patients.Responsibles"],
-                    url: "/Responsibles"
-                ).RequirePermissions(WeCarePermissions.Responsibles.Default)
-            )
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Tratamento",
-                l["Tratamento"],
-                icon: "fa fa-calendar"
-            ).RequirePermissions(WeCarePermissions.Patients.Default)
-            // Novo subitem: lista de pacientes
-            .AddItem(
-                new ApplicationMenuItem(
-                    "Tratamento.Consultas",
-                    l["Consultas"], 
-                    url: "/Consultas"
-                ).RequirePermissions(WeCarePermissions.Consultations.Default)
-            )
-            .AddItem(
-                new ApplicationMenuItem(
-                    "Tratamento.Tratamentos",
-                    l["Menu:Tratamentos"], 
-                    url: "/Tratamentos"
-                ).RequirePermissions(WeCarePermissions.Tratamentos.Default)
-            )
-
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Objectives",
-                l["Menu:Objectives"],
-                url: "/Objectives",
-                icon: "fa fa-bullseye"
-            ).RequirePermissions(WeCarePermissions.Objectives.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Guests",
-                l["Menu:Guests"],
-                url: "/Guests",
-                icon: "fa fa-users"
-            ).RequirePermissions(WeCarePermissions.Guests.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                "Activities",
-                l["Menu:Activities"],
-                url: "/Activities",
-                icon: "fa fa-tasks"
-            ).RequirePermissions(WeCarePermissions.Activities.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.Attendances,
-                l["Menu:Attendances"],
-                url: "/Attendances",
-                icon: "fa fa-check-square-o",
-                order: 4
-            ).RequirePermissions(WeCarePermissions.Attendances.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.PeriodicReports,
-                l["Menu:PeriodicReports"],
-                url: "/PeriodicReports",
-                icon: "fa fa-file-text-o",
-                order: 5
-            ).RequirePermissions(WeCarePermissions.PeriodicReports.Default)
-        );
-
-        // Cross-Tenant Access
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.CrossTenantAccess,
-                l["Menu:CrossTenantAccess"],
-                icon: "fa fa-exchange"
-            ).RequirePermissions(WeCarePermissions.CrossTenantAccess.Default)
-            .AddItem(
-                new ApplicationMenuItem(
-                    "WeCare.CrossTenantAccess.Consent",
-                    "Meu Consentimento (Responsável)",
-                    url: "/CrossTenantAccess"
-                )
-            )
-            .AddItem(
-                new ApplicationMenuItem(
-                    "WeCare.CrossTenantAccess.Timeline",
-                    "Prontuário Compartilhado (Terapeuta)",
-                    url: "/CrossTenantAccess/Timeline"
-                )
-            )
-        );
-
-        // Billing
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.Billing,
-                l["Menu:Billing"],
-                url: "/Billing",
-                icon: "fa fa-file-excel-o"
-            ).RequirePermissions(WeCarePermissions.Billing.Default)
-        );
-
-        // Gamification
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                WeCareMenus.Gamification,
-                l["Menu:Gamification"],
-                url: "/Gamification",
-                icon: "fa fa-gamepad"
-            ).RequirePermissions(WeCarePermissions.Gamification.Default)
-        );
 
         return Task.CompletedTask;
     }

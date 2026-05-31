@@ -186,8 +186,15 @@ public class WeCareWebModule : AbpModule
                 LeptonXLiteThemeBundles.Styles.Global,
                 bundle =>
                 {
-                    bundle.AddFiles("/global-scripts.js");
                     bundle.AddFiles("/global-styles.css");
+                }
+            );
+
+            options.ScriptBundles.Configure(
+                LeptonXLiteThemeBundles.Scripts.Global,
+                bundle =>
+                {
+                    bundle.AddFiles("/global-scripts.js");
                 }
             );
         });
