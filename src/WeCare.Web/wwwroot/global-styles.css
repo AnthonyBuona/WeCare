@@ -166,6 +166,37 @@ aside.lpx-sidebar,
     transition: all 0.3s ease !important;
 }
 
+/* Animação suave de revelação/fade-in ao expandir a sidebar e submenus */
+.lpx-sidebar .lpx-menu-item-text,
+.lpx-sidebar .lpx-caret,
+.lpx-sidebar .lpx-sub-menu {
+    animation: sidebarReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes sidebarReveal {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Remover linhas divisórias escuras / pretas nativas da sidebar */
+.lpx-sidebar hr,
+.lpx-sidebar .lpx-divider,
+.lpx-sidebar .lpx-menu-divider,
+.lpx-sidebar .separator,
+.lpx-sidebar border,
+.lpx-sidebar-header,
+.lpx-brand {
+    border-bottom: none !important;
+    border-top: none !important;
+    border-color: transparent !important;
+}
+
 /* =========================================================
    4. TOPBAR
    ========================================================= */

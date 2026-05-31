@@ -112,8 +112,8 @@
             background: linear-gradient(150deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
         }
 
-        /* ---- SIDEBAR ICONS — primary color, TEXT — white ---- */
-        /* Icons use primary color */
+        /* ---- SIDEBAR ICONS — primary color, TEXT — elegant dark slate ---- */
+        /* Icons use secondary color (lavender) for high premium harmony */
         .lpx-menu-item-link .lpx-menu-item-icon,
         .lpx-menu-item-link .lpx-menu-item-icon i,
         .lpx-menu-item-link .lpx-menu-item-icon i.lpx-icon,
@@ -121,42 +121,58 @@
         .lpx-menu-item-link .lpx-menu-item-icon .fas,
         .lpx-menu-item-link .lpx-menu-item-icon .far,
         .lpx-menu-item-link .lpx-menu-item-icon .bi {
-            color: @primary !important;
+            color: @secondary !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* Text stays white on dark sidebar — subtle */
+        /* Text elegant slate-navy */
         .lpx-menu-item-link .lpx-menu-item-text {
-            color: rgba(255, 255, 255, 0.6) !important;
+            color: #2e3c4e !important;
+            font-weight: 550 !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* Selected/Active item — icon = primary, text = white */
-        .lpx-menu-item-link.selected .lpx-menu-item-icon,
-        .lpx-menu-item-link.selected .lpx-menu-item-icon i,
-        .lpx-menu-item-link.selected .lpx-menu-item-icon i.lpx-icon,
-        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-icon i {
-            color: @primary !important;
-        }
+        /* Selected/Active item — beautiful mint-lavender gradient background */
         .lpx-menu-item-link.selected,
-        .lpx-menu-item-link.selected .lpx-menu-item-text,
-        a.lpx-menu-item-link.lpx-menu-item.selected {
-            color: rgba(255, 255, 255, 0.9) !important;
+        .lpx-menu-item-link.active,
+        a.lpx-menu-item-link.lpx-menu-item.selected,
+        a.lpx-menu-item-link.lpx-menu-item.active {
+            background: linear-gradient(135deg, @primary 0%, @secondary 100%) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(@(ConvertHexToRgb(primary)), 0.20) !important;
+            transform: scale(1.02) !important;
+            color: #fff !important;
         }
 
-        /* Selected item left indicator bar */
+        .lpx-menu-item-link.selected .lpx-menu-item-text,
+        .lpx-menu-item-link.active .lpx-menu-item-text,
+        .lpx-menu-item-link.selected .lpx-menu-item-icon,
+        .lpx-menu-item-link.active .lpx-menu-item-icon i,
+        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-text,
+        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-icon i {
+            color: #fff !important;
+        }
+
+        /* Selected item left indicator bar (make transparent as we use premium full card selected gradient) */
         .lpx-menu-item-link.selected::before,
         a.lpx-menu-item-link.selected::before {
-            background-color: @primary !important;
+            background-color: transparent !important;
         }
 
-        /* Hover state — icon brightens, text stays white */
+        /* Hover state — sutil translateX slide-in with light mint background */
+        .lpx-menu-item-link:hover {
+            background: rgba(@(ConvertHexToRgb(primary)), 0.07) !important;
+            transform: translateX(6px) !important;
+            border-radius: 12px !important;
+        }
+
         .lpx-menu-item-link:hover .lpx-menu-item-icon,
         .lpx-menu-item-link:hover .lpx-menu-item-icon i {
             color: @primary !important;
-            filter: brightness(1.2);
+            transform: scale(1.15) rotate(5deg) !important;
         }
-        .lpx-menu-item-link:hover,
         .lpx-menu-item-link:hover .lpx-menu-item-text {
-            color: #fff !important;
+            color: @primaryDark !important;
         }
 
         /* Sidebar dropdown arrows — primary color */
@@ -166,6 +182,7 @@
         i.lpx-caret,
         i.bi-chevron-down.lpx-caret {
             color: @primary !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
         /* ---- WHITE TEXT ON DARK BACKGROUNDS ---- */
