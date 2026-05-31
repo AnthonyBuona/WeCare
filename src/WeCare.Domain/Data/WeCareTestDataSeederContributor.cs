@@ -214,6 +214,7 @@ namespace WeCare.Data
 
             if (await _periodicReportRepository.GetCountAsync() == 0)
             {
+                // 1. Rascunho (Draft)
                 await _periodicReportRepository.InsertAsync(new PeriodicReport(
                     _guidGenerator.Create(),
                     patient.Id,
@@ -223,6 +224,46 @@ namespace WeCare.Data
                     "A família de Lucas tem sido muito solícita, aplicando os treinos de coordenação em casa conforme orientado.",
                     "Focar em habilidades de escrita e pinça fina nas próximas sessões.",
                     PeriodicReportStatus.Draft,
+                    tenantId
+                ), autoSave: true);
+
+                // 2. Publicado (Published - Pendente Assinatura)
+                await _periodicReportRepository.InsertAsync(new PeriodicReport(
+                    _guidGenerator.Create(),
+                    patient.Id,
+                    therapist.Id,
+                    "Relatório Periódico Bimestral (Abril/Maio)",
+                    DateTime.Now.AddMonths(-2),
+                    DateTime.Now,
+                    "Paciente evoluiu consideravelmente na fala e na expressividade comunicativa. O treino em consultório foca em fonemas complexos e contato visual.",
+                    "[{\"Objective\":\"Contato Visual\",\"Status\":\"Em Progresso\"},{\"Objective\":\"Socialização\",\"Status\":\"Iniciando\"}]",
+                    "Engajamento familiar nota 10. Carlos tem praticado dinâmicas de jogos em dupla no lar.",
+                    "Introduzir mais exercícios de fala expressiva no próximo período.",
+                    PeriodicReportStatus.Published,
+                    null,
+                    null,
+                    null,
+                    null,
+                    tenantId
+                ), autoSave: true);
+
+                // 3. Assinado (Signed - Histórico)
+                await _periodicReportRepository.InsertAsync(new PeriodicReport(
+                    _guidGenerator.Create(),
+                    patient.Id,
+                    therapist.Id,
+                    "Avaliação Periódica Integrada (Fevereiro/Março)",
+                    DateTime.Now.AddMonths(-4),
+                    DateTime.Now.AddMonths(-2),
+                    "Lucas teve excelente adaptação ao ambiente clínico e avanços no brincar compartilhado. Reduziu crises de choro e frustração frente a limites.",
+                    "[{\"Objective\":\"Auto-regulação\",\"Status\":\"Conquistado\"},{\"Objective\":\"Socialização\",\"Status\":\"Em Progresso\"}]",
+                    "Acompanhamento em casa foi de suma relevância para consolidação de limites.",
+                    "Fortalecer interações sociais na escola nas próximas semanas.",
+                    PeriodicReportStatus.SignedByResponsible,
+                    DateTime.Now.AddMonths(-2),
+                    "192.168.1.102",
+                    "123.456.789-01",
+                    "d8a57e3f890e0c89abddd8e244eccf5678abdd7e907b22a8bcff29f12345678a",
                     tenantId
                 ), autoSave: true);
             }

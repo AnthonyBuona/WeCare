@@ -112,6 +112,34 @@ h6 {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* EXCEÇÃO: Cards com gradiente (stat-cards do dashboard) NÃO devem ter background branco */
+.stat-card,
+.card.bg-gradient-primary,
+.card.bg-gradient-success,
+.card.bg-gradient-info,
+.card.bg-gradient-warning,
+.card.bg-gradient-danger,
+[class*="bg-gradient-"] {
+    background-color: unset !important;
+    border: none !important;
+}
+
+.stat-card.bg-gradient-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.stat-card.bg-gradient-success {
+    background: var(--gradient-success) !important;
+}
+
+.stat-card.bg-gradient-info {
+    background: var(--gradient-info) !important;
+}
+
+.stat-card.bg-gradient-warning {
+    background: var(--gradient-warning) !important;
+}
+
 /* Glassmorphism card for statistics/highlights (No nested absolute dropdowns) */
 .glass-card {
     backdrop-filter: blur(12px);
@@ -365,15 +393,67 @@ aside.lpx-sidebar,
     transition: all 0.25s ease !important;
 }
 
+/* Texto dos itens de menu sempre visível (branco claro no sidebar escuro) */
+.lpx-menu-item-link .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-text,
+.lpx-sidebar a span,
+.lpx-sidebar li a span,
+.lpx-sidebar .menu-text {
+    color: rgba(255, 255, 255, 0.80) !important;
+    font-size: 0.9rem !important;
+}
+
+/* Ícones do menu sidebar visíveis */
+.lpx-menu-item-link .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-icon,
+.lpx-sidebar li a i,
+.lpx-sidebar i {
+    color: rgba(77, 163, 145, 0.9) !important;
+}
+
+/* Hover no menu item */
+.lpx-menu-item-link:hover .lpx-menu-item-text,
+.lpx-sidebar li a:hover span {
+    color: white !important;
+}
+
+.lpx-menu-item-link:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Menu ativo com gradiente suave mint-to-lavender */
-.lpx-menu-item-link.selected {
+.lpx-menu-item-link.selected,
+.lpx-menu-item-link.active {
     background: linear-gradient(90deg, var(--primary-color) 0%, var(--info-color) 100%) !important;
     box-shadow: 0 6px 20px 0 rgba(77, 163, 145, 0.25) !important;
 }
 
-.lpx-menu-item-link.selected .lpx-menu-item-text {
+.lpx-menu-item-link.selected .lpx-menu-item-text,
+.lpx-menu-item-link.active .lpx-menu-item-text,
+.lpx-menu-item-link.selected .lpx-menu-item-icon,
+.lpx-menu-item-link.active .lpx-menu-item-icon {
     font-weight: 600 !important;
     color: #fff !important;
+}
+
+/* Submenu items texto */
+.lpx-sidebar .lpx-sub-menu .lpx-menu-item-link .lpx-menu-item-text,
+.lpx-sidebar .sub-menu a span {
+    color: rgba(255, 255, 255, 0.70) !important;
+    font-size: 0.85rem !important;
+}
+
+.lpx-sidebar .lpx-sub-menu .lpx-menu-item-link.selected .lpx-menu-item-text {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* LeptonX sidebar brand/logo area */
+.lpx-brand-name,
+.lpx-sidebar .lpx-logo-text {
+    color: white !important;
+    font-family: var(--font-family-heading) !important;
+    font-weight: 700 !important;
 }
 
 /* 3. 🖥️ BARRA SUPERIOR (HEADER) LIMPA E TRANSLÚCIDA */
@@ -485,6 +565,42 @@ header.lpx-topbar {
 .dataTables_length select:focus {
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 0.2rem rgba(77, 163, 145, 0.15) !important;
+}
+
+/* ===== ULTRA-SPECIFIC PAGINATION OVERRIDE - Multiple selectors for ABP DataTables =====  */
+/* Bootstrap .pagination active state (used inside datatable_paginate wrapper) */
+.pagination .page-item.active .page-link,
+.dataTables_paginate .page-item.active .page-link,
+.abp-datatables-paginate .page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    background: var(--gradient-primary) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* All page-link elements */
+.pagination .page-link,
+.dataTables_paginate .page-link {
+    color: var(--primary-color) !important;
+}
+
+/* Override any inline style / specificity issues - catch ABP pink for paginator button "1" */
+span.paginate_button.current,
+a.paginate_button.current {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+
+/* Hack: Directly target what LeptonX might render for pagination */
+.lpx-paginator .active,
+.lpx-paginator button.active,
+.abp-pager .active {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border-color: var(--primary-color) !important;
 }
 
 /* =====================================================
