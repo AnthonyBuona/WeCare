@@ -112,6 +112,34 @@ const fs = require('fs');
     await page.screenshot({ path: path.join(screenshotDir, '08_calendar.png') });
     console.log('Screenshot 08_calendar.png saved.');
 
+    // 8. Visit Billing Manager page (Feature 3)
+    console.log('8. Navigating to Billing Manager page (/Billing)...');
+    await page.goto('https://localhost:44373/Billing');
+    await page.waitForLoadState('load');
+    await page.screenshot({ path: path.join(screenshotDir, '09_billing.png') });
+    console.log('Screenshot 09_billing.png saved.');
+
+    // 9. Visit Cross Tenant Consent page (Feature 2)
+    console.log('9. Navigating to Cross Tenant Consent page (/CrossTenantAccess)...');
+    await page.goto('https://localhost:44373/CrossTenantAccess');
+    await page.waitForLoadState('load');
+    await page.screenshot({ path: path.join(screenshotDir, '10_crosstenant_consent.png') });
+    console.log('Screenshot 10_crosstenant_consent.png saved.');
+
+    // 10. Visit Cross Tenant Timeline page (Feature 2)
+    console.log('10. Navigating to Cross Tenant Timeline page (/CrossTenantAccess/Timeline)...');
+    await page.goto('https://localhost:44373/CrossTenantAccess/Timeline');
+    await page.waitForLoadState('load');
+    await page.screenshot({ path: path.join(screenshotDir, '11_crosstenant_timeline.png') });
+    console.log('Screenshot 11_crosstenant_timeline.png saved.');
+
+    // 11. Visit Gamification RPG page (Feature 4)
+    console.log('11. Navigating to Gamification RPG page (/Gamification)...');
+    await page.goto('https://localhost:44373/Gamification');
+    await page.waitForLoadState('load');
+    await page.screenshot({ path: path.join(screenshotDir, '12_gamification.png') });
+    console.log('Screenshot 12_gamification.png saved.');
+
     console.log('--- WECARE VISUAL EXPLORATION COMPLETED SUCCESSFULLY ---');
 
   } catch (err) {
