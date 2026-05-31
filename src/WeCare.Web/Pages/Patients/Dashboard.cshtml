@@ -210,6 +210,28 @@
             });
         });
     </script>
+    <script>
+        $(function () {
+            var sessionRecordModal = new abp.ModalManager({
+                viewUrl: abp.appPath + 'Patients/SessionRecordModal',
+                scriptUrl: null
+            });
+
+            sessionRecordModal.onResult(function () {
+                abp.notify.success('Sessão registrada com sucesso!');
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            });
+
+            $('#RecordSessionButton').click(function (e) {
+                e.preventDefault();
+                sessionRecordModal.open({
+                    patientId: '@Model.Id'
+                });
+            });
+        });
+    </script>
 }
 
 <div class="dashboard-header d-flex justify-content-between align-items-center">
@@ -217,7 +239,10 @@
         <h2 class="mb-1">@Model.DashboardData.PatientName</h2>
         <span class="text-muted h5 fw-light">Relatório de Evolução Clínica</span>
     </div>
-    <div class="no-print">
+    <div class="no-print d-flex align-items-center">
+        <button id="RecordSessionButton" class="btn btn-primary px-4 rounded-pill me-2 shadow-sm">
+            <i class="fa fa-plus-circle me-2"></i> Registrar Sessão
+        </button>
         <a href="/Patients" class="btn btn-outline-secondary me-2 px-4 rounded-pill">Voltar</a>
         <button onclick="window.print()" class="btn btn-premium px-4 rounded-pill">
             <i class="fa fa-print me-2"></i> Relatório

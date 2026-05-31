@@ -170,26 +170,21 @@
         a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
         
         .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i.lpx-icon,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .fa,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .fas,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .far,
-        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .bi,
-        
+        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
         .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i.lpx-icon,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .fa,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .fas,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .far,
-        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon .bi,
-        
+        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
         a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
-        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i,
+        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
         a.lpx-menu-item-link.lpx-menu-item.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
-        a.lpx-menu-item-link.lpx-menu-item.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i {
+        a.lpx-menu-item-link.lpx-menu-item.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
+        
+        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) i,
+        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) i,
+        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) i,
+        a.lpx-menu-item-link.lpx-menu-item.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) i {
             color: #fff !important;
+            fill: #fff !important;
+            stroke: #fff !important;
         }
 
         /* Selected/Active Parent item (Folders with submenus expand) — soft mint background, no solid gradient */
@@ -214,10 +209,20 @@
         }
 
         .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-icon,
-        .lpx-menu-item-link.active:has(.lpx-caret) i,
+        .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-icon *,
+        .lpx-menu-item-link.active:has(.lpx-caret) .lpx-menu-item-icon,
+        .lpx-menu-item-link.active:has(.lpx-caret) .lpx-menu-item-icon *,
         .lpx-menu-item-link.selected:has(.dd-icon) .lpx-menu-item-icon,
-        .lpx-menu-item-link.active:has(.dd-icon) i {
+        .lpx-menu-item-link.selected:has(.dd-icon) .lpx-menu-item-icon *,
+        .lpx-menu-item-link.active:has(.dd-icon) .lpx-menu-item-icon,
+        .lpx-menu-item-link.active:has(.dd-icon) .lpx-menu-item-icon *,
+        a.lpx-menu-item-link.lpx-menu-item.selected:has(.lpx-caret) .lpx-menu-item-icon,
+        a.lpx-menu-item-link.lpx-menu-item.selected:has(.lpx-caret) .lpx-menu-item-icon *,
+        a.lpx-menu-item-link.lpx-menu-item.active:has(.lpx-caret) .lpx-menu-item-icon,
+        a.lpx-menu-item-link.lpx-menu-item.active:has(.lpx-caret) .lpx-menu-item-icon * {
             color: @primary !important;
+            fill: @primary !important;
+            stroke: @primary !important;
         }
 
         /* Selected item left indicator bar (make transparent as we use premium full card selected gradient) */
@@ -388,6 +393,182 @@
         /* ---- CARD SPECIFIC overrides for stat cards on home ---- */
         .icon-shape.bg-gradient-primary {
             background: linear-gradient(150deg, @primary 0%, @primaryDark 100%) !important;
+        }
+
+        /* Dynamic branding settings tabs overrides */
+        .nav-pills .nav-link.active,
+        .nav-pills .show > .nav-link,
+        .list-group-item.active,
+        .nav-tabs .nav-link.active,
+        a.nav-link.active,
+        [role="tab"].active {
+            background: linear-gradient(135deg, @primary 0%, @secondary 100%) !important;
+            background-color: @primary !important;
+            color: #fff !important;
+            box-shadow: 0 4px 15px rgba(@(ConvertHexToRgb(primary)), 0.25) !important;
+            border-color: transparent !important;
+        }
+
+        .nav-pills .nav-link.active i,
+        .nav-pills .nav-link.active .fa,
+        .nav-pills .nav-link.active .fas,
+        .nav-pills .nav-link.active .far,
+        .nav-pills .nav-link.active .bi,
+        .list-group-item.active i,
+        .list-group-item.active .fa,
+        .list-group-item.active .bi {
+            color: #fff !important;
+        }
+
+        .nav-pills .nav-link:not(.active):hover,
+        .list-group-item:not(.active):hover {
+            background-color: rgba(@(ConvertHexToRgb(primary)), 0.08) !important;
+            color: @primaryDark !important;
+        }
+
+        .nav-pills .nav-link,
+        .list-group-item,
+        .nav-tabs .nav-link,
+        a.nav-link,
+        [role="tab"] {
+            color: #4b5563 !important; /* Elegant slate-600 */
+            font-weight: 600 !important;
+        }
+
+        /* Standard select checked options */
+        select option:checked,
+        select option:hover,
+        select option:focus,
+        select option:active,
+        option:checked,
+        option:hover,
+        option:focus,
+        option:active {
+            background: @primary !important;
+            background-color: @primary !important;
+            color: #fff !important;
+            -webkit-text-fill-color: #fff !important;
+            box-shadow: 0 0 0 100px @primary inset !important;
+        }
+
+        /* Disable hover-expansion: keep sidebar container at 72px even on hover when collapsed */
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sidebar,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sidebar .lpx-nav {
+            min-width: 72px !important;
+            max-width: 72px !important;
+            width: 72px !important;
+        }
+
+        /* Ensure text and dropdown carousels remain completely hidden when collapsed, even on hover */
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-brand-name,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-menu-item-text,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-caret,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .hidden-in-hover-trigger,
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sub-menu {
+            display: none !important;
+        }
+
+        /* Maintain collapsed width on the logo container when hovered and collapsed */
+        #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-logo-container {
+            width: 72px !important;
+        }
+
+        /* Sidebar Pull-handle / Fitinha Toggle Button */
+        /* NOTE: 'left' é controlado dinamicamente pelo ResizeObserver em global-scripts.js */
+        .wecare-sidebar-handle {
+            position: fixed;
+            top: 50%;
+            /* left is set dynamically by JS — do NOT set a static left here */
+            transform: translateY(-50%);
+            width: 24px;
+            height: 48px;
+            background: linear-gradient(135deg, @primary 0%, @secondary 100%) !important;
+            color: #fff !important;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 4px 0 12px rgba(@(ConvertHexToRgb(primary)), 0.25) !important;
+            z-index: 9999;
+            transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-left: none;
+        }
+
+        .wecare-sidebar-handle:hover {
+            width: 28px;
+            box-shadow: 6px 0 16px rgba(@(ConvertHexToRgb(primary)), 0.35) !important;
+        }
+
+        .wecare-sidebar-handle i {
+            font-size: 0.8rem;
+            color: #fff !important;
+            transition: transform 0.3s ease;
+        }
+
+        /* Responsive Sidebar Collapsing/Expanding for Viewports >= 768px and less than 1200px */
+        @@media (min-width: 768px) and (max-width: 1199.98px) {
+            .lpx-sidebar-container,
+            .lpx-sidebar,
+            .lpx-logo-container,
+            .lpx-content-container {
+                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            /* Expanded State (no .hover-trigger class) */
+            #lpx-wrapper:not(.hover-trigger) .lpx-sidebar-container {
+                min-width: 280px !important;
+                max-width: 280px !important;
+                width: 280px !important;
+            }
+            #lpx-wrapper:not(.hover-trigger) .lpx-sidebar {
+                width: 280px !important;
+            }
+            #lpx-wrapper:not(.hover-trigger) .lpx-logo-container {
+                width: 280px !important;
+            }
+            #lpx-wrapper:not(.hover-trigger) .lpx-content-container {
+                margin-left: 280px !important;
+            }
+
+            /* Show all branding and menu texts when expanded */
+            #lpx-wrapper:not(.hover-trigger) .lpx-brand-name,
+            #lpx-wrapper:not(.hover-trigger) .lpx-menu-item-text,
+            #lpx-wrapper:not(.hover-trigger) .lpx-caret,
+            #lpx-wrapper:not(.hover-trigger) .hidden-in-hover-trigger,
+            #lpx-wrapper:not(.hover-trigger) .lpx-sub-menu {
+                display: inline-block !important;
+            }
+            #lpx-wrapper:not(.hover-trigger) .lpx-logo-container .lpx-brand-logo {
+                display: block !important;
+            }
+
+            /* Collapsed State (has .hover-trigger class) */
+            #lpx-wrapper.hover-trigger .lpx-sidebar-container {
+                min-width: 72px !important;
+                max-width: 72px !important;
+                width: 72px !important;
+            }
+            #lpx-wrapper.hover-trigger .lpx-sidebar {
+                width: 72px !important;
+            }
+            #lpx-wrapper.hover-trigger .lpx-logo-container {
+                width: 72px !important;
+            }
+            #lpx-wrapper.hover-trigger .lpx-content-container {
+                margin-left: 72px !important;
+            }
+
+            /* Hide all menu texts when collapsed */
+            #lpx-wrapper.hover-trigger .lpx-brand-name,
+            #lpx-wrapper.hover-trigger .lpx-menu-item-text,
+            #lpx-wrapper.hover-trigger .lpx-caret,
+            #lpx-wrapper.hover-trigger .hidden-in-hover-trigger,
+            #lpx-wrapper.hover-trigger .lpx-sub-menu {
+                display: none !important;
+            }
         }
     </style>
 
