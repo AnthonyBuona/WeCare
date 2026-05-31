@@ -1,0 +1,428 @@
+@page
+@model WeCare.Web.Pages.Billing.IndexModel
+@{
+    ViewBag.Title = "Faturamento TISS/TUSS - WeCare";
+}
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        --mint-teal: hsl(168, 76%, 42%);
+        --lavender-purple: hsl(265, 80%, 65%);
+        --coral-red: hsl(354, 70%, 54%);
+        --mint-light: rgba(26, 188, 156, 0.1);
+        --lavender-light: rgba(155, 89, 182, 0.1);
+        --coral-light: rgba(231, 76, 60, 0.1);
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: var(--glass-shadow);
+        padding: 24px;
+        margin-bottom: 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Metric Cards - customized */
+    .metric-card {
+        border-radius: 20px;
+        padding: 20px;
+        color: #2c3e50;
+        position: relative;
+        overflow: hidden;
+    }
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        z-index: 1;
+    }
+
+    .metric-to-receive {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(26, 188, 156, 0.15));
+        border-left: 6px solid var(--mint-teal);
+    }
+
+    .metric-pending {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(155, 89, 182, 0.15));
+        border-left: 6px solid var(--lavender-purple);
+    }
+
+    .metric-glosas {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(231, 76, 60, 0.15));
+        border-left: 6px solid var(--coral-red);
+    }
+
+    .glass-input {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 10px 14px;
+        transition: all 0.2s ease;
+    }
+
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--mint-teal);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+    }
+
+    .gradient-btn-mint {
+        background: linear-gradient(135deg, var(--mint-teal), hsl(172, 80%, 38%));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .gradient-btn-mint:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+        color: white;
+    }
+
+    /* Drag & Drop Frosted Glass Dropzone */
+    .dropzone-container {
+        border: 2px dashed rgba(155, 89, 182, 0.4);
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .dropzone-container:hover, .dropzone-container.dragover {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: var(--lavender-purple);
+        box-shadow: var(--glass-shadow);
+    }
+
+    .dropzone-icon {
+        font-size: 3rem;
+        color: var(--lavender-purple);
+        margin-bottom: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .dropzone-container:hover .dropzone-icon {
+        transform: translateY(-5px);
+    }
+
+    .badge-status-exported {
+        background-color: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+        font-weight: bold;
+    }
+
+    .badge-status-pending {
+        background-color: rgba(241, 196, 15, 0.15);
+        color: #d35400;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="glass-card mb-4" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(155, 89, 182, 0.05));">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 class="display-6 fw-bold text-dark mb-1" style="letter-spacing: -1px;">
+                    Olá, Mariana Costa! 💼
+                </h1>
+                <p class="text-secondary mb-0">
+                    Seja bem-vinda ao seu centro de faturamento TISS/TUSS do WeCare.
+                </p>
+            </div>
+            <span class="badge bg-light text-dark p-2 px-3 border" style="font-size: 0.9rem;">
+                <i class="fa fa-shield text-success me-1"></i> Ambiente Seguro ANS 4.01.00
+            </span>
+        </div>
+    </div>
+
+    <!-- Dashboard Metrics Grid -->
+    <div class="row mb-4">
+        <!-- Valor a Receber -->
+        <div class="col-md-4 mb-3">
+            <div class="glass-card metric-card metric-to-receive h-100">
+                <div class="text-secondary text-sm fw-bold uppercase">Valor Estimado a Receber</div>
+                <h2 class="display-5 fw-bold text-dark my-2">R$ @Model.TotalToReceive.ToString("N2")</h2>
+                <div class="text-muted text-xs"><i class="fa fa-arrow-up text-success"></i> Faturamento acumulado no mês</div>
+            </div>
+        </div>
+
+        <!-- Guias Pendentes -->
+        <div class="col-md-4 mb-3">
+            <div class="glass-card metric-card metric-pending h-100">
+                <div class="text-secondary text-sm fw-bold uppercase">Guias Pendentes de Lote</div>
+                <h2 class="display-5 fw-bold text-dark my-2">@Model.PendingGuidesCount</h2>
+                <div class="text-muted text-xs"><i class="fa fa-clock-o text-warning"></i> Aguardando exportação TISS</div>
+            </div>
+        </div>
+
+        <!-- Glosas -->
+        <div class="col-md-4 mb-3">
+            <div class="glass-card metric-card metric-glosas h-100">
+                <div class="text-secondary text-sm fw-bold uppercase">Glosas Detectadas (Retorno)</div>
+                <h2 class="display-5 fw-bold text-dark my-2">R$ @Model.DisputedClaimsValue.ToString("N2")</h2>
+                <div class="text-muted text-xs"><i class="fa fa-exclamation-triangle text-danger"></i> 3 guias contestadas pela operadora</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Coluna da Esquerda: Filtros e Tabela de Guias -->
+        <div class="col-lg-8">
+            <div class="glass-card">
+                <form method="post" id="exportForm" asp-page-handler="Export" enctype="multipart/form-data">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+                        <h3 class="fw-bold text-dark mb-0">Guias de Faturamento</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Operator Filter -->
+                            <select id="operatorFilter" class="form-select glass-input border" style="width: 200px;" onchange="filterOperator()">
+                                <option value="">Todas Operadoras</option>
+                                @foreach (var op in Model.Operators)
+                                {
+                                    @if (op == Model.SelectedOperator)
+                                    {
+                                        <option value="@op" selected>@op</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@op">@op</option>
+                                    }
+                                }
+                            </select>
+
+                            <button type="button" class="gradient-btn-mint" data-bs-toggle="modal" data-bs-target="#exportModal">
+                                <i class="fa fa-file-code-o me-2"></i> Exportar Lote TISS XML
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (!Model.Guides.Any())
+                    {
+                        <div class="text-center py-5">
+                            <img src="https://img.icons8.com/bubbles/100/000000/documents.png" class="mb-3" />
+                            <h5 class="text-muted fw-bold">Nenhuma guia pendente encontrada.</h5>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40px;">
+                                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="form-check-input" />
+                                        </th>
+                                        <th>Operadora</th>
+                                        <th>Senha de Autorização</th>
+                                        <th>Carteira</th>
+                                        <th>Valor da Consulta</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Guides.Count; i++)
+                                    {
+                                        var guide = Model.Guides[i];
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="SelectedGuideIds" value="@guide.Id" class="form-check-input guide-checkbox" />
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold text-dark">@guide.HealthInsuranceName</div>
+                                            </td>
+                                            <td>
+                                                <code class="text-secondary">@guide.AuthorizationPassword</code>
+                                            </td>
+                                            <td>
+                                                <span class="text-sm">@guide.CardNumber</span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">R$ @guide.ConsultationValue.ToString("F2")</div>
+                                            </td>
+                                            <td>
+                                                @if (guide.Status == "Pending")
+                                                {
+                                                    <span class="badge badge-status-pending px-3 py-2 rounded-pill">Pendente</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-status-exported px-3 py-2 rounded-pill">Exportado</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <!-- Digital Certificate Signature Modal -->
+                    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content glass-card p-4 border-0">
+                                <div class="modal-header border-0 p-0 mb-3">
+                                    <h4 class="modal-title fw-bold text-dark"><i class="fa fa-key text-success me-2"></i> Assinatura Digital e-CNPJ</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-0">
+                                    <p class="text-secondary text-sm mb-4">
+                                        Para enviar guias em conformidade com o padrão ANS TISS, assine o lote utilizando seu certificado digital e-CNPJ (Tipo A1 .pfx). Deixe em branco para assinar com o certificado simulado WeCare.
+                                    </p>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-dark">Certificado Digital (A1 .pfx)</label>
+                                        <input type="file" asp-for="PfxCertificate" class="form-control glass-input" accept=".pfx" />
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-dark">Senha do Certificado</label>
+                                        <input type="password" asp-for="PfxPassword" class="form-control glass-input" placeholder="Digite a senha..." />
+                                    </div>
+                                    <button type="submit" class="gradient-btn-mint w-100 py-3" onclick="closeModal()">
+                                        <i class="fa fa-download me-2"></i> Assinar & Baixar XML TISS
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Coluna da Direita: Dropzone Import Return File -->
+        <div class="col-lg-4">
+            <div class="glass-card">
+                <h3 class="fw-bold text-dark mb-3"><i class="fa fa-upload text-purple me-2"></i> Importar Retorno</h3>
+                <p class="text-secondary text-sm mb-4">
+                    Importe o arquivo de retorno XML enviado pela operadora para atualizar o status do faturamento e liquidar guias de forma automatizada.
+                </p>
+
+                <!-- Frosted Glass Dropzone -->
+                <div class="dropzone-container" id="dropzone" onclick="triggerFileInput()">
+                    <div class="dropzone-icon">
+                        <i class="fa fa-cloud-upload"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Arraste o XML de Retorno</h5>
+                    <p class="text-muted text-xs mb-0">ou clique para selecionar do computador</p>
+                    <input type="file" id="returnFileInput" style="display: none;" accept=".xml" onchange="handleReturnFile(this.files)" />
+                </div>
+
+                <!-- Simulation Processing Container -->
+                <div id="processingContainer" class="mt-4" style="display: none;">
+                    <div class="glass-card p-3 border-purple" style="background: rgba(155, 89, 182, 0.05); margin-bottom: 0;">
+                        <h6 class="fw-bold text-dark mb-2"><i class="fa fa-spinner fa-spin text-purple me-2"></i> Processando Arquivo...</h6>
+                        <div class="progress rounded-pill mb-2" style="height: 8px;">
+                            <div id="progressBar" class="progress-bar bg-purple progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: var(--lavender-purple);"></div>
+                        </div>
+                        <span id="processingStatus" class="text-muted text-xs">Analisando tags do lote...</span>
+                    </div>
+                </div>
+
+                <!-- Return Results Container -->
+                <div id="resultsContainer" class="mt-4" style="display: none;">
+                    <div class="glass-card p-3 border-success" style="background: rgba(46, 204, 113, 0.08); margin-bottom: 0;">
+                        <h6 class="fw-bold text-success mb-2"><i class="fa fa-check-circle me-2"></i> Importação Concluída!</h6>
+                        <ul class="list-unstyled mb-0 text-sm text-dark">
+                            <li><i class="fa fa-check text-success me-2"></i> <strong>Lote:</strong> RET-2026-99321</li>
+                            <li><i class="fa fa-check text-success me-2"></i> <strong>Guias Importadas:</strong> 5</li>
+                            <li><i class="fa fa-check text-success me-2"></i> <strong>Guias Liquidadas:</strong> 5 (100%)</li>
+                            <li><i class="fa fa-check text-success me-2"></i> <strong>Glosas Detectadas:</strong> R$ 0,00</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterOperator() {
+        var op = document.getElementById("operatorFilter").value;
+        window.location.href = "?SelectedOperator=" + encodeURIComponent(op);
+    }
+
+    function toggleSelectAll(selectAll) {
+        var checkboxes = document.querySelectorAll(".guide-checkbox");
+        checkboxes.forEach(c => c.checked = selectAll.checked);
+    }
+
+    function triggerFileInput() {
+        document.getElementById("returnFileInput").click();
+    }
+
+    function closeModal() {
+        // Modal is closed gracefully on submit
+        setTimeout(function() {
+            var modalEl = document.getElementById('exportModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }, 300);
+    }
+
+    // Drag and Drop simulation
+    var dropzone = document.getElementById("dropzone");
+    
+    dropzone.addEventListener("dragover", function(e) {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", function(e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", function(e) {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+            handleReturnFile(e.dataTransfer.files);
+        }
+    });
+
+    function handleReturnFile(files) {
+        if (files.length === 0) return;
+        var file = files[0];
+        
+        // Show progress bar
+        document.getElementById("processingContainer").style.display = "block";
+        document.getElementById("resultsContainer").style.display = "none";
+        
+        var progressBar = document.getElementById("progressBar");
+        var statusText = document.getElementById("processingStatus");
+        
+        var width = 0;
+        var interval = setInterval(function() {
+            if (width >= 100) {
+                clearInterval(interval);
+                statusText.innerText = "Guia reconciliada com sucesso!";
+                setTimeout(function() {
+                    document.getElementById("processingContainer").style.display = "none";
+                    document.getElementById("resultsContainer").style.display = "block";
+                }, 800);
+            } else {
+                width += 10;
+                progressBar.style.width = width + "%";
+                if (width === 30) statusText.innerText = "Lendo estrutura XML TISS...";
+                if (width === 60) statusText.innerText = "Assinando hash de validação...";
+                if (width === 80) statusText.innerText = "Liquidando guias no sistema...";
+            }
+        }, 150);
+    }
+</script>

@@ -1,0 +1,543 @@
+@page
+@model WeCare.Web.Pages.Gamification.IndexModel
+@{
+    ViewBag.Title = "Trilha Gamificada do Cuidador - WeCare";
+}
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        --mint-teal: hsl(168, 76%, 42%);
+        --lavender-purple: hsl(265, 80%, 65%);
+        --coral-red: hsl(354, 70%, 54%);
+        --node-active: #9b59b6;
+        --node-completed: #2ecc71;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: var(--glass-shadow);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    /* Profile Progress Section */
+    .profile-banner {
+        background: linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(26, 188, 156, 0.15));
+        border-radius: 20px;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .level-badge {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--lavender-purple), var(--mint-teal));
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
+    }
+
+    .level-badge span {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .level-badge .num {
+        font-size: 2rem;
+        line-height: 1.8rem;
+    }
+
+    .xp-progress-bar {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        height: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .xp-progress-fill {
+        background: linear-gradient(90deg, var(--mint-teal), var(--lavender-purple));
+        height: 100%;
+        border-radius: 20px;
+        transition: width 0.8s ease;
+    }
+
+    /* Interactive RPG Track */
+    .rpg-track-container {
+        position: relative;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        padding: 60px 40px;
+        overflow: hidden;
+        min-height: 400px;
+    }
+
+    .track-svg-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .rpg-nodes-grid {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 60px;
+    }
+
+    .quest-node {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: white;
+        border: 4px solid var(--lavender-purple);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.8rem;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 8px 25px rgba(155, 89, 182, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .quest-node:hover {
+        transform: scale(1.15);
+        box-shadow: 0 12px 30px rgba(155, 89, 182, 0.4);
+    }
+
+    .quest-node-completed {
+        border-color: var(--mint-teal);
+        box-shadow: 0 8px 25px rgba(26, 188, 156, 0.2);
+    }
+
+    .quest-node-completed:hover {
+        box-shadow: 0 12px 30px rgba(26, 188, 156, 0.4);
+    }
+
+    .quest-node-locked {
+        border-color: #bdc3c7;
+        color: #7f8c8d;
+        background: #ecf0f1;
+        cursor: not-allowed;
+    }
+
+    .quest-node-locked:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .quest-node-label {
+        position: absolute;
+        top: 80px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 4px 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        box-shadow: var(--glass-shadow);
+        color: #2c3e50;
+    }
+
+    /* Badges section */
+    .badge-item {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        padding: 16px;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .badge-item:hover {
+        transform: translateY(-3px);
+    }
+
+    .badge-icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+    }
+
+    /* Emoji Score Slider */
+    .emoji-slider-container {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .emoji-display {
+        font-size: 3.5rem;
+        margin-bottom: 10px;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .emoji-status-label {
+        font-weight: 700;
+        color: var(--lavender-purple);
+        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    /* Canvas Confetti */
+    #confettiCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 9999;
+    }
+
+    .btn-quest-action {
+        background: linear-gradient(135deg, var(--lavender-purple), hsl(265, 75%, 58%));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Profile Banner -->
+    <div class="glass-card profile-banner mb-4">
+        <!-- Level Circle -->
+        <div class="level-badge">
+            <span>Nível</span>
+            <span class="num">@Model.Profile.CurrentLevel</span>
+        </div>
+
+        <!-- Caregiver info & XP -->
+        <div class="flex-grow-1" style="min-width: 250px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="fw-bold text-dark mb-0">Olá, Carlos! 👋</h2>
+                <span class="badge bg-purple px-3 py-2 rounded-pill" style="background-color: var(--lavender-purple);">
+                    🔥 Streak: @Model.Profile.ActiveStreak dias seguidos!
+                </span>
+            </div>
+            <p class="text-secondary text-sm mb-3">
+                Continue aplicando os treinos multidisciplinares diários com <strong>@Model.PatientName</strong> para progredir na jornada e ganhar recompensas!
+            </p>
+
+            <!-- XP Progress -->
+            <div class="d-flex justify-content-between text-sm fw-bold text-dark mb-1">
+                <span>XP Total: @Model.Profile.TotalXp XP</span>
+                <span>Progresso para o Nível @(Model.Profile.CurrentLevel + 1): @Model.XpInCurrentLevel / 100 XP</span>
+            </div>
+            <div class="xp-progress-bar">
+                <div class="xp-progress-fill" style="width: @(Model.XpProgressPercentage)%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Coluna da Esquerda: RPG Quest Track Map -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h3 class="fw-bold text-dark mb-4">
+                    <i class="fa fa-map-signs text-purple me-2"></i> Trilha de Missões Diárias de Lucas
+                </h3>
+                <p class="text-secondary text-sm mb-4">
+                    Clique nas missões abaixo para visualizar os tutoriais em vídeo preparados pela terapeuta ocupacional e registrar a realização.
+                </p>
+
+                <!-- Connected Nodes RPG Track -->
+                <div class="rpg-track-container">
+                    <!-- Connector SVG Lines -->
+                    <svg class="track-svg-line">
+                        <line x1="50%" y1="95" x2="50%" y2="225" stroke="rgba(155, 89, 182, 0.25)" stroke-width="4" stroke-dasharray="8 6" />
+                        <line x1="50%" y1="225" x2="50%" y2="355" stroke="rgba(155, 89, 182, 0.25)" stroke-width="4" stroke-dasharray="8 6" />
+                    </svg>
+
+                    <div class="rpg-nodes-grid">
+                        @if (!Model.Quests.Any())
+                        {
+                            <div class="text-center py-5">
+                                <h5 class="text-muted">Nenhuma quest diária configurada pelo terapeuta no momento.</h5>
+                            </div>
+                        }
+                        else
+                        {
+                            @for (int i = 0; i < Model.Quests.Count; i++)
+                            {
+                                var q = Model.Quests[i];
+                                // Design nodes. The first one is active/completed, others can be completed or locked
+                                bool isCompleted = i == 0 && Model.Profile.TotalXp > 150; // Mock completed state
+                                string completedClass = isCompleted ? "quest-node-completed" : "";
+                                string nodeIcon = isCompleted ? "🏆" : "⭐";
+
+                                <div class="quest-node @completedClass" onclick="openQuestModal('@q.Id', '@q.Title', '@q.Instructions', '@q.VideoTutorialUrl', '@q.XpReward')">
+                                    <span>@nodeIcon</span>
+                                    <div class="quest-node-label">
+                                        @q.Title <span class="badge bg-light text-dark ms-1">@q.XpReward XP</span>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Future locked quest representation -->
+                            <div class="quest-node quest-node-locked">
+                                <i class="fa fa-lock"></i>
+                                <div class="quest-node-label">
+                                    Missão Futura <span class="badge bg-light text-muted ms-1">Bloqueada</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna da Direita: Badges Unlocked -->
+        <div class="col-lg-4">
+            <div class="glass-card">
+                <h3 class="fw-bold text-dark mb-4"><i class="fa fa-trophy text-warning me-2"></i> Badges Conquistadas</h3>
+
+                <div class="row g-3">
+                    @if (!Model.Badges.Any())
+                    {
+                        <div class="col-12 text-center py-5 text-secondary">
+                            <i class="fa fa-shield fa-3x text-muted mb-3"></i>
+                            <h5>Nenhum badge desbloqueado ainda.</h5>
+                            <p class="text-xs">Conclua quests para desbloquear conquistas.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var badge in Model.Badges)
+                        {
+                            string icon = "🎖️";
+                            string color = "primary";
+                            if (badge.Contains("Nível"))
+                            {
+                                icon = "🚀";
+                                color = "success";
+                            }
+                            else if (badge.Contains("Bronze"))
+                            {
+                                icon = "🥉";
+                                color = "warning";
+                            }
+                            else if (badge.Contains("Silver") || badge.Contains("Familia"))
+                            {
+                                icon = "🥈";
+                                color = "secondary";
+                            }
+                            else if (badge.Contains("Gold"))
+                            {
+                                icon = "🥇";
+                                color = "warning";
+                            }
+
+                            <div class="col-6">
+                                <div class="badge-item">
+                                    <div class="badge-icon">@icon</div>
+                                    <div class="fw-bold text-sm text-dark" style="font-size: 0.85rem; line-height: 1.1rem;">@badge</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Quest Execution Modal -->
+<div class="modal fade" id="questModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content glass-card border-0 p-4">
+            <div class="modal-header border-0 p-0 mb-3">
+                <h3 class="modal-title fw-bold text-dark" id="modalQuestTitle">Quest Title</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <form method="post" asp-page-handler="ExecuteQuest">
+                    <input type="hidden" asp-for="SelectedQuestId" id="modalQuestId" />
+                    
+                    <div class="row">
+                        <!-- Left: video instruction & details -->
+                        <div class="col-md-7 mb-3">
+                            <h6 class="fw-bold text-secondary mb-2"><i class="fa fa-info-circle me-1"></i> INSTRUÇÕES DA TERAPEUTA</h6>
+                            <p id="modalQuestInstructions" class="text-dark bg-light p-3 rounded-3 text-sm">Instructions</p>
+
+                            <!-- Video player placeholder -->
+                            <h6 class="fw-bold text-secondary mb-2 mt-3"><i class="fa fa-play-circle me-1"></i> VÍDEO COMPLEMENTAR</h6>
+                            <div class="ratio ratio-16x9 rounded-3 overflow-hidden bg-dark shadow-inner">
+                                <video id="modalVideoPlayer" controls class="w-100 h-100" style="background:#000;">
+                                    <source src="" type="video/mp4">
+                                    Seu navegador não suporta vídeos HTML5.
+                                </video>
+                            </div>
+                        </div>
+
+                        <!-- Right: Feedback score & Notes -->
+                        <div class="col-md-5">
+                            <div class="emoji-slider-container">
+                                <h6 class="fw-bold text-secondary mb-3 text-center">NÍVEL DE ENGAJAMENTO DO LUCAS</h6>
+                                
+                                <div class="emoji-display" id="emojiIcon">🙂</div>
+                                <div class="emoji-status-label" id="emojiStatusLabel">Colaborativo</div>
+
+                                <input type="range" asp-for="EnjoymentScore" min="1" max="5" value="3" class="form-range" id="scoreRange" oninput="updateEmoji(this.value)" />
+                                
+                                <div class="d-flex justify-content-between text-xs text-muted mt-1 px-1">
+                                    <span>Tímido</span>
+                                    <span>Incrível!</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4 mt-3">
+                                <label class="form-label fw-bold text-secondary text-xs">OBSERVAÇÕES DO COMPORTAMENTO (OPCIONAL)</label>
+                                <textarea asp-for="CaregiverNotes" rows="3" class="form-control glass-input" placeholder="Lucas teve alguma dificuldade ou se divertiu na atividade?"></textarea>
+                            </div>
+
+                            <button type="submit" class="gradient-btn-lavender w-100 py-3">
+                                <i class="fa fa-check-circle me-2"></i> Concluir Atividade & Ganhar XP!
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openQuestModal(id, title, instructions, videoUrl, xp) {
+        document.getElementById("modalQuestId").value = id;
+        document.getElementById("modalQuestTitle").innerText = title + " (" + xp + " XP)";
+        document.getElementById("modalQuestInstructions").innerText = instructions;
+        
+        var video = document.getElementById("modalVideoPlayer");
+        // Fallback robust default video if none configured
+        if (!videoUrl || videoUrl === "") {
+            videoUrl = "https://wecare.blob.core.windows.net/videos/quest1.mp4";
+        }
+        video.src = videoUrl;
+        video.load();
+
+        var modal = new bootstrap.Modal(document.getElementById('questModal'));
+        modal.show();
+    }
+
+    // Interactive emoji selection as the caregiver moves the engagement slider
+    function updateEmoji(val) {
+        var icon = document.getElementById("emojiIcon");
+        var label = document.getElementById("emojiStatusLabel");
+        
+        // Dynamic scales
+        if (val == 1) {
+            icon.innerText = "😢";
+            label.innerText = "Desengajado";
+            icon.style.transform = "scale(0.85)";
+        } else if (val == 2) {
+            icon.innerText = "😕";
+            label.innerText = "Pouco Interesse";
+            icon.style.transform = "scale(0.9)";
+        } else if (val == 3) {
+            icon.innerText = "🙂";
+            label.innerText = "Colaborativo";
+            icon.style.transform = "scale(1.0)";
+        } else if (val == 4) {
+            icon.innerText = "😀";
+            label.innerText = "Muito Engajado";
+            icon.style.transform = "scale(1.15)";
+        } else if (val == 5) {
+            icon.innerText = "🤩";
+            label.innerText = "Super Divertido!";
+            icon.style.transform = "scale(1.3)";
+        }
+    }
+
+    // Confetti Animation Canvas logic
+    if (@Model.ShowConfetti.ToString().ToLower())
+    {
+        window.addEventListener("load", function() {
+            var canvas = document.getElementById("confettiCanvas");
+            var ctx = canvas.getContext("2d");
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            var pieces = [];
+            var numberOfPieces = 150;
+            var colors = ['#8e44ad', '#2ecc71', '#3498db', '#f1c40f', '#e74c3c', '#1abc9c'];
+            
+            function Piece(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = (Math.random() * 8) + 6;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.speed = (Math.random() * 4) + 3;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() * 0.1) - 0.05;
+            }
+            
+            for (var i = 0; i < numberOfPieces; i++) {
+                pieces.push(new Piece(Math.random() * canvas.width, Math.random() * -canvas.height));
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                var active = false;
+                
+                pieces.forEach(function(p) {
+                    p.y += p.speed;
+                    p.x += Math.sin(p.angle) * 0.5;
+                    p.angle += p.rotationSpeed;
+                    
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                    ctx.restore();
+                    
+                    if (p.y < canvas.height) {
+                        active = true;
+                    }
+                });
+                
+                if (active) {
+                    requestAnimationFrame(animate);
+                } else {
+                    canvas.style.display = "none";
+                }
+            }
+            
+            animate();
+        });
+    }
+</script>

@@ -129,6 +129,9 @@
     "Permission:PeriodicReports": "Relatórios Evolutivos Periódicos",
     "Permission:PeriodicReports.Create": "Criar Relatórios Periódicos",
     "Permission:PeriodicReports.Edit": "Editar Relatórios Periódicos",
-    "Permission:PeriodicReports.Delete": "Excluir Relatórios Periódicos"
+    "Permission:PeriodicReports.Delete": "Excluir Relatórios Periódicos",
+    "Menu:CrossTenantAccess": "Acesso Multiclínica",
+    "Menu:Billing": "Faturamento TISS/TUSS",
+    "Menu:Gamification": "Trilha Gamificada"
   }
 }

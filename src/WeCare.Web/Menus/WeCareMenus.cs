@@ -11,4 +11,7 @@ public class WeCareMenus
     public const string ClinicsSettings = "WeCare.Clinics.Settings";
     public const string Attendances = "WeCare.Attendances";
     public const string PeriodicReports = "WeCare.PeriodicReports";
+    public const string CrossTenantAccess = Prefix + ".CrossTenantAccess";
+    public const string Billing = Prefix + ".Billing";
+    public const string Gamification = Prefix + ".Gamification";
 }

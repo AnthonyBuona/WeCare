@@ -203,6 +203,49 @@ public class WeCareMenuContributor : IMenuContributor
             ).RequirePermissions(WeCarePermissions.PeriodicReports.Default)
         );
 
+        // Cross-Tenant Access
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.CrossTenantAccess,
+                l["Menu:CrossTenantAccess"],
+                icon: "fa fa-exchange"
+            ).RequirePermissions(WeCarePermissions.CrossTenantAccess.Default)
+            .AddItem(
+                new ApplicationMenuItem(
+                    "WeCare.CrossTenantAccess.Consent",
+                    "Meu Consentimento (Responsável)",
+                    url: "/CrossTenantAccess"
+                )
+            )
+            .AddItem(
+                new ApplicationMenuItem(
+                    "WeCare.CrossTenantAccess.Timeline",
+                    "Prontuário Compartilhado (Terapeuta)",
+                    url: "/CrossTenantAccess/Timeline"
+                )
+            )
+        );
+
+        // Billing
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.Billing,
+                l["Menu:Billing"],
+                url: "/Billing",
+                icon: "fa fa-file-excel-o"
+            ).RequirePermissions(WeCarePermissions.Billing.Default)
+        );
+
+        // Gamification
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                WeCareMenus.Gamification,
+                l["Menu:Gamification"],
+                url: "/Gamification",
+                icon: "fa fa-gamepad"
+            ).RequirePermissions(WeCarePermissions.Gamification.Default)
+        );
+
         return Task.CompletedTask;
     }
 }

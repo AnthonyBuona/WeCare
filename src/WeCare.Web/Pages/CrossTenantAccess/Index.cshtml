@@ -1,0 +1,270 @@
+@page
+@model WeCare.Web.Pages.CrossTenantAccess.IndexModel
+@{
+    ViewBag.Title = "Portal de Consentimento LGPD - WeCare";
+}
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        --mint-teal: hsl(168, 76%, 42%);
+        --lavender-purple: hsl(265, 80%, 65%);
+        --text-dark: #2c3e50;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: var(--glass-shadow);
+        padding: 24px;
+        margin-bottom: 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+    }
+
+    .glass-input {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--mint-teal);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+    }
+
+    .gradient-btn-mint {
+        background: linear-gradient(135deg, var(--mint-teal), hsl(172, 80%, 38%));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .gradient-btn-mint:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+        color: white;
+    }
+
+    .btn-revoke {
+        border-radius: 10px;
+        font-size: 0.9rem;
+        padding: 6px 16px;
+        transition: all 0.2s ease;
+    }
+
+    .token-box {
+        background: rgba(243, 244, 246, 0.85);
+        border: 2px dashed var(--lavender-purple);
+        border-radius: 16px;
+        padding: 16px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1rem;
+        word-break: break-all;
+        position: relative;
+    }
+
+    .token-badge {
+        position: absolute;
+        top: -12px;
+        right: 16px;
+        background: var(--lavender-purple);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .badge-status {
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-5 text-dark fw-bold" style="letter-spacing: -1px;">
+                Portal de Compartilhamento LGPD
+            </h1>
+            <p class="text-secondary lead">
+                Gerencie as permissões de acesso ao prontuário do seu filho com segurança e transparência em tempo real.
+            </p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.GeneratedRawToken))
+    {
+        <div class="glass-card border border-2 border-success" style="background: rgba(230, 252, 245, 0.85);">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <span class="fa-stack fa-lg text-success">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+                    </span>
+                </div>
+                <div class="flex-grow-1">
+                    <h4 class="text-success fw-bold">Token de Acesso Gerado com Sucesso!</h4>
+                    <p class="text-dark">
+                        Este token é <strong>temporário</strong> e dá acesso seguro à linha do tempo do paciente. 
+                        <strong>Aviso de segurança:</strong> esta chave só será exibida <strong>esta única vez</strong>. Copie-a agora e compartilhe com o terapeuta externo de confiança.
+                    </p>
+                    <div class="token-box mt-3 mb-2">
+                        <span class="token-badge">Copie Agora</span>
+                        <span id="rawTokenText">@Model.GeneratedRawToken</span>
+                    </div>
+                    <button class="btn btn-outline-success mt-2" onclick="copyTokenToClipboard()">
+                        <i class="fa fa-copy"></i> Copiar Token
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Coluna da Esquerda: Solicitar / Gerar Token -->
+        <div class="col-lg-5">
+            <div class="glass-card">
+                <h3 class="fw-bold mb-4 text-dark">
+                    <i class="fa fa-shield text-success me-2"></i> Novo Acesso Temporário
+                </h3>
+                <p class="text-secondary text-sm mb-4">
+                    Gere uma nova autorização segura. O terapeuta externo usará esse token para visualizar a linha do tempo multidisciplinar do paciente.
+                </p>
+
+                <form method="post" asp-page-handler="GenerateToken">
+                    <div class="mb-3">
+                        <label class="form-label text-dark fw-semibold">Paciente (Seu Filho)</label>
+                        <select asp-for="SelectedPatientId" asp-items="Model.PatientOptions" class="form-select glass-input">
+                            <option value="">-- Selecione o Paciente --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-dark fw-semibold">Clínica Externa de Destino</label>
+                        <input asp-for="TargetClinicInput" list="clinics-datalist" placeholder="Digite o ID ou selecione a clínica..." class="form-control glass-input" />
+                        <datalist id="clinics-datalist">
+                            @foreach (var item in Model.ClinicOptions)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </datalist>
+                        <div class="form-text text-muted">
+                            Selecione na lista ou cole o ID do Tenant da clínica externa.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-dark fw-semibold">Prazo de Expiração (Dias)</label>
+                        <select asp-for="ExpirationDays" class="form-select glass-input">
+                            <option value="7">7 dias</option>
+                            <option value="15">15 dias</option>
+                            <option value="30" selected>30 dias</option>
+                            <option value="90">90 dias</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="gradient-btn-mint w-100">
+                        <i class="fa fa-magic me-2"></i> Gerar Token de Acesso
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Coluna da Direita: Lista de Consentimentos Ativos -->
+        <div class="col-lg-7">
+            <div class="glass-card">
+                <h3 class="fw-bold mb-4 text-dark">
+                    <i class="fa fa-list text-primary me-2"></i> Autorizações Ativas
+                </h3>
+
+                @if (!Model.Consents.Any())
+                {
+                    <div class="text-center py-5">
+                        <img src="https://img.icons8.com/bubbles/100/000000/shield.png" alt="Shield" class="mb-3" />
+                        <h5 class="text-secondary fw-semibold">Nenhuma autorização de acesso criada.</h5>
+                        <p class="text-muted text-sm">Gere um token à esquerda para iniciar o compartilhamento seguro.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Clínica Externa</th>
+                                    <th>Expiração</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Consents)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@item.PatientName</div>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary text-sm">@item.TargetClinicName</span>
+                                        </td>
+                                        <td>
+                                            <div class="text-sm">@item.ExpirationDate.ToString("dd/MM/yyyy")</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge-status @item.BadgeClass">@item.Status</span>
+                                        </td>
+                                        <td class="text-end">
+                                            @if (!item.IsRevoked)
+                                            {
+                                                <form method="post" asp-page-handler="Revoke" asp-route-id="@item.Id" style="display:inline;">
+                                                    <button type="submit" class="btn btn-outline-danger btn-revoke" onclick="return confirm('Tem certeza que deseja revogar o acesso imediatamente? Esta ação é irreversível.');">
+                                                        <i class="fa fa-ban"></i> Revogar
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-light btn-revoke" disabled>
+                                                    <i class="fa fa-check text-muted"></i> Inativo
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyTokenToClipboard() {
+        var tokenText = document.getElementById("rawTokenText").innerText;
+        navigator.clipboard.writeText(tokenText).then(function() {
+            alert("Token copiado para a área de transferência!");
+        }, function(err) {
+            console.error('Erro ao copiar token: ', err);
+        });
+    }
+</script>

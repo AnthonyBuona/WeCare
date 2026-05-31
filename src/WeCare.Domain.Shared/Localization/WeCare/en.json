@@ -59,6 +59,9 @@
     "Enum:AttendanceStatus.1": "Absent",
     "Enum:AttendanceStatus.2": "Cancelled",
     "AttendanceDeletionConfirmationMessage": "Are you sure you want to remove the attendance record?",
-    "Menu:PeriodicReports": "Periodic Reports"
+    "Menu:PeriodicReports": "Periodic Reports",
+    "Menu:CrossTenantAccess": "Cross-Tenant Access",
+    "Menu:Billing": "TISS/TUSS Billing",
+    "Menu:Gamification": "Gamified Portal"
   }
 }
