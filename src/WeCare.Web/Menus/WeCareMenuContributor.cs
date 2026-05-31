@@ -52,7 +52,7 @@ public class WeCareMenuContributor : IMenuContributor
         context.Menu.AddItem(
             new ApplicationMenuItem(
                 "Therapists",
-                "Terapeutas",
+                l["Menu:Therapists"],
                 url: "/Therapists",
                 icon: "fa fa-user-md"
             ).RequirePermissions(WeCarePermissions.Therapists.Default)
@@ -79,7 +79,7 @@ public class WeCareMenuContributor : IMenuContributor
         // Configurações da Clínica (accessible to both host and tenant admins)
         administration.AddItem(new ApplicationMenuItem(
             "WeCare.Clinics.Settings",
-            "Configurações",
+            l["Settings"],
             url: "/Clinics/Settings",
             icon: "fa fa-cog",
             order: 3

@@ -37,6 +37,17 @@
     "Novo Agendamento": "New Appointment",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
     "Welcome": "Welcome",
+    "Menu:Clinics": "Clinics",
+    "Menu:Patients": "Patients",
+    "Menu:Patients.Responsibles": "Responsibles",
+    "Tratamento": "Treatment",
+    "Consultas": "Consultations",
+    "Menu:Tratamentos": "Treatments",
+    "Menu:Objectives": "Objectives",
+    "Menu:Guests": "Guests",
+    "Menu:Activities": "Activities",
+    "Menu:Therapists": "Therapists",
+    "Settings": "Settings",
     "Menu:Attendances": "Attendances",
     "NewAttendance": "New Attendance",
     "EditAttendance": "Edit Attendance",
@@ -47,6 +58,7 @@
     "Enum:AttendanceStatus.0": "Present",
     "Enum:AttendanceStatus.1": "Absent",
     "Enum:AttendanceStatus.2": "Cancelled",
-    "AttendanceDeletionConfirmationMessage": "Are you sure you want to remove the attendance record?"
+    "AttendanceDeletionConfirmationMessage": "Are you sure you want to remove the attendance record?",
+    "Menu:PeriodicReports": "Periodic Reports"
   }
 }
