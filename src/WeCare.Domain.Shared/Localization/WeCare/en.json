@@ -62,6 +62,10 @@
     "Menu:PeriodicReports": "Relatórios Periódicos",
     "Menu:CrossTenantAccess": "Acesso Multiclínica",
     "Menu:Billing": "Faturamento TISS/TUSS",
-    "Menu:Gamification": "Trilha Gamificada"
+    "Menu:Gamification": "Trilha Gamificada",
+    "Menu:MainPanel": "Painel Principal",
+    "Menu:ClinicalCare": "Acompanhamento Clínico",
+    "Menu:Directories": "Cadastros & Equipe",
+    "Menu:BillingAndRPG": "Faturamento & Utilidades"
   }
 }
