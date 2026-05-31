@@ -49,33 +49,59 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* =========================================================
-   3. SIDEBAR — Apenas visual (SEM margin/width/height)
+   3. SIDEBAR — Premium Glassmorphism Light Theme
    ========================================================= */
 aside.lpx-sidebar,
-.lpx-sidebar {
-    background: linear-gradient(180deg, #1a2744 0%, #1e2d4a 100%) !important;
-    border-right: 1px solid rgba(255,255,255,0.06) !important;
-    box-shadow: 2px 0 12px rgba(0,0,0,0.15) !important;
+.lpx-sidebar,
+.lpx-sidebar-container,
+.lpx-sidebar-content {
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(77, 163, 145, 0.12) !important;
+    box-shadow: 4px 0 24px rgba(77, 163, 145, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Forçar transparência em todos os containers internos para não tampar a glassmorphism */
+.lpx-sidebar *,
+.lpx-sidebar-header,
+.lpx-sidebar-logo,
+.lpx-brand,
+.lpx-menu-container,
+.lpx-menu,
+.lpx-nav,
+.lpx-menu-item,
+.lpx-menu-item-link {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    background: transparent !important;
 }
 
 /* Textos dos itens de menu */
 .lpx-sidebar .lpx-menu-item-text {
-    color: rgba(255, 255, 255, 0.78) !important;
+    color: #2e3c4e !important;
     font-family: var(--font-sans) !important;
     font-size: 0.875rem !important;
+    font-weight: 550 !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* Ícones do menu */
 .lpx-sidebar .lpx-menu-item-icon,
 .lpx-sidebar i {
-    color: #4da391 !important;
+    color: #8c7fcd !important; /* Ícones em lavender premium */
+    font-size: 1.05rem !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* Item ativo */
 .lpx-sidebar .lpx-menu-item-link.selected,
 .lpx-sidebar .lpx-menu-item-link.active {
-    background: linear-gradient(90deg, #4da391 0%, #8c7fcd 100%) !important;
-    border-radius: 8px !important;
+    background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(77, 163, 145, 0.20) !important;
+    transform: scale(1.02) !important;
 }
 
 .lpx-sidebar .lpx-menu-item-link.selected .lpx-menu-item-text,
@@ -85,27 +111,59 @@ aside.lpx-sidebar,
     color: #fff !important;
 }
 
-/* Hover */
+/* Hover nos itens de menu */
+.lpx-sidebar .lpx-menu-item-link {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border-radius: 12px !important;
+}
+
 .lpx-sidebar .lpx-menu-item-link:hover {
-    background: rgba(255,255,255,0.07) !important;
-    border-radius: 8px !important;
+    background: rgba(77, 163, 145, 0.07) !important;
+    transform: translateX(6px) !important;
 }
 
 .lpx-sidebar .lpx-menu-item-link:hover .lpx-menu-item-text {
-    color: #fff !important;
+    color: #3e8a79 !important;
+}
+
+.lpx-sidebar .lpx-menu-item-link:hover .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link:hover i {
+    color: #4da391 !important;
+    transform: scale(1.15) rotate(5deg) !important;
 }
 
 /* Submenu */
+.lpx-sidebar .lpx-sub-menu {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-radius: 10px !important;
+    margin: 4px 10px !important;
+    padding: 4px 0 !important;
+}
+
 .lpx-sidebar .lpx-sub-menu .lpx-menu-item-text {
-    color: rgba(255,255,255,0.60) !important;
+    color: #4d5c6e !important;
     font-size: 0.82rem !important;
+    font-weight: 500 !important;
+}
+
+.lpx-sidebar .lpx-sub-menu .lpx-menu-item-link:hover {
+    background: rgba(140, 127, 205, 0.08) !important;
+}
+
+.lpx-sidebar .lpx-sub-menu .lpx-menu-item-link:hover .lpx-menu-item-text {
+    color: #8c7fcd !important;
 }
 
 /* Brand / logo */
 .lpx-brand-name {
-    color: #fff !important;
+    background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
     font-family: var(--font-heading) !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
+    font-size: 1.45rem !important;
+    letter-spacing: -0.02em !important;
+    transition: all 0.3s ease !important;
 }
 
 /* =========================================================
