@@ -17,6 +17,9 @@ using WeCare.Clinics;
 using WeCare.Guests;
 using WeCare.Attendances;
 using WeCare.PeriodicReports;
+using WeCare.CrossTenantAccess;
+using WeCare.Billing;
+using WeCare.Gamification;
 
 namespace WeCare
 {
@@ -96,6 +99,33 @@ namespace WeCare
             CreateMap<PeriodicReport, PeriodicReportDto>();
             CreateMap<CreateUpdatePeriodicReportDto, PeriodicReport>();
             CreateMap<PeriodicReportDto, CreateUpdatePeriodicReportDto>();
+
+            // Cross Tenant Access Maps
+            CreateMap<CrossTenantAccessConsent, CrossTenantAccessConsentDto>()
+                .ForMember(dest => dest.RawToken, opt => opt.Ignore());
+            CreateMap<CreateCrossTenantAccessConsentDto, CrossTenantAccessConsent>()
+                .ForMember(dest => dest.TenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.SourceTenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExpirationDate, opt => opt.Ignore())
+                .ForMember(dest => dest.AuthTokenHash, opt => opt.Ignore())
+                .ForMember(dest => dest.IsRevoked, opt => opt.Ignore());
+            CreateMap<SharedAccessAuditLog, SharedAccessAuditLogDto>();
+
+            // Billing Maps
+            CreateMap<TussProcedureMapping, TussProcedureMappingDto>();
+            CreateMap<BillingGuide, BillingGuideDto>();
+            CreateMap<CreateBillingGuideDto, BillingGuide>()
+                .ForMember(dest => dest.TenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
+            CreateMap<BillingBatch, BillingBatchDto>();
+
+            // Gamification Maps
+            CreateMap<CaregiverQuest, CaregiverQuestDto>();
+            CreateMap<QuestExecutionLog, QuestExecutionLogDto>();
+            CreateMap<CreateQuestExecutionLogDto, QuestExecutionLog>()
+                .ForMember(dest => dest.TenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecutionDate, opt => opt.Ignore());
+            CreateMap<UserGamifiedProfile, UserGamifiedProfileDto>();
         }
     }
 }

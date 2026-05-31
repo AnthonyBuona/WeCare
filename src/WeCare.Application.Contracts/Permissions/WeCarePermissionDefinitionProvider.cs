@@ -106,6 +106,21 @@ namespace WeCare.Permissions
             periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Create, L("Permission:PeriodicReports.Create"));
             periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Edit, L("Permission:PeriodicReports.Edit"));
             periodicReportsPermission.AddChild(WeCarePermissions.PeriodicReports.Delete, L("Permission:PeriodicReports.Delete"));
+
+            var crossTenantPermission = myGroup.AddPermission(WeCarePermissions.CrossTenantAccess.Default, L("Permission:CrossTenantAccess"));
+            crossTenantPermission.AddChild(WeCarePermissions.CrossTenantAccess.Create, L("Permission:CrossTenantAccess.Create"));
+            crossTenantPermission.AddChild(WeCarePermissions.CrossTenantAccess.Verify, L("Permission:CrossTenantAccess.Verify"));
+            crossTenantPermission.AddChild(WeCarePermissions.CrossTenantAccess.ViewAuditLogs, L("Permission:CrossTenantAccess.ViewAuditLogs"));
+
+            var billingPermission = myGroup.AddPermission(WeCarePermissions.Billing.Default, L("Permission:Billing"));
+            billingPermission.AddChild(WeCarePermissions.Billing.Create, L("Permission:Billing.Create"));
+            billingPermission.AddChild(WeCarePermissions.Billing.Export, L("Permission:Billing.Export"));
+            billingPermission.AddChild(WeCarePermissions.Billing.TussMapping, L("Permission:Billing.TussMapping"));
+
+            var gamificationPermission = myGroup.AddPermission(WeCarePermissions.Gamification.Default, L("Permission:Gamification"));
+            gamificationPermission.AddChild(WeCarePermissions.Gamification.CreateQuest, L("Permission:Gamification.CreateQuest"));
+            gamificationPermission.AddChild(WeCarePermissions.Gamification.ExecuteQuest, L("Permission:Gamification.ExecuteQuest"));
+            gamificationPermission.AddChild(WeCarePermissions.Gamification.ViewProfile, L("Permission:Gamification.ViewProfile"));
         }
 
 

@@ -109,5 +109,29 @@ public static class WeCarePermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class CrossTenantAccess
+    {
+        public const string Default = GroupName + ".CrossTenantAccess";
+        public const string Create = Default + ".Create";
+        public const string Verify = Default + ".Verify";
+        public const string ViewAuditLogs = Default + ".ViewAuditLogs";
+    }
+
+    public static class Billing
+    {
+        public const string Default = GroupName + ".Billing";
+        public const string Create = Default + ".Create";
+        public const string Export = Default + ".Export";
+        public const string TussMapping = Default + ".TussMapping";
+    }
+
+    public static class Gamification
+    {
+        public const string Default = GroupName + ".Gamification";
+        public const string CreateQuest = Default + ".CreateQuest";
+        public const string ExecuteQuest = Default + ".ExecuteQuest";
+        public const string ViewProfile = Default + ".ViewProfile";
+    }
 }
 
