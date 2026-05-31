@@ -22,6 +22,9 @@ using Volo.Abp.TenantManagement;
 using Volo.Abp.MultiTenancy;
 using Microsoft.AspNetCore.Identity;
 using WeCare.PeriodicReports;
+using WeCare.CrossTenantAccess;
+using WeCare.Billing;
+using WeCare.Gamification;
 
 namespace WeCare.Data
 {
@@ -38,6 +41,14 @@ namespace WeCare.Data
         private readonly IRepository<Tratamento, Guid> _tratamentoRepository;
         private readonly IRepository<Attendance, Guid> _attendanceRepository;
         private readonly IRepository<PeriodicReport, Guid> _periodicReportRepository;
+        private readonly IRepository<CrossTenantAccessConsent, Guid> _consentRepository;
+        private readonly IRepository<SharedAccessAuditLog, Guid> _auditLogRepository;
+        private readonly IRepository<TussProcedureMapping, Guid> _tussMappingRepository;
+        private readonly IRepository<BillingGuide, Guid> _billingGuideRepository;
+        private readonly IRepository<BillingBatch, Guid> _billingBatchRepository;
+        private readonly IRepository<CaregiverQuest, Guid> _questRepository;
+        private readonly IRepository<QuestExecutionLog, Guid> _questLogRepository;
+        private readonly IRepository<UserGamifiedProfile, Guid> _gamifiedProfileRepository;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IdentityUserManager _userManager;
         private readonly ITenantRepository _tenantRepository;
@@ -56,6 +67,14 @@ namespace WeCare.Data
             IRepository<Tratamento, Guid> tratamentoRepository,
             IRepository<Attendance, Guid> attendanceRepository,
             IRepository<PeriodicReport, Guid> periodicReportRepository,
+            IRepository<CrossTenantAccessConsent, Guid> consentRepository,
+            IRepository<SharedAccessAuditLog, Guid> auditLogRepository,
+            IRepository<TussProcedureMapping, Guid> tussMappingRepository,
+            IRepository<BillingGuide, Guid> billingGuideRepository,
+            IRepository<BillingBatch, Guid> billingBatchRepository,
+            IRepository<CaregiverQuest, Guid> questRepository,
+            IRepository<QuestExecutionLog, Guid> questLogRepository,
+            IRepository<UserGamifiedProfile, Guid> gamifiedProfileRepository,
             IGuidGenerator guidGenerator,
             IdentityUserManager userManager,
             ITenantRepository tenantRepository,
@@ -73,6 +92,14 @@ namespace WeCare.Data
             _tratamentoRepository = tratamentoRepository;
             _attendanceRepository = attendanceRepository;
             _periodicReportRepository = periodicReportRepository;
+            _consentRepository = consentRepository;
+            _auditLogRepository = auditLogRepository;
+            _tussMappingRepository = tussMappingRepository;
+            _billingGuideRepository = billingGuideRepository;
+            _billingBatchRepository = billingBatchRepository;
+            _questRepository = questRepository;
+            _questLogRepository = questLogRepository;
+            _gamifiedProfileRepository = gamifiedProfileRepository;
             _guidGenerator = guidGenerator;
             _userManager = userManager;
             _tenantRepository = tenantRepository;
@@ -264,6 +291,112 @@ namespace WeCare.Data
                     "192.168.1.102",
                     "123.456.789-01",
                     "d8a57e3f890e0c89abddd8e244eccf5678abdd7e907b22a8bcff29f12345678a",
+                    tenantId
+                ), autoSave: true);
+            }
+
+            // --- Features 2, 3, 4 Seed Data ---
+            if (await _consentRepository.GetCountAsync() == 0)
+            {
+                var targetTenantId = _guidGenerator.Create();
+
+                var consent = await _consentRepository.InsertAsync(new CrossTenantAccessConsent(
+                    _guidGenerator.Create(),
+                    patient.Id,
+                    tenantId,
+                    targetTenantId,
+                    DateTime.Now.AddDays(30),
+                    "Read",
+                    "d8a57e3f890e0c89abddd8e244eccf5678abdd7e907b22a8bcff29f12345678a",
+                    false,
+                    tenantId
+                ), autoSave: true);
+
+                await _auditLogRepository.InsertAsync(new SharedAccessAuditLog(
+                    _guidGenerator.Create(),
+                    consent.Id,
+                    therapistUser.Id,
+                    "Viewed multidisciplinary timeline",
+                    DateTime.Now.AddMinutes(-5),
+                    "192.168.1.105",
+                    tenantId
+                ), autoSave: true);
+            }
+
+            if (await _tussMappingRepository.GetCountAsync() == 0)
+            {
+                await _tussMappingRepository.InsertAsync(new TussProcedureMapping(
+                    _guidGenerator.Create(),
+                    "Terapia Ocupacional",
+                    "50000470",
+                    "Fonoaudiologia individual"
+                ), autoSave: true);
+
+                await _tussMappingRepository.InsertAsync(new TussProcedureMapping(
+                    _guidGenerator.Create(),
+                    "Psicopedagogia",
+                    "50000488",
+                    "Psicopedagogia individual"
+                ), autoSave: true);
+            }
+
+            if (await _billingGuideRepository.GetCountAsync() == 0)
+            {
+                await _billingGuideRepository.InsertAsync(new BillingGuide(
+                    _guidGenerator.Create(),
+                    consultation.Id,
+                    "Amil",
+                    "1234567890123456",
+                    "PASS123",
+                    150.00m,
+                    "Pending",
+                    tenantId
+                ), autoSave: true);
+            }
+
+            if (await _billingBatchRepository.GetCountAsync() == 0)
+            {
+                await _billingBatchRepository.InsertAsync(new BillingBatch(
+                    _guidGenerator.Create(),
+                    "BATCH-2026-001",
+                    DateTime.Now,
+                    "<xml><lote>1</lote></xml>",
+                    "BATCH_HASH_SIGNATURE_EX",
+                    tenantId
+                ), autoSave: true);
+            }
+
+            if (await _questRepository.GetCountAsync() == 0)
+            {
+                var quest = await _questRepository.InsertAsync(new CaregiverQuest(
+                    _guidGenerator.Create(),
+                    patient.Id,
+                    "Praticar abotoar camisa",
+                    "Praticar abotoar a camisa por 3 minutos com a criança.",
+                    "https://wecare.blob.core.windows.net/videos/quest1.mp4",
+                    50,
+                    tenantId
+                ), autoSave: true);
+
+                await _questLogRepository.InsertAsync(new QuestExecutionLog(
+                    _guidGenerator.Create(),
+                    quest.Id,
+                    DateTime.Now.AddDays(-1),
+                    5,
+                    "Lucas gostou muito e conseguiu abotoar 3 botões sozinho!",
+                    tenantId
+                ), autoSave: true);
+            }
+
+            if (await _gamifiedProfileRepository.GetCountAsync() == 0)
+            {
+                await _gamifiedProfileRepository.InsertAsync(new UserGamifiedProfile(
+                    _guidGenerator.Create(),
+                    responsibleUser.Id,
+                    2,
+                    150,
+                    3,
+                    "[\"PrimeiroTreino\", \"FamiliaEngajada\"]",
                     tenantId
                 ), autoSave: true);
             }

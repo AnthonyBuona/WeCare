@@ -28,6 +28,9 @@ using WeCare.Clinics;
 using WeCare.Guests;
 using WeCare.Attendances;
 using WeCare.PeriodicReports;
+using WeCare.CrossTenantAccess;
+using WeCare.Billing;
+using WeCare.Gamification;
 
 namespace WeCare.EntityFrameworkCore;
 
@@ -55,6 +58,14 @@ public class WeCareDbContext :
     public DbSet<Guest> Guests { get; set; }
     public DbSet<Attendance> Attendances { get; set; }
     public DbSet<PeriodicReport> PeriodicReports { get; set; }
+    public DbSet<CrossTenantAccessConsent> CrossTenantAccessConsents { get; set; }
+    public DbSet<SharedAccessAuditLog> SharedAccessAuditLogs { get; set; }
+    public DbSet<TussProcedureMapping> TussProcedureMappings { get; set; }
+    public DbSet<BillingGuide> BillingGuides { get; set; }
+    public DbSet<BillingBatch> BillingBatches { get; set; }
+    public DbSet<CaregiverQuest> CaregiverQuests { get; set; }
+    public DbSet<QuestExecutionLog> QuestExecutionLogs { get; set; }
+    public DbSet<UserGamifiedProfile> UserGamifiedProfiles { get; set; }
 
 
     #region Entities from the modules
@@ -259,6 +270,87 @@ public class WeCareDbContext :
             
             b.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<Therapist>().WithMany().HasForeignKey(x => x.TherapistId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<CrossTenantAccessConsent>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "CrossTenantAccessConsents", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.GrantedPermissions).IsRequired().HasMaxLength(500);
+            b.Property(x => x.AuthTokenHash).IsRequired().HasMaxLength(256);
+
+            b.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+
+            // Composite index on AuthTokenHash and TenantId for fast LGPD lookup
+            b.HasIndex(x => new { x.AuthTokenHash, x.TenantId });
+        });
+
+        builder.Entity<SharedAccessAuditLog>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "SharedAccessAuditLogs", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.ActionPerformed).IsRequired().HasMaxLength(256);
+            b.Property(x => x.AccessingIP).IsRequired().HasMaxLength(50);
+
+            b.HasOne<CrossTenantAccessConsent>().WithMany().HasForeignKey(x => x.ConsentId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<TussProcedureMapping>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "TussProcedureMappings", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Specialty).IsRequired().HasMaxLength(128);
+            b.Property(x => x.TussCode).IsRequired().HasMaxLength(50);
+            b.Property(x => x.Description).IsRequired().HasMaxLength(256);
+        });
+
+        builder.Entity<BillingGuide>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "BillingGuides", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.HealthInsuranceName).IsRequired().HasMaxLength(128);
+            b.Property(x => x.CardNumber).IsRequired().HasMaxLength(50);
+            b.Property(x => x.AuthorizationPassword).IsRequired().HasMaxLength(50);
+            b.Property(x => x.Status).IsRequired().HasMaxLength(50);
+
+            b.HasOne<Consultation>().WithMany().HasForeignKey(x => x.ConsultationId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<BillingBatch>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "BillingBatches", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.BatchNumber).IsRequired().HasMaxLength(50);
+            b.Property(x => x.HashSignature).IsRequired().HasMaxLength(256);
+        });
+
+        builder.Entity<CaregiverQuest>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "CaregiverQuests", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Title).IsRequired().HasMaxLength(256);
+            b.Property(x => x.Instructions).IsRequired().HasMaxLength(2000);
+            b.Property(x => x.VideoTutorialUrl).HasMaxLength(512);
+
+            b.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<QuestExecutionLog>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "QuestExecutionLogs", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.CaregiverNotes).HasMaxLength(1000);
+
+            b.HasOne<CaregiverQuest>().WithMany().HasForeignKey(x => x.QuestId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<UserGamifiedProfile>(b =>
+        {
+            b.ToTable(WeCareConsts.DbTablePrefix + "UserGamifiedProfiles", WeCareConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.UnlockedBadgesJson).HasMaxLength(2000);
+
+            b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.ParentUserId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
