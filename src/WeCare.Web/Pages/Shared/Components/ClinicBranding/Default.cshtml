@@ -110,6 +110,27 @@
         }
         .bg-gradient-success {
             background: linear-gradient(150deg, @secondary 0%, @(AdjustBrightness(secondary, -20)) 100%) !important;
+            /* ---- SIDEBAR CONTAINER OVERRIDES — HIDE SCROLLBARS ---- */
+        }
+        aside.lpx-sidebar,
+        .lpx-sidebar,
+        .lpx-sidebar-container,
+        .lpx-sidebar-content,
+        .lpx-menu-container,
+        .lpx-menu,
+        .lpx-nav {
+            overflow: hidden !important; /* Esconder barras de rolagem nativas */
+        }
+
+        aside.lpx-sidebar::-webkit-scrollbar,
+        .lpx-sidebar::-webkit-scrollbar,
+        .lpx-sidebar-container::-webkit-scrollbar,
+        .lpx-sidebar-content::-webkit-scrollbar,
+        .lpx-menu-container::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
         }
 
         /* ---- SIDEBAR ICONS — primary color, TEXT — elegant dark slate ---- */
@@ -125,18 +146,18 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* Text elegant slate-navy */
+        /* Text elegant slate-900 with high contrast and legibility */
         .lpx-menu-item-link .lpx-menu-item-text {
-            color: #2e3c4e !important;
-            font-weight: 550 !important;
+            color: #111827 !important; /* Slate-900 */
+            font-weight: 600 !important; /* Semi-bold */
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* Selected/Active item — beautiful mint-lavender gradient background */
-        .lpx-menu-item-link.selected,
-        .lpx-menu-item-link.active,
-        a.lpx-menu-item-link.lpx-menu-item.selected,
-        a.lpx-menu-item-link.lpx-menu-item.active {
+        /* Selected/Active item Leaf (ex: Home, Scheduling, Attendances, and specific child submenus) — solid gradient background */
+        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)),
+        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)),
+        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)),
+        a.lpx-menu-item-link.lpx-menu-item.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) {
             background: linear-gradient(135deg, @primary 0%, @secondary 100%) !important;
             border-radius: 12px !important;
             box-shadow: 0 4px 15px rgba(@(ConvertHexToRgb(primary)), 0.20) !important;
@@ -144,19 +165,49 @@
             color: #fff !important;
         }
 
-        .lpx-menu-item-link.selected .lpx-menu-item-text,
-        .lpx-menu-item-link.active .lpx-menu-item-text,
-        .lpx-menu-item-link.selected .lpx-menu-item-icon,
-        .lpx-menu-item-link.active .lpx-menu-item-icon i,
-        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-text,
-        a.lpx-menu-item-link.lpx-menu-item.selected .lpx-menu-item-icon i {
+        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
+        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
+        .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
+        .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i,
+        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
+        a.lpx-menu-item-link.lpx-menu-item.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon i {
             color: #fff !important;
+        }
+
+        /* Selected/Active Parent item (Folders with submenus expand) — soft mint background, no solid gradient */
+        .lpx-menu-item-link.selected:has(.lpx-caret),
+        .lpx-menu-item-link.active:has(.lpx-caret),
+        .lpx-menu-item-link.selected:has(.dd-icon),
+        .lpx-menu-item-link.active:has(.dd-icon),
+        a.lpx-menu-item-link.lpx-menu-item.selected:has(.lpx-caret),
+        a.lpx-menu-item-link.lpx-menu-item.active:has(.lpx-caret) {
+            background: rgba(@(ConvertHexToRgb(primary)), 0.08) !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-text,
+        .lpx-menu-item-link.active:has(.lpx-caret) .lpx-menu-item-text,
+        a.lpx-menu-item-link.lpx-menu-item.selected:has(.lpx-caret) .lpx-menu-item-text,
+        a.lpx-menu-item-link.lpx-menu-item.active:has(.lpx-caret) .lpx-menu-item-text {
+            color: @primary !important;
+            font-weight: 700 !important;
+        }
+
+        .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-icon,
+        .lpx-menu-item-link.active:has(.lpx-caret) i,
+        .lpx-menu-item-link.selected:has(.dd-icon) .lpx-menu-item-icon,
+        .lpx-menu-item-link.active:has(.dd-icon) i {
+            color: @primary !important;
         }
 
         /* Selected item left indicator bar (make transparent as we use premium full card selected gradient) */
         .lpx-menu-item-link.selected::before,
-        a.lpx-menu-item-link.selected::before {
+        a.lpx-menu-item.selected::before,
+        .lpx-menu-item-link.active::before {
             background-color: transparent !important;
+            display: none !important;
         }
 
         /* Hover state — sutil translateX slide-in with light mint background */

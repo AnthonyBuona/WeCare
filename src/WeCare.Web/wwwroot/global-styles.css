@@ -54,13 +54,29 @@ h1, h2, h3, h4, h5, h6,
 aside.lpx-sidebar,
 .lpx-sidebar,
 .lpx-sidebar-container,
-.lpx-sidebar-content {
+.lpx-sidebar-content,
+.lpx-menu-container,
+.lpx-menu,
+.lpx-nav {
     background: rgba(255, 255, 255, 0.72) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border-right: 1px solid rgba(77, 163, 145, 0.12) !important;
     box-shadow: 4px 0 24px rgba(77, 163, 145, 0.05) !important;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow: hidden !important; /* Esconder barras de rolagem nativas */
+}
+
+/* Ocultar barra de rolagem em navegadores Webkit (Chrome, Safari, Edge) */
+aside.lpx-sidebar::-webkit-scrollbar,
+.lpx-sidebar::-webkit-scrollbar,
+.lpx-sidebar-container::-webkit-scrollbar,
+.lpx-sidebar-content::-webkit-scrollbar,
+.lpx-menu-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
 }
 
 /* Forçar transparência em todos os containers internos para não tampar a glassmorphism */
@@ -78,12 +94,12 @@ aside.lpx-sidebar,
     background: transparent !important;
 }
 
-/* Textos dos itens de menu */
+/* Textos dos itens de menu - COR MAIS ESCURA E COM PESO (Alto contraste e nitidez) */
 .lpx-sidebar .lpx-menu-item-text {
-    color: #2e3c4e !important;
+    color: #111827 !important; /* Slate-900 (Contraste máximo e nítido) */
     font-family: var(--font-sans) !important;
     font-size: 0.875rem !important;
-    font-weight: 550 !important;
+    font-weight: 600 !important; /* Semi-bold */
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
@@ -95,20 +111,46 @@ aside.lpx-sidebar,
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Item ativo */
-.lpx-sidebar .lpx-menu-item-link.selected,
-.lpx-sidebar .lpx-menu-item-link.active {
+/* Item ativo folha (solid gradient) - Exclui o item pai expandido */
+.lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)),
+.lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) {
     background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%) !important;
     border-radius: 12px !important;
     box-shadow: 0 4px 15px rgba(77, 163, 145, 0.20) !important;
     transform: scale(1.02) !important;
 }
 
-.lpx-sidebar .lpx-menu-item-link.selected .lpx-menu-item-text,
-.lpx-sidebar .lpx-menu-item-link.active .lpx-menu-item-text,
-.lpx-sidebar .lpx-menu-item-link.selected .lpx-menu-item-icon,
-.lpx-sidebar .lpx-menu-item-link.active i {
+.lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) i {
     color: #fff !important;
+}
+
+/* Item ativo pai (ex: Pacientes, Tratamento quando expandidos) - Fundo mint muito sutil e sem gradiente sólido */
+.lpx-sidebar .lpx-menu-item-link.selected:has(.lpx-caret),
+.lpx-sidebar .lpx-menu-item-link.active:has(.lpx-caret),
+.lpx-sidebar .lpx-menu-item-link.selected:has(.dd-icon),
+.lpx-sidebar .lpx-menu-item-link.active:has(.dd-icon) {
+    background: rgba(77, 163, 145, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.lpx-sidebar .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-link.active:has(.lpx-caret) .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-link.selected:has(.dd-icon) .lpx-menu-item-text,
+.lpx-sidebar .lpx-menu-item-link.active:has(.dd-icon) .lpx-menu-item-text {
+    color: #4da391 !important;
+    font-weight: 700 !important;
+}
+
+.lpx-sidebar .lpx-menu-item-link.selected:has(.lpx-caret) .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link.active:has(.lpx-caret) i,
+.lpx-sidebar .lpx-menu-item-link.selected:has(.dd-icon) .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link.active:has(.dd-icon) i {
+    color: #4da391 !important;
 }
 
 /* Hover nos itens de menu */
