@@ -123,8 +123,14 @@ aside.lpx-sidebar::-webkit-scrollbar,
 .lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
 .lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-text,
 .lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
+.lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon,
+.lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) .lpx-menu-item-icon *,
+.lpx-sidebar .lpx-menu-item-link.selected:not(:has(.lpx-caret)):not(:has(.dd-icon)) i,
 .lpx-sidebar .lpx-menu-item-link.active:not(:has(.lpx-caret)):not(:has(.dd-icon)) i {
     color: #fff !important;
+    fill: #fff !important;
+    stroke: #fff !important;
 }
 
 /* Item ativo pai (ex: Pacientes, Tratamento quando expandidos) - Fundo mint muito sutil e sem gradiente sólido */
@@ -237,6 +243,129 @@ aside.lpx-sidebar::-webkit-scrollbar,
     border-bottom: none !important;
     border-top: none !important;
     border-color: transparent !important;
+}
+
+/* =========================================================
+   3.1 SIDEBAR PERSISTENT TOGGLE & HOVER OVERRIDES
+   ========================================================= */
+/* Disable hover-expansion: keep sidebar container at 72px even on hover when collapsed */
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sidebar,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sidebar .lpx-nav {
+    min-width: 72px !important;
+    max-width: 72px !important;
+    width: 72px !important;
+}
+
+/* Ensure text and dropdown carousels remain completely hidden when collapsed, even on hover */
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-brand-name,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-menu-item-text,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-caret,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .hidden-in-hover-trigger,
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-sub-menu {
+    display: none !important;
+}
+
+/* Maintain collapsed width on the logo container when hovered and collapsed */
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover .lpx-logo-container {
+    width: 72px !important;
+}
+
+/* Sidebar Pull-handle / Fitinha Toggle Button */
+/* NOTE: 'left' is controlled dynamically by ResizeObserver in global-scripts.js */
+.wecare-sidebar-handle {
+    position: fixed;
+    top: 50%;
+    /* left is set dynamically by JS — do NOT set a static left here */
+    transform: translateY(-50%);
+    width: 24px;
+    height: 48px;
+    background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%);
+    color: #fff !important;
+    border-radius: 0 12px 12px 0; /* rounded on the right, tab shape */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 4px 0 12px rgba(77, 163, 145, 0.25);
+    z-index: 9999;
+    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-left: none;
+}
+
+.wecare-sidebar-handle:hover {
+    width: 28px;
+    box-shadow: 6px 0 16px rgba(77, 163, 145, 0.35);
+}
+
+.wecare-sidebar-handle i {
+    font-size: 0.8rem;
+    color: #fff !important;
+    transition: transform 0.3s ease;
+}
+
+/* Responsive Sidebar Collapsing/Expanding for Viewports >= 768px and < 1200px */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .lpx-sidebar-container,
+    .lpx-sidebar,
+    .lpx-logo-container,
+    .lpx-content-container {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* Expanded State (no .hover-trigger class) */
+    #lpx-wrapper:not(.hover-trigger) .lpx-sidebar-container {
+        min-width: 280px !important;
+        max-width: 280px !important;
+        width: 280px !important;
+    }
+    #lpx-wrapper:not(.hover-trigger) .lpx-sidebar {
+        width: 280px !important;
+    }
+    #lpx-wrapper:not(.hover-trigger) .lpx-logo-container {
+        width: 280px !important;
+    }
+    #lpx-wrapper:not(.hover-trigger) .lpx-content-container {
+        margin-left: 280px !important;
+    }
+
+    /* Show all branding and menu texts when expanded */
+    #lpx-wrapper:not(.hover-trigger) .lpx-brand-name,
+    #lpx-wrapper:not(.hover-trigger) .lpx-menu-item-text,
+    #lpx-wrapper:not(.hover-trigger) .lpx-caret,
+    #lpx-wrapper:not(.hover-trigger) .hidden-in-hover-trigger,
+    #lpx-wrapper:not(.hover-trigger) .lpx-sub-menu {
+        display: inline-block !important;
+    }
+    #lpx-wrapper:not(.hover-trigger) .lpx-logo-container .lpx-brand-logo {
+        display: block !important;
+    }
+
+    /* Collapsed State (has .hover-trigger class) */
+    #lpx-wrapper.hover-trigger .lpx-sidebar-container {
+        min-width: 72px !important;
+        max-width: 72px !important;
+        width: 72px !important;
+    }
+    #lpx-wrapper.hover-trigger .lpx-sidebar {
+        width: 72px !important;
+    }
+    #lpx-wrapper.hover-trigger .lpx-logo-container {
+        width: 72px !important;
+    }
+    #lpx-wrapper.hover-trigger .lpx-content-container {
+        margin-left: 72px !important;
+    }
+
+    /* Hide all menu texts when collapsed */
+    #lpx-wrapper.hover-trigger .lpx-brand-name,
+    #lpx-wrapper.hover-trigger .lpx-menu-item-text,
+    #lpx-wrapper.hover-trigger .lpx-caret,
+    #lpx-wrapper.hover-trigger .hidden-in-hover-trigger,
+    #lpx-wrapper.hover-trigger .lpx-sub-menu {
+        display: none !important;
+    }
 }
 
 /* =========================================================
@@ -376,6 +505,22 @@ header.lpx-topbar {
     color: #fff !important;
 }
 
+/* Option selection color override (replaces pink) */
+select option:checked,
+select option:hover,
+select option:focus,
+select option:active,
+option:checked,
+option:hover,
+option:focus,
+option:active {
+    background: var(--primary-color) !important;
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    box-shadow: 0 0 0 100px var(--primary-color) inset !important;
+}
+
 /* =========================================================
    8. TABELAS (DataTables)
    ========================================================= */
@@ -444,6 +589,54 @@ header.lpx-topbar {
 .badge.bg-success,
 .badge-success {
     background-color: #4da391 !important;
+}
+
+/* Fix badge contrast and low visibility issues (e.g. white text on light-grey) */
+.badge.bg-light,
+.badge.text-dark {
+    color: #1f2937 !important; /* Elegant slate-900 */
+    border: 1px solid rgba(77, 163, 145, 0.15) !important;
+    background-color: #f3f4f6 !important; /* Elegant grey */
+}
+
+/* Fix pink styling in settings tabs / list-groups / nav-pills */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link,
+.list-group-item.active,
+.nav-tabs .nav-link.active,
+a.nav-link.active,
+[role="tab"].active {
+    background: var(--gradient-primary) !important;
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(77, 163, 145, 0.25) !important;
+    border-color: transparent !important;
+}
+
+.nav-pills .nav-link.active i,
+.nav-pills .nav-link.active .fa,
+.nav-pills .nav-link.active .fas,
+.nav-pills .nav-link.active .far,
+.nav-pills .nav-link.active .bi,
+.list-group-item.active i,
+.list-group-item.active .fa,
+.list-group-item.active .bi {
+    color: #fff !important;
+}
+
+.nav-pills .nav-link:not(.active):hover,
+.list-group-item:not(.active):hover {
+    background-color: rgba(77, 163, 145, 0.08) !important;
+    color: var(--primary-dark) !important;
+}
+
+.nav-pills .nav-link,
+.list-group-item,
+.nav-tabs .nav-link,
+a.nav-link,
+[role="tab"] {
+    color: #4b5563 !important; /* Elegant slate-600 */
+    font-weight: 600 !important;
 }
 
 /* =========================================================
