@@ -357,33 +357,27 @@ body::after {
 }
 
 /* Adicionar um toque sutil de vidro fosco nas estatísticas e cartões estáticos */
-.glass-card, .stat-card {
+/* ATENÇÃO: Não sobrescrever stat-cards com gradiente — veja exceção abaixo */
+.glass-card {
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     background: rgba(255, 255, 255, 0.7) !important;
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
 }
 
-/* 2. 🧭 MENU LATERAL (SIDEBAR) FLUTUANTE E ARREDONDADO (Descolado do LeptonX clássico) */
+/* 2. 🧭 MENU LATERAL (SIDEBAR) — Estilo visual sem quebrar o layout do LeptonX */
 aside.lpx-sidebar, 
 .lpx-sidebar {
-    margin: 1.25rem 0 1.25rem 1.25rem !important;
-    height: calc(100vh - 2.5rem) !important;
-    background: rgba(30, 41, 59, 0.82) !important; /* Cinza slate escuro translúcido */
+    /* NÃO alterar margin/width — o LeptonX controla o layout. Apenas estilo visual: */
+    background: rgba(30, 41, 59, 0.92) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 1.5rem !important; /* 24px */
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1040 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 4px 0 20px 0 rgba(0, 0, 0, 0.12) !important;
+    transition: background 0.3s ease !important;
 }
 
-/* Margem interna do conteúdo para respeitar a nova sidebar flutuante */
-.lpx-content-container {
-    padding-left: 1.25rem !important;
-    transition: padding 0.3s ease !important;
-}
+/* Nota: NÃO alterar padding-left do lpx-content-container — o LeptonX gerencia esse espaço */
 
 /* Itens de menu arredondados e elegantes */
 .lpx-menu-item-link {
@@ -682,31 +676,13 @@ form[action*="Login"] .btn-primary,
     color: #3b4256 !important;
 }
 
+
 /* =====================================================
-   8. 📱 SIDEBAR RESPONSIVO — Evitar overlay quando collapsed
+   8. 📱 SIDEBAR — LeptonX gerencia collapse e responsividade
    ===================================================== */
+/* Nota: Não sobrescrever margin/width/height da sidebar. O LeptonX usa
+   JavaScript + classes próprias para gerenciar colapso. Apenas visual: */
 
-/* Quando a sidebar está collapsed (mobile) — não mostrar margin do lado */
-body.lpx-sidebar-collapsed aside.lpx-sidebar,
-body.lpx-sidebar-collapsed .lpx-sidebar {
-    margin: 0 !important;
-    border-radius: 0 !important;
-    width: 60px !important;
-}
-
-/* Em mobile/tablet, remover margin para sidebar não flutuar sobre conteúdo */
-@media (max-width: 992px) {
-    aside.lpx-sidebar,
-    .lpx-sidebar {
-        margin: 0 !important;
-        border-radius: 0 !important;
-        height: 100vh !important;
-    }
-    
-    .lpx-content-container {
-        padding-left: 0 !important;
-    }
-}
 
 /* =====================================================
    9. 🎨 BADGES — Eliminar rosa em badges de status
