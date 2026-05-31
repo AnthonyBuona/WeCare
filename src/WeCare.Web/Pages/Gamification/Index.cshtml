@@ -360,10 +360,20 @@
                                 color = "warning";
                             }
 
+                            string displayBadge = badge switch
+                            {
+                                "PrimeiroTreino" => "Primeiro Treino",
+                                "FamiliaEngajada" => "Família Engajada",
+                                "Bronze" => "Medalha de Bronze",
+                                "Silver" => "Medalha de Prata",
+                                "Gold" => "Medalha de Ouro",
+                                _ => badge
+                            };
+
                             <div class="col-6">
                                 <div class="badge-item">
                                     <div class="badge-icon">@icon</div>
-                                    <div class="fw-bold text-sm text-dark" style="font-size: 0.85rem; line-height: 1.1rem;">@badge</div>
+                                    <div class="fw-bold text-sm text-dark" style="font-size: 0.85rem; line-height: 1.1rem;">@displayBadge</div>
                                 </div>
                             </div>
                         }

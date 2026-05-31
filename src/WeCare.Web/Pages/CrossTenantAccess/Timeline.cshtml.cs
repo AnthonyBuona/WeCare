@@ -141,7 +141,7 @@ namespace WeCare.Web.Pages.CrossTenantAccess
                         {
                             Date = c.DateTime,
                             Title = $"Consulta - {c.Specialty}",
-                            Type = "Consultation",
+                            Type = "Consulta",
                             IconClass = "fa fa-user-md bg-info text-white",
                             BadgeClass = "bg-light-info text-info",
                             Description = c.Description,
@@ -159,7 +159,7 @@ namespace WeCare.Web.Pages.CrossTenantAccess
                         {
                             Date = a.SessionDate,
                             Title = $"Registro de Presença: {statusLabel}",
-                            Type = "Attendance",
+                            Type = "Frequência",
                             IconClass = $"fa fa-calendar-check-o {statusBadge} text-white",
                             BadgeClass = a.Status == AttendanceStatus.Present ? "bg-light-success text-success" : "bg-light-danger text-danger",
                             Description = a.Notes,
@@ -170,11 +170,19 @@ namespace WeCare.Web.Pages.CrossTenantAccess
                     // 3. Periodic Reports
                     foreach (var pr in periodicReports)
                     {
+                        string statusLabel = pr.Status switch
+                        {
+                            PeriodicReportStatus.Draft => "Rascunho",
+                            PeriodicReportStatus.Published => "Pendente Assinatura",
+                            PeriodicReportStatus.SignedByResponsible => "Assinado",
+                            _ => pr.Status.ToString()
+                        };
+
                         TimelineItems.Add(new TimelineItemViewModel
                         {
                             Date = pr.EndDate,
-                            Title = $"{pr.Title} - {pr.Status}",
-                            Type = "Report",
+                            Title = $"{pr.Title} - {statusLabel}",
+                            Type = "Relatório",
                             IconClass = "fa fa-file-text-o bg-warning text-dark",
                             BadgeClass = "bg-light-warning text-warning",
                             Description = pr.ResumoClinico,
