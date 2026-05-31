@@ -73,7 +73,22 @@ namespace WeCare.Data
                 WeCarePermissions.PeriodicReports.Default,
                 WeCarePermissions.PeriodicReports.Create,
                 WeCarePermissions.PeriodicReports.Edit,
-                WeCarePermissions.PeriodicReports.Delete
+                WeCarePermissions.PeriodicReports.Delete,
+
+                WeCarePermissions.CrossTenantAccess.Default,
+                WeCarePermissions.CrossTenantAccess.Create,
+                WeCarePermissions.CrossTenantAccess.Verify,
+                WeCarePermissions.CrossTenantAccess.ViewAuditLogs,
+
+                WeCarePermissions.Billing.Default,
+                WeCarePermissions.Billing.Create,
+                WeCarePermissions.Billing.Export,
+                WeCarePermissions.Billing.TussMapping,
+
+                WeCarePermissions.Gamification.Default,
+                WeCarePermissions.Gamification.CreateQuest,
+                WeCarePermissions.Gamification.ExecuteQuest,
+                WeCarePermissions.Gamification.ViewProfile
             }, context.TenantId);
 
             // 2. Therapist (Terapeuta)
@@ -107,19 +122,39 @@ namespace WeCare.Data
 
                 WeCarePermissions.PeriodicReports.Default,
                 WeCarePermissions.PeriodicReports.Create,
-                WeCarePermissions.PeriodicReports.Edit
+                WeCarePermissions.PeriodicReports.Edit,
+
+                WeCarePermissions.CrossTenantAccess.Default,
+                WeCarePermissions.CrossTenantAccess.Create,
+                WeCarePermissions.CrossTenantAccess.Verify,
+                WeCarePermissions.CrossTenantAccess.ViewAuditLogs,
+
+                WeCarePermissions.Billing.Default,
+                WeCarePermissions.Billing.Create,
+                WeCarePermissions.Billing.Export,
+                WeCarePermissions.Billing.TussMapping,
+
+                WeCarePermissions.Gamification.Default,
+                WeCarePermissions.Gamification.CreateQuest,
+                WeCarePermissions.Gamification.ExecuteQuest,
+                WeCarePermissions.Gamification.ViewProfile
             }, context.TenantId);
 
             // 3. Responsible (Responsável)
             await GrantPermissionsAsync("Responsible", new[] {
-                 WeCarePermissions.Patients.Default,
-                 WeCarePermissions.Consultations.Default,
-                 WeCarePermissions.Tratamentos.Default,
-                 WeCarePermissions.Trainings.Default,
-                 WeCarePermissions.Activities.Default,
-                 WeCarePermissions.Objectives.Default,
-                 WeCarePermissions.Guests.Default,
-                 WeCarePermissions.PeriodicReports.Default
+                WeCarePermissions.Patients.Default,
+                WeCarePermissions.Consultations.Default,
+                WeCarePermissions.Tratamentos.Default,
+                WeCarePermissions.Trainings.Default,
+                WeCarePermissions.Activities.Default,
+                WeCarePermissions.Objectives.Default,
+                WeCarePermissions.Guests.Default,
+                WeCarePermissions.PeriodicReports.Default,
+
+                WeCarePermissions.CrossTenantAccess.Default,
+                WeCarePermissions.Gamification.Default,
+                WeCarePermissions.Gamification.ExecuteQuest,
+                WeCarePermissions.Gamification.ViewProfile
             }, context.TenantId);
             
             // 4. Guest (Convidado)
@@ -131,6 +166,24 @@ namespace WeCare.Data
                 WeCarePermissions.Trainings.Default,
                 WeCarePermissions.Activities.Default,
                 WeCarePermissions.Objectives.Default
+            }, context.TenantId);
+
+            // 5. admin (System Admin)
+            await GrantPermissionsAsync("admin", new[] {
+                WeCarePermissions.CrossTenantAccess.Default,
+                WeCarePermissions.CrossTenantAccess.Create,
+                WeCarePermissions.CrossTenantAccess.Verify,
+                WeCarePermissions.CrossTenantAccess.ViewAuditLogs,
+
+                WeCarePermissions.Billing.Default,
+                WeCarePermissions.Billing.Create,
+                WeCarePermissions.Billing.Export,
+                WeCarePermissions.Billing.TussMapping,
+
+                WeCarePermissions.Gamification.Default,
+                WeCarePermissions.Gamification.CreateQuest,
+                WeCarePermissions.Gamification.ExecuteQuest,
+                WeCarePermissions.Gamification.ViewProfile
             }, context.TenantId);
         }
 
@@ -157,7 +210,11 @@ namespace WeCare.Data
             {
                 foreach (var permission in permissions)
                 {
-                    await _permissionManager.SetForRoleAsync(roleName, permission, true);
+                    var existing = await _permissionManager.GetAsync(permission, "R", roleName);
+                    if (existing == null)
+                    {
+                        await _permissionManager.SetForRoleAsync(roleName, permission, true);
+                    }
                 }
             }
         }
