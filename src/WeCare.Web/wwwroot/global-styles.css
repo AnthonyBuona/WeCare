@@ -686,3 +686,147 @@ a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):hover {
    FIM — WeCare Design System v3.0
    Paleta: Teal #4da391 | Lavender #8c7fcd | Peach #f7a47b
    ========================================================= */
+
+/* =========================================================
+   15. GLOBAL PATIENT QUICK-SEARCH (Topbar)
+   ========================================================= */
+.wecare-search-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.wecare-search-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.wecare-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.wecare-search-input {
+    width: 280px;
+    height: 38px;
+    padding: 0 14px 0 36px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(77, 163, 145, 0.25);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    color: #1f2937;
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(77, 163, 145, 0.08);
+}
+
+.wecare-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.wecare-search-input:focus {
+    width: 320px;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 3px rgba(77, 163, 145, 0.15), 0 4px 12px rgba(77, 163, 145, 0.12);
+}
+
+.wecare-search-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    min-width: 300px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(77, 163, 145, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(77, 163, 145, 0.15), 0 2px 8px rgba(0,0,0,0.06);
+    z-index: 99999;
+    overflow: hidden;
+    animation: searchDropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes searchDropIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wecare-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.wecare-search-item:last-child {
+    border-bottom: none;
+}
+
+.wecare-search-item:hover,
+.wecare-search-item.active {
+    background: rgba(77, 163, 145, 0.07);
+}
+
+.wecare-search-item-icon {
+    font-size: 1.6rem;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.wecare-search-item-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.wecare-search-item-sub {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 1px;
+}
+
+.wecare-search-no-result {
+    padding: 14px 16px;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Mobile: collapse to icon only */
+@media (max-width: 767.98px) {
+    .wecare-search-input {
+        width: 38px;
+        padding: 0 0 0 12px;
+        color: transparent;
+    }
+    .wecare-search-input::placeholder {
+        color: transparent;
+    }
+    .wecare-search-input:focus {
+        width: 200px;
+        padding: 0 14px 0 36px;
+        color: #1f2937;
+    }
+    .wecare-search-input:focus::placeholder {
+        color: #9ca3af;
+    }
+    .wecare-search-dropdown {
+        left: auto;
+        right: 0;
+        min-width: 260px;
+    }
+}

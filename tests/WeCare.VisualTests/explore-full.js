@@ -24,6 +24,7 @@ const fs = require('fs');
     console.log('1. Navigating to login page...');
     await page.goto('https://localhost:44373/Account/Login');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2000);
     await page.screenshot({ path: path.join(screenshotDir, '01_login_page.png') });
     console.log('Screenshot 01_login_page.png saved.');
 
@@ -31,6 +32,7 @@ const fs = require('fs');
     console.log('2. Opening Tenant switcher...');
     await page.click('#AbpTenantSwitchLink');
     await page.waitForSelector('#Input_Name', { state: 'visible' });
+    await page.waitForTimeout(1000);
     await page.fill('#Input_Name', 'ClinicaBemViver');
     await page.screenshot({ path: path.join(screenshotDir, '02_tenant_modal.png') });
     console.log('Screenshot 02_tenant_modal.png saved.');
@@ -44,6 +46,7 @@ const fs = require('fs');
     // Verify tenant switched
     const tenantText = await page.innerText('#AbpTenantSwitchLink');
     console.log('Current Tenant Switch Link text:', tenantText);
+    await page.waitForTimeout(1000);
     await page.screenshot({ path: path.join(screenshotDir, '03_login_page_tenant_selected.png') });
     console.log('Screenshot 03_login_page_tenant_selected.png saved.');
 
@@ -54,6 +57,7 @@ const fs = require('fs');
     
     await page.click('button[type="submit"]:has-text("Login")');
     await page.waitForURL(url => url.pathname === '/' || url.pathname === '/Dashboard' || url.href.endsWith(':44373/'), { waitUntil: 'load', timeout: 20000 });
+    await page.waitForTimeout(2500);
 
     console.log('Logged in! Current URL:', page.url());
     await page.screenshot({ path: path.join(screenshotDir, '04_dashboard_host.png') });
@@ -64,6 +68,7 @@ const fs = require('fs');
     await page.goto('https://localhost:44373/Patients');
     await page.waitForLoadState('load');
     await page.waitForSelector('#PatientsTable', { state: 'visible' });
+    await page.waitForTimeout(2000);
     
     // Take a screenshot of the main layout, checking card alignments, padding, and layout
     await page.screenshot({ path: path.join(screenshotDir, '05_patients_list.png') });
@@ -79,7 +84,7 @@ const fs = require('fs');
     await page.click(actionButtonSelector);
     
     // Wait for the dropdown menu to expand
-    await page.waitForTimeout(500); 
+    await page.waitForTimeout(1000); 
     
     // Take screenshot of open dropdown to check for misalignment or detaching
     await page.screenshot({ path: path.join(screenshotDir, '06_patients_dropdown_clicked.png') });
@@ -98,6 +103,7 @@ const fs = require('fs');
     
     await page.click(dashboardOptionSelector);
     await page.waitForURL(url => url.pathname.includes('/Patients/Dashboard'), { waitUntil: 'load', timeout: 20000 });
+    await page.waitForTimeout(2500);
     
     console.log('Dashboard loaded! URL:', page.url());
     
@@ -109,6 +115,7 @@ const fs = require('fs');
     console.log('7. Visiting Calendar page...');
     await page.goto('https://localhost:44373/Calendar');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2000);
     await page.screenshot({ path: path.join(screenshotDir, '08_calendar.png') });
     console.log('Screenshot 08_calendar.png saved.');
 
@@ -116,6 +123,7 @@ const fs = require('fs');
     console.log('8. Navigating to Billing Manager page (/Billing)...');
     await page.goto('https://localhost:44373/Billing');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2000);
     await page.screenshot({ path: path.join(screenshotDir, '09_billing.png') });
     console.log('Screenshot 09_billing.png saved.');
 
@@ -123,6 +131,7 @@ const fs = require('fs');
     console.log('9. Navigating to Cross Tenant Consent page (/CrossTenantAccess)...');
     await page.goto('https://localhost:44373/CrossTenantAccess');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(screenshotDir, '10_crosstenant_consent.png') });
     console.log('Screenshot 10_crosstenant_consent.png saved.');
 
@@ -130,6 +139,7 @@ const fs = require('fs');
     console.log('10. Navigating to Cross Tenant Timeline page (/CrossTenantAccess/Timeline)...');
     await page.goto('https://localhost:44373/CrossTenantAccess/Timeline');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(screenshotDir, '11_crosstenant_timeline.png') });
     console.log('Screenshot 11_crosstenant_timeline.png saved.');
 
@@ -137,6 +147,7 @@ const fs = require('fs');
     console.log('11. Navigating to Gamification RPG page (/Gamification)...');
     await page.goto('https://localhost:44373/Gamification');
     await page.waitForLoadState('load');
+    await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(screenshotDir, '12_gamification.png') });
     console.log('Screenshot 12_gamification.png saved.');
 

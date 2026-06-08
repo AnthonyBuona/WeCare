@@ -1,0 +1,20 @@
+@page
+@using WeCare.Web.Pages.Trainings
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model EditModalModel
+@inject IStringLocalizer<WeCareResource> L
+@{
+    Layout = null;
+}
+<abp-dynamic-form abp-model="Training" asp-page="/Trainings/EditModal">
+    <abp-modal>
+        <abp-modal-header title="@L["EditTraining"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-input asp-for="Training.Name" />
+            <abp-input asp-for="Training.Description" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</abp-dynamic-form>

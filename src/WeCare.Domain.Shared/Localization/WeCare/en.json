@@ -36,7 +36,7 @@
     "Menu:Scheduling": "Agendamento",
     "Novo Agendamento": "Novo Agendamento",
     "LongWelcomeMessage": "Bem-vindo a esta aplicação. Este é um projeto inicial baseado no ABP framework. Para mais informações, visite",
-    "Welcome": "Seja bem-vindo!",
+    "Welcome": "Welcome",
     "Menu:Clinics": "Clínicas",
     "Menu:Patients": "Pacientes",
     "Menu:Patients.Responsibles": "Responsáveis",
@@ -66,6 +66,16 @@
     "Menu:MainPanel": "Painel Principal",
     "Menu:ClinicalCare": "Acompanhamento Clínico",
     "Menu:Directories": "Cadastros & Equipe",
-    "Menu:BillingAndRPG": "Faturamento & Utilidades"
+    "Menu:BillingAndRPG": "Faturamento & Utilidades",
+    "Trainings": "Therapeutic Trainings",
+    "TrainingsSubtitle": "Therapeutic training library",
+    "NewTraining": "New Training",
+    "EditTraining": "Edit Training",
+    "TrainingDeletionConfirmationMessage": "Are you sure you want to delete the training '{0}'?",
+    "Menu:Trainings": "Trainings",
+    "Permission:Trainings": "Training Management",
+    "Permission:Trainings.Create": "Create trainings",
+    "Permission:Trainings.Edit": "Edit trainings",
+    "Permission:Trainings.Delete": "Delete trainings"
   }
 }

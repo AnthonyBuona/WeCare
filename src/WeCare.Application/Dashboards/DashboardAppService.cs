@@ -12,6 +12,8 @@ using WeCare.Consultations;
 using WeCare.Responsibles;
 using WeCare.Trainings;
 using WeCare.Guests;
+using WeCare.PeriodicReports;
+using WeCare.Attendances;
 using Volo.Abp.Users;
 using Microsoft.AspNetCore.Authorization;
 
@@ -28,6 +30,8 @@ namespace WeCare.Dashboards
         private readonly IRepository<Objective, Guid> _objectiveRepository;
         private readonly IRepository<Training, Guid> _trainingRepository;
         private readonly IRepository<Guest, Guid> _guestRepository;
+        private readonly IRepository<PeriodicReport, Guid> _periodicReportRepository;
+        private readonly IRepository<Attendance, Guid> _attendanceRepository;
 
         public DashboardAppService(
             IRepository<Patient, Guid> patientRepository,
@@ -37,7 +41,9 @@ namespace WeCare.Dashboards
             IRepository<Responsible, Guid> responsibleRepository,
             IRepository<Objective, Guid> objectiveRepository,
             IRepository<Training, Guid> trainingRepository,
-            IRepository<Guest, Guid> guestRepository)
+            IRepository<Guest, Guid> guestRepository,
+            IRepository<PeriodicReport, Guid> periodicReportRepository,
+            IRepository<Attendance, Guid> attendanceRepository)
         {
             _patientRepository = patientRepository;
             _therapistRepository = therapistRepository;
@@ -47,6 +53,8 @@ namespace WeCare.Dashboards
             _objectiveRepository = objectiveRepository;
             _trainingRepository = trainingRepository;
             _guestRepository = guestRepository;
+            _periodicReportRepository = periodicReportRepository;
+            _attendanceRepository = attendanceRepository;
         }
 
         public async Task<WeCareDashboardHeaderStatsDto> GetStatsAsync()
@@ -57,10 +65,54 @@ namespace WeCare.Dashboards
             stats.TotalTherapists = await _therapistRepository.CountAsync();
             stats.TotalClinics = await _clinicRepository.CountAsync();
 
+            // --- Real KPIs ---
+            var now = DateTime.Now;
+            var todayStart = now.Date;
+            var todayEnd = todayStart.AddDays(1);
+            var monthStart = new DateTime(now.Year, now.Month, 1);
+            var monthEnd = monthStart.AddMonths(1);
+
+            // Consultations today (scheduled or performed)
+            stats.ConsultationsToday = await _consultationRepository.CountAsync(
+                c => c.DateTime >= todayStart && c.DateTime < todayEnd);
+
+            // Consultations this month
+            stats.ConsultationsThisMonth = await _consultationRepository.CountAsync(
+                c => c.DateTime >= monthStart && c.DateTime < monthEnd);
+
+            // Active patients this month (distinct PatientIds with a consultation this month)
+            var consultationsThisMonth = await _consultationRepository.GetListAsync(
+                c => c.DateTime >= monthStart && c.DateTime < monthEnd);
+            stats.ActivePatientsThisMonth = consultationsThisMonth
+                .Select(c => c.PatientId)
+                .Distinct()
+                .Count();
+
+            // Pending reports: Published but NOT yet signed by responsible
+            stats.PendingReports = await _periodicReportRepository.CountAsync(
+                r => r.Status == PeriodicReportStatus.Published);
+
+            // Upcoming sessions today (next 3 from now, ordered by time)
+            var upcomingQuery = await _consultationRepository.WithDetailsAsync(c => c.Patient, c => c.Therapist);
+            var upcoming = upcomingQuery
+                .Where(c => c.DateTime >= now && c.DateTime < todayEnd)
+                .OrderBy(c => c.DateTime)
+                .Take(3)
+                .ToList();
+
+            stats.UpcomingConsultationsToday = upcoming.Select(c => new UpcomingConsultationSummaryDto
+            {
+                Id = c.Id,
+                PatientName = c.Patient?.Name ?? "Paciente",
+                TherapistName = c.Therapist?.Name ?? "Terapeuta",
+                DateTime = c.DateTime
+            }).ToList();
+
+            // Per-user stats
             if (CurrentUser.Id.HasValue)
             {
                 var userId = CurrentUser.Id.Value;
-                
+
                 var therapist = await _therapistRepository.FirstOrDefaultAsync(x => x.UserId == userId);
                 if (therapist != null)
                 {
@@ -72,6 +124,34 @@ namespace WeCare.Dashboards
                 {
                     stats.MyPatients = await _patientRepository.CountAsync(x => x.PrincipalResponsibleId == responsible.Id);
                 }
+            }
+
+            // --- Monthly Attendance Stats Calculation ---
+            var monthNamesPt = new string[] { "", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" };
+            for (int i = 3; i >= 0; i--)
+            {
+                var targetMonth = now.AddMonths(-i);
+                var targetMonthStart = new DateTime(targetMonth.Year, targetMonth.Month, 1);
+                var targetMonthEnd = targetMonthStart.AddMonths(1);
+
+                var attendances = await _attendanceRepository.GetListAsync(
+                    a => a.SessionDate >= targetMonthStart && a.SessionDate < targetMonthEnd);
+
+                int present = attendances.Count(a => a.Status == WeCare.Attendances.AttendanceStatus.Present);
+                int absent = attendances.Count(a => a.Status == WeCare.Attendances.AttendanceStatus.Absent);
+                int cancelled = attendances.Count(a => a.Status == WeCare.Attendances.AttendanceStatus.Cancelled);
+                int total = present + absent + cancelled;
+
+                double rate = total > 0 ? Math.Round(((double)present / total) * 100, 1) : 0;
+
+                stats.MonthlyAttendanceStats.Add(new MonthlyAttendanceStatDto
+                {
+                    MonthName = $"{monthNamesPt[targetMonth.Month]}/{targetMonth.Year.ToString().Substring(2)}",
+                    PresentCount = present,
+                    AbsentCount = absent,
+                    CancelledCount = cancelled,
+                    PresenceRate = rate
+                });
             }
 
             return stats;

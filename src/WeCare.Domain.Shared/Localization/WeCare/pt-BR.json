@@ -12,7 +12,7 @@
     "Menu:Patients.Patients": "Pacientes",
     "Menu:Patients.Responsibles": "Responsaveis",
     "Home": "Casa",
-    "Welcome": "Seja bem-vindo!",
+    "Welcome": "Seja bem-vindo",
     "LongWelcomeMessage": "Bem-vindo a esta aplicação. Este é um projeto inicial baseado no ABP framework. Para mais informações, visite",
     "Date": "Data",
     "Permission:Dashboard": "Painel",
@@ -136,6 +136,16 @@
     "Menu:MainPanel": "Painel Principal",
     "Menu:ClinicalCare": "Acompanhamento Clínico",
     "Menu:Directories": "Cadastros & Equipe",
-    "Menu:BillingAndRPG": "Faturamento & Utilidades"
+    "Menu:BillingAndRPG": "Faturamento & Utilidades",
+    "Trainings": "Treinos Terapêuticos",
+    "TrainingsSubtitle": "Biblioteca de treinos terapêuticos",
+    "NewTraining": "Novo Treino",
+    "EditTraining": "Editar Treino",
+    "TrainingDeletionConfirmationMessage": "Tem certeza que deseja apagar o treino '{0}'?",
+    "Menu:Trainings": "Treinos",
+    "Permission:Trainings": "Gerenciamento de Treinos",
+    "Permission:Trainings.Create": "Criar treinos",
+    "Permission:Trainings.Edit": "Editar treinos",
+    "Permission:Trainings.Delete": "Apagar treinos"
   }
 }

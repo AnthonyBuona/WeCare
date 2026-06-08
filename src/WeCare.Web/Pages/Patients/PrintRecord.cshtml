@@ -1,0 +1,1004 @@
+@page "{id:Guid}"
+@model WeCare.Web.Pages.Patients.PrintRecordModel
+@using WeCare.Attendances
+@using WeCare.PeriodicReports
+@{
+    Layout = null;
+
+    // Helper for calculating age
+    int CalculateAge(DateTime birthDate)
+    {
+        var today = DateTime.Today;
+        var age = today.Year - birthDate.Year;
+        if (birthDate.Date > today.AddYears(-age)) age--;
+        return age;
+    }
+
+    // Counts for frequencies
+    var totalPresent = Model.Attendances.Count(a => a.Status == AttendanceStatus.Present);
+    var totalAbsent = Model.Attendances.Count(a => a.Status == AttendanceStatus.Absent);
+    var totalCancelled = Model.Attendances.Count(a => a.Status == AttendanceStatus.Cancelled);
+    var totalSessions = Model.Attendances.Count;
+    var attendanceRate = totalSessions > 0 ? Math.Round(((double)totalPresent / totalSessions) * 100, 1) : 100;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prontuário Consolidado - @Model.Patient.Name</title>
+    
+    <!-- Premium Google Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+    <style>
+        /* CSS Variables for Premium Theme Design */
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --secondary: #475569;
+            --accent: #2563eb;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --border-color: #e2e8f0;
+            
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #ca8a04;
+            --warning-light: #fef9c3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Top Action Bar (hidden in print) */
+        .top-bar {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .top-bar-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .btn-print {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-print:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-back {
+            color: var(--secondary);
+            background-color: white;
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* Document Container (Centred A4 look on screen) */
+        .print-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Clininc header */
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 24px;
+            margin-bottom: 30px;
+        }
+
+        .clinic-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            max-height: 55px;
+            width: auto;
+        }
+
+        .logo-fallback {
+            background-color: var(--primary);
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: -1px;
+        }
+
+        .clinic-info {
+            line-height: 1.3;
+        }
+
+        .clinic-info h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .clinic-info p {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .document-title {
+            text-align: right;
+        }
+
+        .document-title h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .document-title span {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* Section Layouts */
+        .section {
+            margin-bottom: 35px;
+            break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        /* Grid for Patient Data */
+        .patient-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .info-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .info-grid-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Objectives Section */
+        .objectives-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .objective-item {
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
+            padding: 12px 18px;
+            background-color: var(--bg-light);
+        }
+
+        .objective-item.concluded {
+            border-left-color: var(--success);
+        }
+
+        .objective-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .objective-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .objective-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 50px;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background-color: var(--primary-light);
+            color: var(--accent);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+
+        .badge-concluded {
+            background-color: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(22, 163, 74, 0.15);
+        }
+
+        .objective-trainings {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 8px;
+            margin-top: 6px;
+        }
+
+        .trainings-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        .trainings-list li {
+            margin-bottom: 4px;
+        }
+
+        .trainings-list strong {
+            color: var(--text-dark);
+        }
+
+        /* Frequencies (Attendances) Section */
+        .attendance-summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .summary-card {
+            flex: 1;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .summary-card.present {
+            border-top: 3px solid var(--success);
+        }
+
+        .summary-card.absent {
+            border-top: 3px solid var(--danger);
+        }
+
+        .summary-card.cancelled {
+            border-top: 3px solid var(--warning);
+        }
+
+        .summary-num {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Tables style */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+            margin-top: 8px;
+        }
+
+        .custom-table th {
+            background-color: var(--bg-light);
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 10px 12px;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .custom-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge-status {
+            padding: 2px 6px;
+            font-size: 9px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-status.present {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+
+        .badge-status.absent {
+            background-color: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .badge-status.cancelled {
+            background-color: var(--warning-light);
+            color: var(--warning);
+        }
+
+        /* Consultations timeline */
+        .consultations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .consultation-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            background-color: white;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .consultation-meta {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--bg-light);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .consultation-date {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .consultation-therapist {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .consultation-desc {
+            font-size: 13px;
+            color: var(--text-dark);
+            white-space: pre-line;
+        }
+
+        /* Periodic reports */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .report-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .report-title-block h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .report-title-block span {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .report-block h4 {
+            margin: 0 0 6px 0;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--secondary);
+            letter-spacing: 0.3px;
+        }
+
+        .report-block p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-dark);
+            white-space: pre-line;
+        }
+
+        .signature-badge {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #15803d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .signature-badge i {
+            font-size: 14px;
+        }
+
+        /* Footer of Print */
+        .document-footer {
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Empty state */
+        .empty-state {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        /* PRINT STYLES - Optimized for A4 */
+        @@media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                font-size: 12px;
+            }
+
+            .top-bar {
+                display: none !important;
+            }
+
+            .print-container {
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+
+            .document-header {
+                border-bottom: 2px solid black !important;
+            }
+
+            .section-title {
+                border-bottom: 1.5px solid #000 !important;
+                color: black !important;
+            }
+
+            .section-title i {
+                display: none !important;
+            }
+
+            .patient-card {
+                background-color: #f8fafc !important;
+                border: 1px solid #ccc !important;
+            }
+
+            .objective-item {
+                background-color: #f8fafc !important;
+                border: 1px solid #ccc !important;
+                border-left: 4px solid #000 !important;
+            }
+
+            .objective-item.concluded {
+                border-left-color: #333 !important;
+            }
+
+            .summary-card {
+                background-color: #f8fafc !important;
+                border: 1px solid #ccc !important;
+                border-top: 3px solid #000 !important;
+            }
+
+            .badge {
+                border: 1px solid #000 !important;
+                background: none !important;
+                color: black !important;
+            }
+
+            .badge-status {
+                border: 1px solid #ccc !important;
+                background: none !important;
+                color: black !important;
+            }
+
+            .consultation-card, .report-card {
+                border: 1px solid #ccc !important;
+                background-color: white !important;
+            }
+
+            .signature-badge {
+                background-color: #f8fafc !important;
+                border: 1px solid #000 !important;
+                color: black !important;
+            }
+
+            /* Prevent elements breaking on pages */
+            .section, .consultation-card, .report-card, .patient-card, .objective-item {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Set A4 margins */
+            @@page {
+                size: A4;
+                margin: 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Non-printed navigation bar -->
+    <div class="top-bar no-print">
+        <div class="top-bar-content">
+            <div>
+                <a href="/Patients/Dashboard/@Model.Patient.Id" class="btn-back">
+                    <i class="fa fa-arrow-left"></i> Voltar ao Dashboard
+                </a>
+            </div>
+            <div>
+                <button onclick="window.print()" class="btn-print">
+                    <i class="fa fa-print"></i> Imprimir Prontuário
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paper Container -->
+    <div class="print-container">
+        
+        <!-- Header -->
+        <div class="document-header">
+            <div class="clinic-brand">
+                <img src="/images/logo/leptonxlite/wecare-logo.png" alt="WeCare Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback-elem').style.display='flex';" />
+                <div id="logo-fallback-elem" class="logo-fallback" style="display:none;">WC</div>
+                <div class="clinic-info">
+                    <h2>WeCare</h2>
+                    <p>Clínica de Reabilitação e Desenvolvimento Infantil</p>
+                </div>
+            </div>
+            <div class="document-title">
+                <h1>Prontuário Clínico</h1>
+                <span>Relatório Consolidado do Paciente</span>
+            </div>
+        </div>
+
+        <!-- 1. DADOS CADASTRAIS -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fa fa-id-card-o"></i> Dados Cadastrais
+            </div>
+            <div class="patient-card">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Nome do Paciente</span>
+                        <span class="info-value">@Model.Patient.Name</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Data de Nascimento</span>
+                        <span class="info-value">@Model.Patient.BirthDate.ToString("dd/MM/yyyy") (@CalculateAge(Model.Patient.BirthDate) anos)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">CID / Diagnóstico</span>
+                        <span class="info-value">@(string.IsNullOrWhiteSpace(Model.Patient.Diag) ? "Não Informado" : Model.Patient.Diag)</span>
+                    </div>
+                    
+                    @if (Model.PrincipalResponsible != null)
+                    {
+                        <div class="info-item">
+                            <span class="info-label">Responsável Principal</span>
+                            <span class="info-value">@Model.PrincipalResponsible.NameResponsible</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">CPF do Responsável</span>
+                            <span class="info-value">@Model.PrincipalResponsible.CPF</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Telefone / E-mail</span>
+                            <span class="info-value">@(Model.PrincipalResponsible.PhoneNumber ?? "N/A") / @Model.PrincipalResponsible.EmailAddress</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="info-item info-grid-full">
+                            <span class="info-label">Responsável Principal</span>
+                            <span class="info-value" style="font-weight: normal; color: var(--text-muted);">Nenhum responsável principal vinculado.</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. OBJETIVOS TERAPÊUTICOS E TREINOS -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fa fa-bullseye"></i> Objetivos Terapêuticos &amp; Treinos
+            </div>
+            
+            @if (Model.Objectives.Any())
+            {
+                <div class="objectives-container">
+                    @foreach (var obj in Model.Objectives)
+                    {
+                        var isConcluded = obj.Status.Equals("Concluído", StringComparison.OrdinalIgnoreCase) || 
+                                          obj.Status.Equals("Concluido", StringComparison.OrdinalIgnoreCase);
+                        
+                        <div class="objective-item @(isConcluded ? "concluded" : "")">
+                            <div class="objective-header">
+                                <span class="objective-name">@obj.Name</span>
+                                <div class="objective-meta">
+                                    <span class="info-label" style="margin: 0;">Início: @obj.StartDate.ToString("dd/MM/yyyy")</span>
+                                    <span class="badge @(isConcluded ? "badge-concluded" : "badge-active")">@obj.Status</span>
+                                </div>
+                            </div>
+                            
+                            @{
+                                var objTrainings = Model.Trainings.Where(t => t.ObjectiveId == obj.Id).ToList();
+                            }
+                            @if (objTrainings.Any())
+                            {
+                                <div class="objective-trainings">
+                                    <ul class="trainings-list">
+                                        @foreach (var training in objTrainings)
+                                        {
+                                            <li>
+                                                <strong>@training.Name</strong> - @training.Description
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="objective-trainings" style="font-style: italic; font-size: 11px; color: var(--text-muted);">
+                                    Nenhum treino específico cadastrado para este objetivo.
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Nenhum objetivo terapêutico registrado para o paciente.</div>
+            }
+        </div>
+
+        <!-- 3. FREQUÊNCIA DO PACIENTE -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fa fa-calendar-check-o"></i> Frequência do Paciente
+            </div>
+
+            <div class="attendance-summary">
+                <div class="summary-card">
+                    <div class="summary-num">@totalSessions</div>
+                    <div class="summary-label">Total Sessões</div>
+                </div>
+                <div class="summary-card present">
+                    <div class="summary-num" style="color: var(--success);">@totalPresent</div>
+                    <div class="summary-label">Presenças</div>
+                </div>
+                <div class="summary-card absent">
+                    <div class="summary-num" style="color: var(--danger);">@totalAbsent</div>
+                    <div class="summary-label">Faltas</div>
+                </div>
+                <div class="summary-card cancelled">
+                    <div class="summary-num" style="color: var(--warning);">@totalCancelled</div>
+                    <div class="summary-label">Canceladas</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-num" style="color: var(--accent);">@attendanceRate%</div>
+                    <div class="summary-label">Aproveitamento</div>
+                </div>
+            </div>
+
+            @if (Model.Attendances.Any())
+            {
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Data da Sessão</th>
+                            <th style="width: 20%;">Status</th>
+                            <th>Anotações de Frequência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attendance in Model.Attendances)
+                        {
+                            <tr>
+                                <td style="font-weight: 600; color: var(--text-dark);">@attendance.SessionDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (attendance.Status == AttendanceStatus.Present)
+                                    {
+                                        <span class="badge-status present">Presença</span>
+                                    }
+                                    else if (attendance.Status == AttendanceStatus.Absent)
+                                    {
+                                        <span class="badge-status absent">Falta</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status cancelled">Cancelada</span>
+                                    }
+                                </td>
+                                <td style="color: var(--secondary);">@(string.IsNullOrWhiteSpace(attendance.Notes) ? "-" : attendance.Notes)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">Sem dados de frequências ou presenças registrados.</div>
+            }
+        </div>
+
+        <!-- 4. HISTÓRICO DE CONSULTAS -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fa fa-history"></i> Histórico de Consultas (Evolução)
+            </div>
+
+            @if (Model.Consultations.Any())
+            {
+                <div class="consultations-list">
+                    @foreach (var consultation in Model.Consultations)
+                    {
+                        <div class="consultation-card">
+                            <div class="consultation-meta">
+                                <span class="consultation-date">
+                                    <i class="fa fa-calendar"></i> Sessão: @consultation.DateTime.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                                <span class="consultation-therapist">
+                                    <i class="fa fa-user-md"></i> Terapeuta: <strong>@consultation.Therapist?.Name</strong> (@consultation.Specialty)
+                                </span>
+                            </div>
+                            <div class="consultation-desc">
+                                @consultation.Description
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Nenhuma consulta realizada registrada no histórico.</div>
+            }
+        </div>
+
+        <!-- 5. RELATÓRIOS PERIÓDICOS -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fa fa-file-text-o"></i> Relatórios Periódicos Assinados
+            </div>
+
+            @if (Model.PeriodicReports.Any())
+            {
+                <div class="reports-list">
+                    @foreach (var report in Model.PeriodicReports)
+                    {
+                        var therapistName = Model.TherapistNames.ContainsKey(report.TherapistId) 
+                            ? Model.TherapistNames[report.TherapistId] 
+                            : "Terapeuta Responsável";
+                        
+                        <div class="report-card">
+                            <div class="report-header">
+                                <div class="report-title-block">
+                                    <h3>@report.Title</h3>
+                                    <span>Período: @report.StartDate.ToString("dd/MM/yyyy") a @report.EndDate.ToString("dd/MM/yyyy")</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-muted);">
+                                    Elaborado por: <strong>@therapistName</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="report-grid">
+                                <div class="report-block">
+                                    <h4>Resumo Clínico</h4>
+                                    <p>@report.ResumoClinico</p>
+                                </div>
+                                <div class="report-block">
+                                    <h4>Status dos Objetivos</h4>
+                                    <p>@report.ObjetivosStatus</p>
+                                </div>
+                                <div class="report-block">
+                                    <h4>Engajamento em Casa</h4>
+                                    <p>@report.EngajamentoCasa</p>
+                                </div>
+                                <div class="report-block">
+                                    <h4>Próximos Passos</h4>
+                                    <p>@report.ProximosPassos</p>
+                                </div>
+                            </div>
+                            
+                            @if (report.ResponsibleSignatureDate.HasValue)
+                            {
+                                <div class="signature-badge">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span>
+                                        Assinado digitalmente pelo responsável principal em <strong>@report.ResponsibleSignatureDate.Value.ToString("dd/MM/yyyy HH:mm")</strong> 
+                                        sob o CPF <strong>@report.ResponsibleSignatureCPF</strong> (IP: @report.ResponsibleSignatureIP).
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Nenhum relatório periódico assinado pelo responsável.</div>
+            }
+        </div>
+
+        <!-- Footer / Signature lines -->
+        <div class="document-footer">
+            <span>WeCare - Relatório Consolidado do Prontuário Clínico</span>
+            <span>Gerado em @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</span>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -86,6 +86,38 @@
             border-radius: 20px;
             font-weight: 600;
         }
+
+        /* Mobile responsivity & Touch Target enhancements */
+        @@media (max-width: 767.98px) {
+            input, select, textarea, .form-control {
+                font-size: 16px !important; /* Prevents native iOS input zoom */
+                min-height: 44px; /* Premium touch target sizing */
+            }
+            .btn-interactive, .btn {
+                min-height: 44px; /* Premium touch target sizing */
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .wizard-step-node span {
+                display: none !important; /* Hides text labels of stepper on small mobile viewports to prevent squishing */
+            }
+            .wizard-step-node {
+                width: 44px;
+            }
+            .welcoming-banner {
+                padding: 1.5rem; /* Reduces padding on smaller viewports to maximize usable space */
+            }
+            .card-body {
+                padding: 1.25rem !important;
+            }
+            .text-xs-mobile {
+                font-size: 0.72rem !important;
+            }
+        }
     </style>
 }
 
@@ -171,7 +203,7 @@
                             <div class="p-3 rounded-3" style="background: hsl(35, 100%, 96%); border: 1px dashed #f7a47b;">
                                 <h6 class="fw-bold text-warning mb-1" style="color: #df8b62 !important;"><i class="fa fa-lightbulb-o me-1"></i>💡 Orientações Práticas para Casa (Home Guidance)</h6>
                                 <p class="mb-0 text-dark" style="font-size: 0.88rem; line-height: 1.4;">
-                                    Para maximizar a evolução do(a) @patientName, pratique exercícios motores leves ou o encaixe de blocos por 10 minutos hoje. Incentive o contato visual durante a atividade!
+                                    @Model.GetHomeGuidance(consultation, patientName)
                                 </p>
                             </div>
                         </div>
@@ -252,52 +284,218 @@
 }
 else
 {
-    <!-- VISÃO GERAL CLÍNICA (EXISTING CODE FOR THERAPIST/ADMIN) -->
-    <div class="row align-items-center mb-5">
-        <div class="col-lg-7">
-            <h1 class="display-3 text-primary mb-2">@L["Welcome"], <span class="fw-bold">@(CurrentUser.Name ?? CurrentUser.UserName ?? "WeCare")</span></h1>
-            @if (!string.IsNullOrEmpty(Model.ClinicInfo?.WelcomeMessage))
-            {
-                <p class="lead text-muted mb-4">@Model.ClinicInfo.WelcomeMessage</p>
-            }
-            else
-            {
-                <p class="lead text-muted mb-4">@L["LongWelcomeMessage"]</p>
-            }
-            
-            @if (!CurrentUser.IsAuthenticated)
-            {
-                <a href="/Account/Login" class="btn btn-premium btn-lg px-4 me-3">
-                    <i class="fa fa-sign-in me-2"></i> @L["Login"]
-                </a>
-            }
-            else 
-            {
-                <div class="d-flex gap-3">
-                    <a href="/Patients" class="btn btn-premium px-4">
-                        <i class="fa fa-users me-2"></i> Meus Pacientes
-                    </a>
-                    <a href="/Calendar" class="btn btn-outline-primary px-4 bg-white">
-                        <i class="fa fa-calendar me-2"></i> Agenda
-                    </a>
-                </div>
-            }
-        </div>
-        <div class="col-lg-5 d-none d-lg-block text-center position-relative">
-            <div class="blob-shape bg-gradient-success opacity-10 position-absolute w-100 h-100 rounded-circle" style="filter: blur(80px); transform: translate(20px, -20px);"></div>
-            @if (!string.IsNullOrEmpty(Model.ClinicInfo?.LogoUrl))
-            {
-                <img src="@Model.ClinicInfo.LogoUrl" alt="Logo da Clínica" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
-            }
-            else
-            {
-                <img src="/images/logo/leptonxlite/logo-light.png" alt="WeCare Hero" class="img-fluid position-relative" style="max-height: 250px; opacity: 0.9;">
-            }
-        </div>
-    </div>
-
-    @if (CurrentUser.IsAuthenticated && Model.Stats != null)
+    @if (Model.OnboardingStatus?.NeedsOnboarding == true)
     {
+        <!-- Premium Onboarding Wizard (E4) -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-12">
+                <div class="card border-0 shadow-lg glass-card mb-5 welcoming-banner" style="background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.5);">
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--color-mint-teal-base) 0%, var(--color-lavender-base) 100%); color: white; font-size: 2rem;">
+                                🚀
+                            </div>
+                            <h2 class="fw-bold text-dark mb-2">Configure sua Clínica WeCare</h2>
+                            <p class="text-muted text-sm">Estamos quase prontos! Siga as 3 etapas rápidas abaixo para configurar seu espaço de trabalho.</p>
+                        </div>
+
+                        <!-- Wizard Progress Stepper -->
+                        <div class="d-flex justify-content-between align-items-center position-relative mb-5 px-md-5">
+                            <div class="position-absolute start-0 end-0 bg-light" style="height: 4px; top: 50%; transform: translateY(-50%); z-index: 1;">
+                                <div id="wizard-progress-bar" class="bg-gradient-success" style="width: 0%; height: 100%; transition: width 0.4s ease; background: var(--gradient-welcoming-interactive);"></div>
+                            </div>
+                            
+                            <div class="wizard-step-node active text-center position-relative" data-step="1" style="z-index: 2;">
+                                <div class="step-num rounded-circle d-flex align-items-center justify-content-center bg-white border border-primary fw-bold mx-auto mb-2 shadow-sm" style="width: 40px; height: 40px; color: var(--color-mint-teal-base); transition: all 0.3s ease;">1</div>
+                                <span class="text-xs fw-bold text-dark">Clínica & Branding</span>
+                            </div>
+                            
+                            <div class="wizard-step-node text-center position-relative" data-step="2" style="z-index: 2;">
+                                <div class="step-num rounded-circle d-flex align-items-center justify-content-center bg-white border fw-bold mx-auto mb-2 shadow-sm" style="width: 40px; height: 40px; color: #6c757d; transition: all 0.3s ease;">2</div>
+                                <span class="text-xs fw-bold text-muted">Primeiro Terapeuta</span>
+                            </div>
+                            
+                            <div class="wizard-step-node text-center position-relative" data-step="3" style="z-index: 2;">
+                                <div class="step-num rounded-circle d-flex align-items-center justify-content-center bg-white border fw-bold mx-auto mb-2 shadow-sm" style="width: 40px; height: 40px; color: #6c757d; transition: all 0.3s ease;">3</div>
+                                <span class="text-xs fw-bold text-muted">Paciente & Família</span>
+                            </div>
+                        </div>
+
+                        <!-- Form -->
+                        <form id="onboardingForm" method="post" asp-page-handler="Onboarding">
+                            <!-- Step 1: Clínica & Branding -->
+                            <div class="wizard-panel active" data-step="1">
+                                <h4 class="fw-bold mb-4 text-dark border-bottom pb-2" style="font-size: 1.25rem;"><i class="fa fa-building me-2 text-primary"></i>Passo 1: Detalhes da Clínica</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.ClinicName">Nome da Clínica</label>
+                                        <input type="text" class="form-control" asp-for="OnboardingInput.ClinicName" required placeholder="Ex: Clínica Viver Bem" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.ContactEmail">E-mail de Contato</label>
+                                        <input type="email" class="form-control" asp-for="OnboardingInput.ContactEmail" required placeholder="Ex: contato@clinicaviver.com" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.PrimaryColor">Cor Primária (Marca)</label>
+                                        <div class="input-group">
+                                            <input type="color" class="form-control form-control-color w-25" asp-for="OnboardingInput.PrimaryColor" style="height: 38px;" />
+                                            <input type="text" class="form-control w-75 hex-color-input" id="primary-color-hex" value="@Model.OnboardingInput.PrimaryColor" placeholder="#4da391" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.SecondaryColor">Cor Secundária (Marca)</label>
+                                        <div class="input-group">
+                                            <input type="color" class="form-control form-control-color w-25" asp-for="OnboardingInput.SecondaryColor" style="height: 38px;" />
+                                            <input type="text" class="form-control w-75 hex-color-input" id="secondary-color-hex" value="@Model.OnboardingInput.SecondaryColor" placeholder="#8c7fcd" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Primeiro Terapeuta -->
+                            <div class="wizard-panel d-none" data-step="2">
+                                <h4 class="fw-bold mb-4 text-dark border-bottom pb-2" style="font-size: 1.25rem;"><i class="fa fa-user-md me-2 text-success"></i>Passo 2: Cadastro do Terapeuta Principal</h4>
+                                <p class="text-muted text-sm mb-4">Crie a conta de acesso do profissional que irá acompanhar os primeiros pacientes da clínica.</p>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.TherapistName">Nome Completo do Terapeuta</label>
+                                        <input type="text" class="form-control" asp-for="OnboardingInput.TherapistName" required placeholder="Ex: Dra. Mariana Albuquerque" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.TherapistEmail">E-mail Profissional (Login)</label>
+                                        <input type="email" class="form-control" asp-for="OnboardingInput.TherapistEmail" required placeholder="Ex: mariana@clinicaviver.com" />
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.TherapistSpecialization">Especialização Principal</label>
+                                        <input type="text" class="form-control" asp-for="OnboardingInput.TherapistSpecialization" required placeholder="Ex: Psicologia ABA, Fonoaudiologia, Terapia Ocupacional" />
+                                    </div>
+                                </div>
+                                <div class="alert alert-info text-dark rounded-3" style="font-size: 0.85rem; background: hsl(168, 76%, 95%); border: 1px solid var(--color-mint-teal-light);">
+                                    <i class="fa fa-info-circle me-2 text-primary"></i>A senha inicial do terapeuta será configurada por padrão como <strong>Clinic123!</strong>. Ele poderá redefini-la no primeiro acesso.
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Cadastro do Paciente & Responsável -->
+                            <div class="wizard-panel d-none" data-step="3">
+                                <h4 class="fw-bold mb-4 text-dark border-bottom pb-2" style="font-size: 1.25rem;"><i class="fa fa-heart me-2 text-danger"></i>Passo 3: Primeiro Paciente & Familiar</h4>
+                                <p class="text-muted text-sm mb-4">Cadastre a criança e o responsável para receberem os relatórios e visualizarem o Feed diário.</p>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-12"><h5 class="fw-bold text-primary mb-3" style="font-size: 1.05rem;">Responsável Financeiro / Tutor</h5></div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.ResponsibleName">Nome do Responsável</label>
+                                        <input type="text" class="form-control" asp-for="OnboardingInput.ResponsibleName" required placeholder="Ex: Carlos Albuquerque" />
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.ResponsibleCpf">CPF do Responsável</label>
+                                        <input type="text" class="form-control cpf-mask" asp-for="OnboardingInput.ResponsibleCpf" required placeholder="Ex: 123.456.789-01" maxlength="14" />
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.ResponsibleEmail">E-mail do Responsável (Login)</label>
+                                        <input type="email" class="form-control" asp-for="OnboardingInput.ResponsibleEmail" required placeholder="Ex: carlos@gmail.com" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12"><h5 class="fw-bold text-primary mb-3" style="font-size: 1.05rem;">Criança / Paciente</h5></div>
+                                    <div class="col-md-8 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.PatientName">Nome do Paciente</label>
+                                        <input type="text" class="form-control" asp-for="OnboardingInput.PatientName" required placeholder="Ex: Lucas Albuquerque" />
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-semibold" asp-for="OnboardingInput.PatientBirthDate">Data de Nascimento</label>
+                                        <input type="date" class="form-control" asp-for="OnboardingInput.PatientBirthDate" required />
+                                    </div>
+                                </div>
+                                <div class="alert alert-info text-dark rounded-3 mt-3" style="font-size: 0.85rem; background: hsl(262, 70%, 95%); border: 1px solid var(--color-lavender-light);">
+                                    <i class="fa fa-info-circle me-2 text-primary"></i>A senha inicial do responsável será configurada por padrão como <strong>Parent123!</strong>. O portal da família será liberado automaticamente após a conclusão.
+                                </div>
+                            </div>
+
+                            <!-- Wizard Buttons -->
+                            <div class="d-flex justify-content-between mt-5 border-top pt-4">
+                                <button type="button" id="btn-prev" class="btn btn-outline-secondary rounded-pill px-4 d-none">
+                                    <i class="fa fa-arrow-left me-2"></i> Voltar
+                                </button>
+                                <span class="flex-grow-1"></span>
+                                <button type="button" id="btn-next" class="btn btn-interactive rounded-pill px-4">
+                                    Próximo <i class="fa fa-arrow-right ms-2"></i>
+                                </button>
+                                <button type="submit" id="btn-submit" class="btn btn-success rounded-pill px-4 d-none btn-interactive" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                                    <i class="fa fa-check me-2"></i> Concluir e Iniciar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (CurrentUser.IsAuthenticated)
+        {
+            <!-- Upgrades & Trial Notice Banner for Clinic Admins -->
+            @if (CurrentUser.IsInRole("admin") && Model.Subscription != null)
+            {
+                @if (Model.Subscription.Status == "ActiveTrial")
+                {
+                    var daysLeft = (Model.Subscription.TrialEndDate.HasValue) ? Math.Max(0, (Model.Subscription.TrialEndDate.Value - DateTime.UtcNow).Days) : 14;
+                    <div class="alert shadow-sm rounded-4 mb-4 p-3 animate-fade-in d-flex flex-column flex-sm-row justify-content-between align-items-sm-center" style="background: linear-gradient(135deg, hsl(262, 70%, 95%) 0%, hsl(168, 76%, 95%) 100%); border: 1px dashed var(--color-lavender-base);">
+                        <div class="d-flex align-items-center mb-2 mb-sm-0">
+                            <span class="fs-3 me-3">🎁</span>
+                            <div>
+                                <h6 class="fw-bold mb-1" style="color: var(--color-lavender-dark);">Período de Avaliação Gratuita Ativo (Plano @Model.Subscription.PlanName)</h6>
+                                <p class="mb-0 text-muted text-sm">Sua clínica está no período de testes. Restam <strong>@daysLeft dias</strong>. Ative sua assinatura definitiva hoje para desbloquear faturamento TISS ilimitado.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-interactive btn-sm px-4 rounded-pill mt-2 mt-sm-0" data-bs-toggle="modal" data-bs-target="#UpgradePlanModal">
+                            <i class="fa fa-credit-card me-1"></i> Escolher Plano Definitivo
+                        </button>
+                    </div>
+                }
+                else if (Model.Subscription.Status == "Active")
+                {
+                    <div class="alert shadow-sm rounded-4 mb-4 p-3 d-flex justify-content-between align-items-center" style="background: hsl(168, 76%, 95%); border: 1px solid var(--color-mint-teal-light);">
+                        <span class="text-xs text-muted fw-bold"><i class="fa fa-check-circle text-success me-1"></i> Assinatura WeCare Ativa (Plano @Model.Subscription.PlanName) — Obrigado por apoiar nossa plataforma!</span>
+                        <button type="button" class="btn btn-outline-primary btn-xs rounded-pill" data-bs-toggle="modal" data-bs-target="#UpgradePlanModal">Alterar Plano</button>
+                    </div>
+                }
+            }
+
+            <div class="welcoming-banner shadow-sm mb-4">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div>
+                                <h2 class="mb-1 text-dark fw-bold" style="color: hsl(262, 70%, 30%) !important;">
+                                    @L["Welcome"], <span class="fw-semibold text-primary" style="color: var(--color-mint-teal-base) !important;">@(CurrentUser.Name ?? CurrentUser.UserName ?? "WeCare")</span>!
+                                </h2>
+                                @if (!string.IsNullOrEmpty(Model.ClinicInfo?.WelcomeMessage))
+                                {
+                                    <p class="text-muted mb-0" style="font-size: 0.95rem;">@Model.ClinicInfo.WelcomeMessage</p>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0" style="font-size: 0.95rem;">Acompanhe os atendimentos, agenda e a evolução clínica de seus pacientes em tempo real.</p>
+                                }
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="/Patients" class="btn btn-interactive btn-sm rounded-pill px-3 shadow-none">
+                                    <i class="fa fa-users me-1"></i> Meus Pacientes
+                                </a>
+                                <a href="/Calendar" class="btn btn-sm btn-outline-secondary bg-white rounded-pill px-3 shadow-sm" style="border: 1px solid rgba(0,0,0,0.12); color: #4b5563;">
+                                    <i class="fa fa-calendar me-1"></i> Agenda
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        @if (CurrentUser.IsAuthenticated && Model.Stats != null)
+        {
         <div>
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h4 class="mb-0 text-dark fw-bold">Visão Geral</h4>
@@ -308,12 +506,13 @@ else
                 <!-- Admin Stats -->
                 @if (CurrentUser.IsInRole("admin"))
                 {
-                    <div class="col-md-4 mb-4">
+                    <!-- KPI 1: Total Pacientes -->
+                    <div class="col-md-4 col-xl-2 mb-4">
                         <div class="card bg-gradient-primary border-0 h-100 position-relative overflow-hidden">
                             <div class="card-body position-relative z-1 text-white">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Pacientes Totais</h6>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1" style="font-size: 0.7rem;">Pacientes Totais</h6>
                                         <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalPatients</h2>
                                     </div>
                                     <div class="icon-shape bg-white text-primary rounded-circle shadow">
@@ -321,18 +520,19 @@ else
                                     </div>
                                 </div>
                                 <p class="mt-3 mb-0 text-white-50 text-sm">
-                                    <span class="text-white fw-bold"><i class="fa fa-arrow-up"></i> 3.48%</span> desde o último mês
+                                    <span class="text-white fw-bold"><i class="fa fa-check"></i> Cadastrados</span> na plataforma
                                 </p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-4 mb-4">
+
+                    <!-- KPI 2: Terapeutas -->
+                    <div class="col-md-4 col-xl-2 mb-4">
                         <div class="card bg-gradient-success border-0 h-100 position-relative overflow-hidden">
                             <div class="card-body position-relative z-1 text-white">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Terapeutas</h6>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1" style="font-size: 0.7rem;">Terapeutas</h6>
                                         <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalTherapists</h2>
                                     </div>
                                     <div class="icon-shape bg-white text-success rounded-circle shadow">
@@ -345,103 +545,206 @@ else
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-4 mb-4">
+
+                    <!-- KPI 3: Consultas Hoje -->
+                    <div class="col-md-4 col-xl-2 mb-4">
+                        <div class="card border-0 h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="card-body position-relative z-1 text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-uppercase ls-1 mb-1" style="font-size: 0.7rem; color: rgba(255,255,255,0.6);">Consultas Hoje</h6>
+                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.ConsultationsToday</h2>
+                                    </div>
+                                    <div class="icon-shape bg-white rounded-circle shadow" style="color: #f5576c;">
+                                        <i class="fa fa-calendar-check-o fa-lg"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-3 mb-0 text-sm" style="color: rgba(255,255,255,0.6);">
+                                    <span class="text-white fw-bold"><i class="fa fa-clock-o"></i> Agendadas</span> para hoje
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Consultas este Mês -->
+                    <div class="col-md-4 col-xl-2 mb-4">
                         <div class="card bg-gradient-info border-0 h-100 position-relative overflow-hidden">
                             <div class="card-body position-relative z-1 text-white">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1">Clínicas</h6>
-                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.TotalClinics</h2>
+                                        <h6 class="text-uppercase text-white-50 ls-1 mb-1" style="font-size: 0.7rem;">Consultas / Mês</h6>
+                                        <h2 class="display-4 fw-bold mb-0 text-white">@Model.Stats.ConsultationsThisMonth</h2>
                                     </div>
                                     <div class="icon-shape bg-white text-info rounded-circle shadow">
-                                        <i class="fa fa-hospital-o fa-lg"></i>
+                                        <i class="fa fa-line-chart fa-lg"></i>
                                     </div>
                                 </div>
                                 <p class="mt-3 mb-0 text-white-50 text-sm">
-                                    <span class="text-white fw-bold">Parceiras</span> registradas
+                                    <span class="text-white fw-bold">@Model.Stats.ActivePatientsThisMonth pac.</span> ativos
                                 </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 5: Relatórios Pendentes -->
+                    <div class="col-md-4 col-xl-2 mb-4">
+                        <a href="/PeriodicReports" class="text-decoration-none">
+                            <div class="card border-0 h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);">
+                                <div class="card-body position-relative z-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="text-uppercase ls-1 mb-1" style="font-size: 0.7rem; color: rgba(0,0,0,0.5);">Relatórios Pendentes</h6>
+                                            <h2 class="display-4 fw-bold mb-0 text-dark">@Model.Stats.PendingReports</h2>
+                                        </div>
+                                        <div class="icon-shape bg-white rounded-circle shadow" style="color: #f7971e; position: relative;">
+                                            <i class="fa fa-file-text-o fa-lg"></i>
+                                            @if (Model.Stats.PendingReports > 0)
+                                            {
+                                                <span class="badge bg-danger rounded-pill position-absolute" style="top: -6px; right: -6px; font-size: 0.65rem;">!</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm" style="color: rgba(0,0,0,0.5);">
+                                        @if (Model.Stats.PendingReports > 0)
+                                        {
+                                            <span class="fw-bold text-danger"><i class="fa fa-exclamation-circle"></i> Aguardando assinatura</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-dark"><i class="fa fa-check-circle"></i> Tudo em dia</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Upcoming Sessions (compact list) -->
+                    <div class="col-md-12 col-xl-4 mb-4">
+                        <div class="card border-0 h-100 shadow-sm">
+                            <div class="card-header bg-white border-0 pb-0 pt-3 px-3">
+                                <h6 class="text-uppercase text-muted ls-1 mb-0" style="font-size: 0.7rem;"><i class="fa fa-clock-o me-1"></i> Próximas Sessões de Hoje</h6>
+                            </div>
+                            <div class="card-body px-3 py-2">
+                                @if (Model.Stats.UpcomingConsultationsToday.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var session in Model.Stats.UpcomingConsultationsToday)
+                                        {
+                                            <li class="list-group-item px-0 py-2 border-bottom d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2 text-white fw-bold" style="width: 36px; height: 36px; font-size: 0.85rem; background: linear-gradient(135deg, #4da391 0%, #8c7fcd 100%); flex-shrink: 0;">
+                                                        @session.PatientName.Substring(0, 1)
+                                                    </div>
+                                                    <div>
+                                                        <span class="fw-bold text-dark d-block" style="font-size: 0.88rem; line-height: 1.2;">@session.PatientName</span>
+                                                        <small class="text-muted" style="font-size: 0.75rem;"><i class="fa fa-user-md me-1"></i>@session.TherapistName</small>
+                                                    </div>
+                                                </div>
+                                                <span class="badge bg-light text-dark border rounded-pill fw-bold" style="font-size: 0.75rem;">
+                                                    <i class="fa fa-clock-o me-1 text-primary"></i>@session.DateTime.ToString("HH:mm")
+                                                </span>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-3">
+                                        <div class="text-muted mb-1" style="font-size: 1.5rem;">📅</div>
+                                        <small class="text-muted">Nenhuma sessão agendada para agora.</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Attendance Widget (D3) -->
+                    <div class="col-md-12 col-xl-8 mb-4">
+                        <div class="card border-0 h-100 shadow-sm glass-card">
+                            <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                                <h6 class="text-uppercase text-muted ls-1 mb-0"><i class="fa fa-bar-chart me-1"></i> Frequência Mensal (Últimos 4 Meses)</h6>
+                                <div class="d-none d-sm-flex gap-3 text-xs fw-semibold">
+                                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: var(--color-mint-teal-base);"></span> Presenças</span>
+                                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #ef4444;"></span> Ausências</span>
+                                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #f59e0b;"></span> Cancelados</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column justify-content-around">
+                                @if (Model.Stats.MonthlyAttendanceStats.Any())
+                                {
+                                    @foreach (var stat in Model.Stats.MonthlyAttendanceStats)
+                                    {
+                                        var total = stat.PresentCount + stat.AbsentCount + stat.CancelledCount;
+                                        var presentPct = total > 0 ? Math.Round(((double)stat.PresentCount / total) * 100, 1) : 0;
+                                        var absentPct = total > 0 ? Math.Round(((double)stat.AbsentCount / total) * 100, 1) : 0;
+                                        var cancelledPct = total > 0 ? Math.Round(((double)stat.CancelledCount / total) * 100, 1) : 0;
+
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-bold text-dark" style="font-size: 0.9rem;">@stat.MonthName</span>
+                                                <span class="text-xs text-xs-mobile text-muted">
+                                                    @if (total > 0)
+                                                    {
+                                                        <strong class="text-success" style="color: var(--color-mint-teal-base) !important;">@stat.PresenceRate% Presença</strong>
+                                                        <span>(@stat.PresentCount P, @stat.AbsentCount A, @stat.CancelledCount C)</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Sem atendimentos registrados</span>
+                                                    }
+                                                </span>
+                                            </div>
+                                            <div class="progress" style="height: 14px; border-radius: 20px; background-color: rgba(0,0,0,0.05); overflow: hidden;">
+                                                @if (total > 0)
+                                                {
+                                                    <div class="progress-bar" role="progressbar" style="width: @(presentPct.ToString("G", System.Globalization.CultureInfo.InvariantCulture))%; background-color: var(--color-mint-teal-base); transition: width 0.6s ease;" aria-valuenow="@presentPct" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    <div class="progress-bar" role="progressbar" style="width: @(absentPct.ToString("G", System.Globalization.CultureInfo.InvariantCulture))%; background-color: #ef4444; transition: width 0.6s ease;" aria-valuenow="@absentPct" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    <div class="progress-bar" role="progressbar" style="width: @(cancelledPct.ToString("G", System.Globalization.CultureInfo.InvariantCulture))%; background-color: #f59e0b; transition: width 0.6s ease;" aria-valuenow="@cancelledPct" aria-valuemin="0" aria-valuemax="100"></div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="progress-bar bg-light" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4">
+                                        <div class="text-muted mb-2" style="font-size: 2rem;">📊</div>
+                                        <p class="text-muted">Nenhum dado mensal disponível para exibição.</p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
                 }
 
-                <!-- Quick Access Grid -->
-                <div class="col-12 mt-4">
-                    <h4 class="mb-4 text-dark fw-bold">Acesso Rápido</h4>
-                    <div class="row">
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="/Patients" class="text-decoration-none card-hover-effect">
-                                <div class="card h-100 border-0 shadow-sm">
-                                    <div class="card-body text-center p-4">
-                                        <div class="icon-shape icon-lg bg-gradient-primary text-white rounded-circle shadow mb-3 mx-auto">
-                                            <i class="fa fa-users"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-dark">Pacientes</h5>
-                                        <p class="text-muted text-sm mb-0">Gerencie perfis e históricos</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="/Objectives" class="text-decoration-none card-hover-effect">
-                                <div class="card h-100 border-0 shadow-sm">
-                                    <div class="card-body text-center p-4">
-                                        <div class="icon-shape icon-lg bg-gradient-success text-white rounded-circle shadow mb-3 mx-auto">
-                                            <i class="fa fa-bullseye"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-dark">Objetivos</h5>
-                                        <p class="text-muted text-sm mb-0">Defina metas e planos</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="/Activities" class="text-decoration-none card-hover-effect">
-                                <div class="card h-100 border-0 shadow-sm">
-                                    <div class="card-body text-center p-4">
-                                        <div class="icon-shape icon-lg bg-gradient-warning text-white rounded-circle shadow mb-3 mx-auto">
-                                            <i class="fa fa-tasks"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-dark">Atividades</h5>
-                                        <p class="text-muted text-sm mb-0">Biblioteca de exercícios</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                         <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="/Account/Manage" class="text-decoration-none card-hover-effect">
-                                <div class="card h-100 border-0 shadow-sm">
-                                    <div class="card-body text-center p-4">
-                                        <div class="icon-shape icon-lg bg-secondary text-white rounded-circle shadow mb-3 mx-auto">
-                                            <i class="fa fa-cog"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-dark">Configurações</h5>
-                                        <p class="text-muted text-sm mb-0">Ajuste seu perfil</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
         @if (Model.ClinicInfo != null && HasContactInfo(Model.ClinicInfo))
         {
-            <div class="mt-5">
-                <h4 class="mb-4 text-dark fw-bold"><i class="fa fa-building me-2"></i>Informações da Clínica</h4>
-                <div class="row">
-                    @if (HasAddress(Model.ClinicInfo))
-                    {
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-map-marker me-2 text-primary"></i>Endereço</h6>
-                                    <p class="mb-0">
+            <div class="mt-4 animate-fade-in">
+                <div class="card border-0 shadow-sm glass-card">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <!-- Col 1: Clinic Name & Branding -->
+                            <div class="col-md-3 mb-3 mb-md-0 border-md-end text-center text-md-start">
+                                <h6 class="text-uppercase text-primary fw-bold mb-1" style="font-size: 0.8rem; color: var(--color-mint-teal-base) !important;">
+                                    <i class="fa fa-building me-1"></i> Informações
+                                </h6>
+                                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Contato & Localização</p>
+                            </div>
+                            
+                            <!-- Col 2: Address Details -->
+                            @if (HasAddress(Model.ClinicInfo))
+                            {
+                                <div class="col-md-3 col-sm-6 mb-3 mb-sm-0 border-md-end text-center text-md-start">
+                                    <small class="text-muted d-block" style="font-size: 0.72rem;"><i class="fa fa-map-marker me-1 text-primary"></i> ENDEREÇO</small>
+                                    <span class="text-dark" style="font-size: 0.8rem; line-height: 1.2;">
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.Address))
                                         {
                                             @Model.ClinicInfo.Address
@@ -449,89 +752,310 @@ else
                                             {
                                                 <text>, @Model.ClinicInfo.AddressNumber</text>
                                             }
-                                            <br />
                                         }
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.Neighborhood))
                                         {
-                                            @Model.ClinicInfo.Neighborhood<br />
+                                            <text> - @Model.ClinicInfo.Neighborhood</text>
                                         }
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.City))
                                         {
-                                            @Model.ClinicInfo.City
+                                            <br /><span class="text-muted">@Model.ClinicInfo.City</span>
                                             @if (!string.IsNullOrEmpty(Model.ClinicInfo.State))
                                             {
-                                                <text> - @Model.ClinicInfo.State</text>
+                                                <span class="text-muted"> - @Model.ClinicInfo.State</span>
                                             }
-                                            <br />
                                         }
-                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.ZipCode))
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Col 3: Phone & Email -->
+                            @if (HasContactDetails(Model.ClinicInfo))
+                            {
+                                <div class="col-md-3 col-sm-6 mb-3 mb-sm-0 border-md-end text-center text-md-start">
+                                    <small class="text-muted d-block" style="font-size: 0.72rem;"><i class="fa fa-phone me-1 text-primary"></i> CONTATO</small>
+                                    <span style="font-size: 0.8rem;">
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.Phone))
                                         {
-                                            <text>CEP: @Model.ClinicInfo.ZipCode</text>
+                                            <span class="text-dark d-block"><i class="fa fa-phone me-1 text-muted"></i> @Model.ClinicInfo.Phone</span>
                                         }
-                                    </p>
+                                        @if (!string.IsNullOrEmpty(Model.ClinicInfo.Email))
+                                        {
+                                            <a href="mailto:@Model.ClinicInfo.Email" class="text-decoration-none text-muted d-block"><i class="fa fa-envelope me-1"></i> @Model.ClinicInfo.Email</a>
+                                        }
+                                    </span>
                                 </div>
-                            </div>
-                        </div>
-                    }
+                            }
 
-                    @if (HasContactDetails(Model.ClinicInfo))
-                    {
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-phone me-2 text-primary"></i>Contato</h6>
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Phone))
-                                    {
-                                        <p class="mb-2"><i class="fa fa-phone me-2 text-muted"></i> @Model.ClinicInfo.Phone</p>
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.Email))
-                                    {
-                                        <p class="mb-2"><i class="fa fa-envelope me-2 text-muted"></i> <a href="mailto:@Model.ClinicInfo.Email">@Model.ClinicInfo.Email</a></p>
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.ClinicInfo.WebsiteUrl))
-                                    {
-                                        <p class="mb-0"><i class="fa fa-globe me-2 text-muted"></i> <a href="@Model.ClinicInfo.WebsiteUrl" target="_blank">@Model.ClinicInfo.WebsiteUrl</a></p>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    @if (HasSocialLinks(Model.ClinicInfo))
-                    {
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <h6 class="text-uppercase text-muted ls-1 mb-3"><i class="fa fa-share-alt me-2 text-primary"></i>Redes Sociais</h6>
-                                    <div class="d-flex gap-3 flex-wrap">
+                            <!-- Col 4: Social Media Icons -->
+                            @if (HasSocialLinks(Model.ClinicInfo))
+                            {
+                                <div class="col-md-3 col-sm-12 text-center">
+                                    <small class="text-muted d-block mb-1" style="font-size: 0.72rem;"><i class="fa fa-share-alt me-1 text-primary"></i> REDES SOCIAIS</small>
+                                    <div class="d-flex gap-2 justify-content-center">
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.InstagramUrl))
                                         {
-                                            <a href="@Model.ClinicInfo.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-instagram me-1"></i> Instagram
+                                            <a href="@Model.ClinicInfo.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fa fa-instagram"></i>
                                             </a>
                                         }
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.FacebookUrl))
                                         {
-                                            <a href="@Model.ClinicInfo.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-facebook me-1"></i> Facebook
+                                            <a href="@Model.ClinicInfo.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fa fa-facebook"></i>
                                             </a>
                                         }
                                         @if (!string.IsNullOrEmpty(Model.ClinicInfo.LinkedInUrl))
                                         {
-                                            <a href="@Model.ClinicInfo.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-linkedin me-1"></i> LinkedIn
+                                            <a href="@Model.ClinicInfo.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fa fa-linkedin"></i>
                                             </a>
                                         }
                                     </div>
                                 </div>
-                            </div>
+                            }
                         </div>
-                    }
+                    </div>
+                </div>
+            </div>
+        }
+        }
+        else
+        {
+            <!-- HIGH-CONVERSION SAAS LANDING PAGE (P5 GUESTS / VISITOR FUNNEL) -->
+            <div class="welcoming-banner shadow-lg text-center py-5 px-4 mb-5" style="border-radius: 30px; border: 1px solid rgba(255,255,255,0.6);">
+                <div class="container py-4">
+                    <span class="badge bg-white text-primary border rounded-pill px-3 py-2 mb-3 shadow-sm fw-bold">
+                        🚀 Lançamento WeCare SaaS v2.0
+                    </span>
+                    <h1 class="display-4 fw-bold mb-3 text-dark" style="background: linear-gradient(135deg, var(--color-mint-teal-dark) 0%, var(--color-lavender-dark) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5rem; line-height: 1.2;">
+                        Gestão Inteligente & Evolução Clínica em Autismo e Terapia ABA
+                    </h1>
+                    <p class="lead text-muted mx-auto mb-4" style="max-width: 800px; font-size: 1.05rem;">
+                        A plataforma digital definitiva para clínicas de desenvolvimento infantil, terapeutas e famílias. Acompanhe objetivos terapêuticos, automatize guias TISS, emita relatórios evolutivos e engaje os responsáveis em tempo real.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <button type="button" class="btn btn-interactive btn-lg px-4" data-bs-toggle="modal" data-bs-target="#RegisterTrialModal">
+                            <i class="fa fa-rocket me-2"></i> Criar Minha Clínica (Trial Grátis 14 dias)
+                        </button>
+                        <a href="/Account/Login" class="btn btn-outline-primary btn-lg px-4 bg-white rounded-pill d-inline-flex align-items-center justify-content-center" style="min-height: 44px;">
+                            <i class="fa fa-sign-in me-2"></i> Acessar Minha Conta
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Feature Snapshots -->
+            <div class="row mb-5 text-center">
+                <div class="col-12 mb-4">
+                    <h3 class="fw-bold text-dark">Diferenciais do WeCare</h3>
+                    <p class="text-muted">Tudo o que sua clínica precisa para crescer e reter clientes em um só lugar</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4">
+                        <div class="fs-1 mb-3">📅</div>
+                        <h5 class="fw-bold text-dark" style="font-size: 1.1rem;">Agenda Terapêutica</h5>
+                        <p class="text-xs text-muted mb-0">Grade de atendimento multi-profissional com lembretes automáticos e controle de faltas.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4">
+                        <div class="fs-1 mb-3">🧠</div>
+                        <h5 class="fw-bold text-dark" style="font-size: 1.1rem;">Evolução de Objetivos</h5>
+                        <p class="text-xs text-muted mb-0">Trace metas terapêuticas (ABA) e registre o avanço de marcos clínicos por gráfico.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4">
+                        <div class="fs-1 mb-3">💳</div>
+                        <h5 class="fw-bold text-dark" style="font-size: 1.1rem;">Faturamento TISS XML</h5>
+                        <p class="text-xs text-muted mb-0">Lotes de guias gerados automaticamente a partir das sessões para envio rápido aos convênios.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4">
+                        <div class="fs-1 mb-3">🌸</div>
+                        <h5 class="fw-bold text-dark" style="font-size: 1.1rem;">Home Guidance</h5>
+                        <p class="text-xs text-muted mb-0">Orientação prática contextual para que os pais reforcem os treinos terapêuticos em casa.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SaaS Pricing Plans (Tabela de Planos) -->
+            <div class="row mb-5 justify-content-center">
+                <div class="col-12 text-center mb-5">
+                    <h3 class="fw-bold text-dark"><i class="fa fa-credit-card me-2 text-primary"></i>Planos de Assinatura Simplificados</h3>
+                    <p class="text-muted text-sm">Escolha o plano ideal para o tamanho da sua clínica. Todos incluem 14 dias de teste grátis.</p>
+                </div>
+                
+                <!-- Plano Bronze -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4 d-flex flex-column">
+                        <h4 class="fw-bold text-dark mb-1">Plano Bronze</h4>
+                        <p class="text-xs text-muted">Ideal para Terapeutas Autônomos</p>
+                        <div class="my-4">
+                            <span class="display-6 fw-bold text-dark">R$ 199</span>
+                            <span class="text-muted">/mês</span>
+                        </div>
+                        <ul class="list-unstyled text-sm text-start mb-5 flex-grow-1">
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> 1 Profissional / Terapeuta</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Até 5 Pacientes cadastrados</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Objetivos Terapêuticos e Evoluções</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Prontuário Clínico & Timeline</li>
+                            <li class="mb-2 text-muted text-decoration-line-through"><i class="fa fa-times me-2"></i> Faturamento TISS XML</li>
+                        </ul>
+                        <button type="button" class="btn btn-outline-primary rounded-pill w-100 OpenRegisterTrialModalButton" data-plan="Bronze">
+                            Experimentar Bronze Grátis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plano Prata (Recomendado) -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 border-primary border-2 shadow p-4 d-flex flex-column position-relative" style="background: rgba(255,255,255,0.9); border-radius: 20px; border: 2px solid var(--color-mint-teal-base) !important;">
+                        <span class="badge rounded-pill position-absolute top-0 end-0 m-3 px-3 py-2 text-white fw-bold" style="background: var(--gradient-welcoming-interactive); font-size: 0.7rem;">MAIS ESCOLHIDO</span>
+                        <h4 class="fw-bold text-dark mb-1">Plano Prata</h4>
+                        <p class="text-xs text-muted">Para Clínicas em Crescimento</p>
+                        <div class="my-4">
+                            <span class="display-6 fw-bold text-primary" style="color: var(--color-mint-teal-base) !important;">R$ 499</span>
+                            <span class="text-muted">/mês</span>
+                        </div>
+                        <ul class="list-unstyled text-sm text-start mb-5 flex-grow-1">
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> <strong>Até 5 Terapeutas</strong> ativos</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> <strong>Pacientes Ilimitados</strong></li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Objetivos Terapêuticos e Evoluções</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> <strong>Faturamento TISS XML</strong> incluso</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Portal da Família (Home Guidance)</li>
+                        </ul>
+                        <button type="button" class="btn btn-interactive rounded-pill w-100 OpenRegisterTrialModalButton" data-plan="Prata">
+                            Experimentar Prata Grátis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plano Ouro -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm glass-card p-4 d-flex flex-column">
+                        <h4 class="fw-bold text-dark mb-1">Plano Ouro</h4>
+                        <p class="text-xs text-muted">Para Clínicas e Redes Consolidadas</p>
+                        <div class="my-4">
+                            <span class="display-6 fw-bold text-dark">Custom</span>
+                            <span class="text-muted">/mês</span>
+                        </div>
+                        <ul class="list-unstyled text-sm text-start mb-5 flex-grow-1">
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Terapeutas & Pacientes Ilimitados</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Faturamento TISS XML Ilimitado</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> <strong>White-Label Completo</strong></li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Multi-tenant Isolado</li>
+                            <li class="mb-2"><i class="fa fa-check text-success me-2"></i> Gerente de Contas Dedicado</li>
+                        </ul>
+                        <button type="button" class="btn btn-outline-primary rounded-pill w-100 OpenRegisterTrialModalButton" data-plan="Ouro">
+                            Falar com Vendas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Trial Modal -->
+            <div class="modal fade" id="RegisterTrialModal" tabindex="-1" aria-labelledby="RegisterTrialModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                        <div class="modal-header bg-gradient-primary text-white border-0 p-4" style="background: var(--gradient-welcoming-interactive); color: white;">
+                            <h5 class="modal-title fw-bold" id="RegisterTrialModalLabel">
+                                <i class="fa fa-rocket me-2"></i>Iniciar Teste Grátis de 14 Dias
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            <form id="registerTrialForm" method="post" asp-page-handler="RegisterTrial">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark">Plano Escolhido</label>
+                                    <select class="form-select" asp-for="TrialInput.SelectedPlan" id="TrialInput_SelectedPlan" required>
+                                        <option value="Bronze">Plano Bronze - R$ 199/mês</option>
+                                        <option value="Prata">Plano Prata (Recomendado) - R$ 499/mês</option>
+                                        <option value="Ouro">Plano Ouro (Enterprise) - Sob Consulta</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark">Nome da Clínica</label>
+                                    <input type="text" class="form-control" asp-for="TrialInput.ClinicName" required placeholder="Ex: Clínica Evoluir ABA" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark">CNPJ / CPF da Clínica</label>
+                                    <input type="text" class="form-control" asp-for="TrialInput.CNPJ" placeholder="Ex: 00.000.000/0000-00" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark">E-mail do Administrador (Login)</label>
+                                    <input type="email" class="form-control" asp-for="TrialInput.AdminEmailAddress" required placeholder="Ex: admin@clinicaevoluir.com" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-dark">Senha de Acesso</label>
+                                    <input type="password" class="form-control" asp-for="TrialInput.AdminPassword" required placeholder="Digite uma senha forte" minlength="6" />
+                                    <small class="text-muted">Utilize pelo menos 6 caracteres contendo letras e números.</small>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-interactive rounded-pill px-4">
+                                        Iniciar Avaliação Grátis <i class="fa fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
     }
+    }
 }
+
+<!-- Upgrade Subscription Plan Modal -->
+<div class="modal fade" id="UpgradePlanModal" tabindex="-1" aria-labelledby="UpgradePlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="border: none;">
+            <div class="modal-header bg-gradient-primary text-white border-0 p-4" style="background: var(--gradient-welcoming-interactive); color: white;">
+                <h5 class="modal-title fw-bold" id="UpgradePlanModalLabel">
+                    <i class="fa fa-credit-card me-2"></i>Upgrade e Assinatura - Gestão do Plano
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <form id="upgradePlanForm" method="post" asp-page-handler="UpgradePlan">
+                    <input type="hidden" name="planName" id="UpgradePlanNameInput" value="Prata" />
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 p-3 border-0 shadow-sm rounded-4 upgrade-plan-select-card active" data-plan="Bronze" style="cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">Plano Bronze</h5>
+                                    <span class="badge bg-light text-primary border rounded-pill">R$ 199/mês</span>
+                                </div>
+                                <p class="text-muted text-xs mt-2 mb-0">Perfeito para terapeutas independentes. Até 5 pacientes ativos.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 p-3 border-primary shadow-sm rounded-4 upgrade-plan-select-card" data-plan="Prata" style="cursor: pointer; border: 2px solid var(--color-mint-teal-base) !important; transition: all 0.3s ease;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0 text-primary">Plano Prata</h5>
+                                    <span class="badge text-white rounded-pill" style="background: var(--color-mint-teal-base);">R$ 499/mês</span>
+                                </div>
+                                <p class="text-muted text-xs mt-2 mb-0">Pacientes ilimitados e até 5 terapeutas ativos. Inclui faturamento TISS XML.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info text-dark rounded-3 mb-4" style="font-size: 0.88rem; background: hsl(168, 76%, 95%); border: 1px solid var(--color-mint-teal-light);">
+                        <i class="fa fa-info-circle me-2 text-primary"></i>Simulador de Pagamento Stripe/Gateway Integrado: Ao clicar no botão abaixo, a assinatura é simulada e ativada imediatamente na base de dados para homologação clínica!
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-interactive rounded-pill px-4">
+                            Confirmar e Ativar Plano <i class="fa fa-check ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Common Parent Signature Modal (For Dashboard clickwrap signature) -->
 <div class="modal fade" id="parentSignatureModal" tabindex="-1" aria-labelledby="parentSignatureModalLabel" aria-hidden="true">

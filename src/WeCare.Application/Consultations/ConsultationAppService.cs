@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -32,19 +32,22 @@ namespace WeCare.Consultations
         private readonly IRepository<Responsible, Guid> _responsibleRepository;
         private readonly IRepository<Guest, Guid> _guestRepository;
         private readonly IClinicAppService _clinicAppService;
+        private readonly IRepository<WeCare.Billing.BillingGuide, Guid> _billingGuideRepository;
 
         public ConsultationAppService(
             IRepository<Consultation, Guid> repository,
             IRepository<Therapist, Guid> therapistRepository,
             IRepository<Responsible, Guid> responsibleRepository,
             IRepository<Guest, Guid> guestRepository,
-            IClinicAppService clinicAppService)
+            IClinicAppService clinicAppService,
+            IRepository<WeCare.Billing.BillingGuide, Guid> billingGuideRepository)
             : base(repository)
         {
             _therapistRepository = therapistRepository;
             _responsibleRepository = responsibleRepository;
             _guestRepository = guestRepository;
             _clinicAppService = clinicAppService;
+            _billingGuideRepository = billingGuideRepository;
 
             GetPolicyName = WeCarePermissions.Consultations.Default;
             GetListPolicyName = WeCarePermissions.Consultations.Default;
@@ -241,6 +244,19 @@ namespace WeCare.Consultations
             }
 
             await Repository.UpdateAsync(consultation, autoSave: true);
+
+            // Auto-generate a Billing Guide for this completed consultation
+            var guide = new WeCare.Billing.BillingGuide(
+                GuidGenerator.Create(),
+                consultation.Id,
+                "Amil",
+                "1234567890123456",
+                "AUT-" + GuidGenerator.Create().ToString().Substring(0, 6).ToUpper(),
+                180.00m,
+                "Pending",
+                CurrentTenant.Id
+            );
+            await _billingGuideRepository.InsertAsync(guide, autoSave: true);
 
             return ObjectMapper.Map<Consultation, ConsultationDto>(consultation);
         }

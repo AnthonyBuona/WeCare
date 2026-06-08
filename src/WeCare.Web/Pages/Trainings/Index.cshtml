@@ -1,0 +1,43 @@
+@page "/Trainings"
+@using WeCare.Web.Pages.Trainings
+@using WeCare.Localization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<WeCareResource> L
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using WeCare.Permissions
+@section scripts
+{
+    <abp-script src="/Pages/Trainings/index.js" />
+}
+
+<div class="row mb-4 align-items-center justify-content-between">
+    <div class="col-md-6 col-12 mb-3 mb-md-0">
+        <div class="d-flex align-items-center">
+            <div class="icon-shape bg-gradient-success text-white rounded-circle shadow me-3">
+                <i class="fa fa-heartbeat"></i>
+            </div>
+            <div>
+                <h2 class="mb-0 text-dark fw-bold">@L["Trainings"]</h2>
+                <p class="text-muted mb-0">@L["TrainingsSubtitle"]</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12 text-md-end">
+        @if (await AuthorizationService.IsGrantedAsync(WeCarePermissions.Trainings.Create))
+        {
+            <button id="NewTrainingButton" class="btn btn-premium btn-lg px-4 rounded-pill shadow-sm">
+                <i class="fa fa-plus me-2"></i> @L["NewTraining"].Value
+            </button>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <abp-table id="TrainingsTable" class="table align-items-center table-flush table-hover mb-0" />
+        </div>
+    </div>
+</div>

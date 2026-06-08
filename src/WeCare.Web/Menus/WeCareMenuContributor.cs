@@ -158,6 +158,13 @@ public class WeCareMenuContributor : IMenuContributor
             icon: "fa fa-tasks"
         ).RequirePermissions(WeCarePermissions.Activities.Default));
 
+        directories.AddItem(new ApplicationMenuItem(
+            "Trainings",
+            l["Menu:Trainings"],
+            url: "/Trainings",
+            icon: "fa fa-heartbeat"
+        ).RequirePermissions(WeCarePermissions.Trainings.Default));
+
         context.Menu.AddItem(directories);
 
         // ----------------------------------------------------
